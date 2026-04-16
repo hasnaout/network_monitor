@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import Connexion from "./pages/connexion.jsx";
+import Connexion from "./pages/login/connexion.jsx";
 import Home from "./pages/home.jsx";
 import MachinesPage from "./pages/machines.jsx";
 
