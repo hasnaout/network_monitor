@@ -1,0 +1,82 @@
+.connexion-container {
+  display: flex;
+  justify-content: center;   
+  align-items: center;       
+  min-height: 100vh;         
+  background: #f5f7fa;     
+}
+.connexion-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  animation: rise-in 0.75s ease;
+  padding: clamp(28px, 4vw, 38px);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+}
+.connexion-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+.connexion-form{
+  display: grid;
+  gap: 14px;
+}
+
+.connexion-card__header {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.connexion-card__header h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--text-strong);
+}
+.connexion-form .form-group {
+  margin: 0;
+}
+
+.connexion-form .form-group span {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.connexion-form .form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(19, 36, 58, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
+  outline: none;
+}
+
+.connexion-form .form-group input::placeholder {
+  color: rgba(90, 104, 124, 0.8);
+}
+
+.connexion-form .form-group input:focus {
+  border-color: rgba(13, 148, 136, 0.35);
+  box-shadow: 0 0 0 5px rgba(13, 148, 136, 0.12);
+}
+
+.btn-submit {
+  width: 100%;
+  cursor: pointer;
+}
+
+.login-feedback {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .connexion-card {
+    border-radius: 24px;
+    padding: 24px;
+  }
+}
