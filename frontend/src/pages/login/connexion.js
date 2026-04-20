@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import './connexion.css';
 
-const API_URL=import.meta.env.VITE_API_URL;
+const API_URL=import.meta.env.REACT_APP_API_URL;
 
 export default function Connexion({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+console.log(import.meta.env.REACT_APP_API_URL);
   React.useEffect(() => {
     if (localStorage.getItem('access_token')) {
       window.location.hash = '#/';
@@ -26,7 +26,7 @@ export default function Connexion({ onLoginSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_URL}/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,6 +61,7 @@ export default function Connexion({ onLoginSuccess }) {
         <div className="connexion-card__header">
           <h2>Connexion</h2>
         </div>
+        
 
         <form className="connexion-form" onSubmit={handleSubmit}>
           <label className="form-group">

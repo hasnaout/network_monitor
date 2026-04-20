@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import Footer from "../components/Footer.jsx";
-import Header from "../components/Header.jsx";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL =process.env.REACT_APP_API_URL;
 
 const statusRank = {
   Offline: 0,
@@ -18,6 +16,7 @@ function formatDate(value) {
     timeStyle: 'short',
   });
 }
+
 
 function getStatusClass(status) {
   if (status === 'Online') return 'status-pill is-online';
@@ -87,7 +86,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
   return (
     <div className="dashboard-shell">
-      <Header auth={auth} onLogout={onLogout} route={route} />
 
       <main className="dashboard-main">
 
@@ -262,8 +260,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
         </section>
 
       </main>
-
-      <Footer />
     </div>
   );
 }

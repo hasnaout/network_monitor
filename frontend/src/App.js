@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import Connexion from "./pages/login/connexion.jsx";
-import Home from "./pages/home.jsx";
-import MachinesPage from "./pages/machines.jsx";
+import Connexion from "./pages/login/connexion.js"
+import Home from "./pages/dashboard/home.js";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API_URL = process.env.REACT_APP_API_URL
 
 function getCurrentRoute() {
   return window.location.hash || '#/'
@@ -112,16 +111,7 @@ function App() {
     return null;
   }
 
-  if (route === '#/machines/new') {
-    return (
-      <MachinesPage
-        auth={auth}
-        onLogout={handleLogout}
-        onSessionExpired={handleLogout}
-        route={route}
-      />
-    );
-  }
+
 
   return <Home auth={auth} onLogout={handleLogout} onSessionExpired={handleLogout} route={route} />;
 }
