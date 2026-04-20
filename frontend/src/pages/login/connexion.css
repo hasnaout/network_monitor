@@ -1,82 +1,72 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
 .connexion-container {
   display: flex;
-  justify-content: center;   
-  align-items: center;       
-  min-height: 100vh;         
-  background: #f5f7fa;     
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .connexion-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 32px;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
-  animation: rise-in 0.75s ease;
-  padding: clamp(28px, 4vw, 38px);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(20px);
+  background: white;
+  padding: 35px;
+  border-radius: 20px;
+  width: 350px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: fadeIn 0.6s ease;
 }
 .connexion-card h2 {
-  margin: 0;
-  font-family: var(--font-display);
+  text-align: center;
+  margin-bottom: 25px;
+  color: #1e293b;
+}
+.connexion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.form-group span {
+  font-weight: bold;
+  font-size: 14px;
+  color: #334155;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  transition: 0.3s;
+  margin-top: 5px;
+}
+.form-group input:focus {
+  border-color: #20ae8f;
+  box-shadow: 0 0 5px rgba(32, 174, 143, 0.3);
+}
+.btn-submit {
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #20ae8f;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.error-feedback {
+  color: red;
+  font-size: 14px;
   text-align: center;
 }
-
-.connexion-form{
-  display: grid;
-  gap: 14px;
-}
-
-.connexion-card__header {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 28px;
-}
-
-.connexion-card__header h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: var(--text-strong);
-}
-.connexion-form .form-group {
-  margin: 0;
-}
-
-.connexion-form .form-group span {
-  color: var(--text-strong);
-  font-weight: 700;
-}
-
-.connexion-form .form-group input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(19, 36, 58, 0.1);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--text-color);
-  outline: none;
-}
-
-.connexion-form .form-group input::placeholder {
-  color: rgba(90, 104, 124, 0.8);
-}
-
-.connexion-form .form-group input:focus {
-  border-color: rgba(13, 148, 136, 0.35);
-  box-shadow: 0 0 0 5px rgba(13, 148, 136, 0.12);
-}
-
-.btn-submit {
-  width: 100%;
-  cursor: pointer;
-}
-
-.login-feedback {
-  margin-bottom: 0;
-}
-
-@media (max-width: 720px) {
-  .connexion-card {
-    border-radius: 24px;
-    padding: 24px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
