@@ -18,7 +18,7 @@ function App() {
     username: localStorage.getItem('username') || '',
   }));
 
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // ---------------- ROUTE LISTENER ----------------
   useEffect(() => {
@@ -30,64 +30,12 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // ---------------- AUTH VALIDATION ----------------
+  // ---------------- SIMPLE AUTH CHECK ----------------
   useEffect(() => {
-    const controller = new AbortController();
-
-    async function validateSession() {
-      if (!auth.accessToken) {
-        setIsCheckingAuth(false);
-        window.location.hash = '#/connexion';
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_URL}/api/token/refresh/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            refresh: auth.refreshToken,
-          }),
-          signal: controller.signal,
-        });
-
-        // si refresh échoue → logout
-        if (!response.ok) {
-          throw new Error('Session invalide');
-        }
-
-        const data = await response.json();
-
-        setAuth((prev) => ({
-          ...prev,
-          accessToken: data.access,
-        }));
-
-      } catch (error) {
-        console.log("Session expirée");
-
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('username');
-
-        setAuth({
-          accessToken: '',
-          refreshToken: '',
-          username: '',
-        });
-
-        window.location.hash = '#/connexion';
-      } finally {
-        setIsCheckingAuth(false);
-      }
+    if (!auth.accessToken) {
+      window.location.hash = '#/connexion';
     }
-
-    validateSession();
-
-    return () => controller.abort();
-  }, [auth.refreshToken]);
+  }, [auth.accessToken]);
 
   // ---------------- LOGIN ----------------
   const handleLoginSuccess = ({ accessToken, refreshToken, username }) => {
@@ -117,23 +65,26 @@ function App() {
   };
 
   // ---------------- LOADING ----------------
-  if (isCheckingAuth) {
+  if (loading) {
     return (
       <div className="screen-state">
         <div className="screen-card">
           <h2>Chargement...</h2>
-          <p>Vérification de la session utilisateur</p>
+          <p>Initialisation de l'application</p>
         </div>
       </div>
     );
   }
 
-  // ---------------- ROUTING ----------------
-  if (route === '#/connexion' || !auth.accessToken) {
+  // ---------------- ROUTES ----------------
+  if (route === '#/connexion') {
     return <Connexion onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // ---------------- HOME ----------------
+  if (!auth.accessToken) {
+    return <Connexion onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <Home
       auth={auth}
