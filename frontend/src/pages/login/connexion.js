@@ -42,7 +42,7 @@ console.log(import.meta.env.REACT_APP_API_URL);
       onLoginSuccess({
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
-        username: data.username,
+        username,
       });
     } catch (err) {
       if (err instanceof TypeError) {
