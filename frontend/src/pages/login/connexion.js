@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './connexion.css';
 
-const API_URL=import.meta.env.REACT_APP_API_URL;
+const API_URL=process.env.REACT_APP_API_URL;
 
 export default function Connexion({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -26,7 +26,7 @@ console.log(import.meta.env.REACT_APP_API_URL);
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${API_URL}/login/`, {
+      const response = await fetch(`${API_URL}/api/token/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
