@@ -42,7 +42,7 @@ body {
 }
 .form-group input:focus {
   border-color: #20ae8f;
-  box-shadow: 0 0 5px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 0 5px rgba(32, 174, 143, 0.3);
 }
 .btn-submit {
   margin-top: 10px;

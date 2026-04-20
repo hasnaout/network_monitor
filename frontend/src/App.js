@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import Header from './components/Header';
 import Connexion from "./pages/login/connexion.js";
 import Home from "./pages/dashboard/home.js";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import Devices from "./pages/devices/devices.js";
+import DeviceDetail from "./pages/devices/deviceDetail.js";
+import Alerts from "./pages/alerts/alerts.js";
+import Reports from "./pages/reports/reports.js";
 
 function getCurrentRoute() {
   return window.location.hash || '#/connexion';
@@ -18,7 +21,7 @@ function App() {
     username: localStorage.getItem('username') || '',
   }));
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   // ---------------- ROUTE LISTENER ----------------
   useEffect(() => {
@@ -64,6 +67,11 @@ function App() {
     window.location.hash = '#/connexion';
   };
 
+  // ---------------- SESSION EXPIRED ----------------
+  const handleSessionExpired = () => {
+    handleLogout();
+  };
+
   // ---------------- LOADING ----------------
   if (loading) {
     return (
@@ -85,12 +93,52 @@ function App() {
     return <Connexion onLoginSuccess={handleLoginSuccess} />;
   }
 
+  if (route === '#/devices') {
+    return (
+      <>
+        <Header currentRoute={route} onLogout={handleLogout} />
+        <Devices auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} />
+      </>
+    );
+  }
+
+  if (route.startsWith('#/devices/')) {
+    return (
+      <>
+        <Header currentRoute={route} onLogout={handleLogout} />
+        <DeviceDetail auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} route={route} />
+      </>
+    );
+  }
+
+  if (route === '#/alerts') {
+    return (
+      <>
+        <Header currentRoute={route} onLogout={handleLogout} />
+        <Alerts auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} />
+      </>
+    );
+  }
+
+  if (route === '#/reports') {
+    return (
+      <>
+        <Header currentRoute={route} onLogout={handleLogout} />
+        <Reports auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} />
+      </>
+    );
+  }
+
   return (
-    <Home
-      auth={auth}
-      onLogout={handleLogout}
-      route={route}
-    />
+    <>
+      <Header currentRoute={route} onLogout={handleLogout} />
+      <Home
+        auth={auth}
+        onLogout={handleLogout}
+        onSessionExpired={handleSessionExpired}
+        route={route}
+      />
+    </>
   );
 }
 

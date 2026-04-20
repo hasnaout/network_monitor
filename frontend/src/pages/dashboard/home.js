@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
-
+import "./home.css"
 const API_URL =process.env.REACT_APP_API_URL;
-
-const statusRank = {
-  Offline: 0,
-  Maintenance: 1,
-  Online: 2,
-};
 
 function formatDate(value) {
   if (!value) return '—';
@@ -39,7 +33,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/machines`, {
+        const res = await fetch(`${API_URL}/api/devices/`, {
           headers: {
             Authorization: `Bearer ${auth.accessToken}`,
           },
@@ -55,7 +49,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setMachines(data.items || []);
+        setMachines(data.results || []);
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");
@@ -103,25 +97,9 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
             </p>
 
             <div className="hero-actions">
-              {isAuthenticated ? (
-                <>
-                  <span className="welcome-chip">
-                    Connecté : {auth.username}
-                  </span>
-
-                  <a className="primary-link" href="#/machines/new">
-                    + Ajouter une machine
-                  </a>
-
-                  <button className="secondary-button" onClick={onLogout}>
-                    Se déconnecter
-                  </button>
-                </>
-              ) : (
-                <a className="primary-link" href="#/connexion">
-                  Accéder au dashboard
-                </a>
-              )}
+              <span className="welcome-chip">
+                Bienvenue, {auth.username}
+              </span>
             </div>
           </div>
 
@@ -208,7 +186,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
                   <tbody>
                     {machines.slice(0, 6).map(m => (
                       <tr key={m.id}>
-                        <td><strong>{m.name}</strong></td>
+                        <td><a href={`#/devices/${m.id}`} className="device-link"><strong>{m.name}</strong></a></td>
                         <td>{m.ip}</td>
                         <td>{m.location || "—"}</td>
                         <td>
@@ -242,18 +220,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
                   </div>
                 ))
               )}
-            </article>
-
-            <article className="insight-card">
-              <h3>Actions rapides</h3>
-
-              <a className="primary-link" href="#/machines/new">
-                Ajouter une machine
-              </a>
-
-              <a className="secondary-button" href="#/connexion">
-                Gérer la session
-              </a>
             </article>
 
           </aside>

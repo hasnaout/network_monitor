@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import './connexion.css';
+import "./connexion.css";
 
-const API_URL=process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Connexion({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-console.log(import.meta.env.REACT_APP_API_URL);
-  React.useEffect(() => {
-    if (localStorage.getItem('access_token')) {
-      window.location.hash = '#/';
-    }
-  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     if (!username || !password) {
       setError('Veuillez remplir tous les champs');
       return;
@@ -35,21 +30,19 @@ console.log(import.meta.env.REACT_APP_API_URL);
       });
 
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data.detail || 'Connexion impossible');
       }
 
       onLoginSuccess({
-        accessToken: data.access_token,
-        refreshToken: data.refresh_token,
+        accessToken: data.access,
+        refreshToken: data.refresh,
         username,
       });
+
     } catch (err) {
-      if (err instanceof TypeError) {
-        setError("Impossible de joindre le backend");
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -58,39 +51,33 @@ console.log(import.meta.env.REACT_APP_API_URL);
   return (
     <div className="connexion-container">
       <section className="connexion-card">
-        <div className="connexion-card__header">
-          <h2>Connexion</h2>
-        </div>
-        
+        <h2>Connexion</h2>
 
         <form className="connexion-form" onSubmit={handleSubmit}>
-          <label className="form-group">
-            <span>Nom d'utilisateur</span>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="UserName"
-            />
-          </label>
-          <label className="form-group">
-            <span>Mot de passe</span>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-            />
-          </label>
+<label className="form-group">
+  <span>Nom d'utilisateur</span>
+  <input
+    type="text"
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+  />
+</label>
 
-          {error ? <p className="feedback error-feedback login-feedback">{error}</p> : null}
-          <button type="submit" className="btn-submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Connexion...' : 'Se connecter'}
+<label className="form-group">
+  <span>Mot de passe</span>
+  <input
+    type="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+</label>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+
+          <button className="btn-submit" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Connexion..." : "Se connecter"}
           </button>
         </form>
       </section>
-      </div>
+    </div>
   );
 }
