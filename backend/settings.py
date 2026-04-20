@@ -4,13 +4,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from pathlib import Path
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -19,8 +15,8 @@ DEBUG = os.getenv("DEBUG") == "True"
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'users.User'
-# Application definition
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -28,18 +24,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     "corsheaders",
-      "rest_framework",
+    "corsheaders",
+    "rest_framework",
 
     'apps.devices',
     'apps.monitoring',
     'apps.rapport',
     'apps.users'
-
 ]
 
 MIDDLEWARE = [
-     "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,7 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -75,7 +70,8 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'mysql.connector.django',
+        'ENGINE': 'django.db.backends.mysql',
+>>>>>>> b94f9f976d48d086b266b5611436f4f095ea7342
         'NAME': os.getenv("DB_NAME"),
         'USER': os.getenv("DB_USER"),
         'PASSWORD': os.getenv("DB_PASSWORD"),
@@ -83,10 +79,13 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT"),
     }
 }
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:3002",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 # Password validation
@@ -130,3 +129,5 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
