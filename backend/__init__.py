@@ -1,2 +1,1 @@
-import pymysql
-pymysql.install_as_MySQLdb()
+# backend package init
