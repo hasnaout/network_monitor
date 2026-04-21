@@ -46,7 +46,9 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setAlerts(data.results || []);
+        // Normaliser les données
+        const alerts = Array.isArray(data) ? data : (data.results || []);
+        setAlerts(alerts);
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");

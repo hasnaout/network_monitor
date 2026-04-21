@@ -18,7 +18,7 @@ class User(AbstractUser):
         default='viewer'
     )
 
-    phone = models.CharField(max_length=20, null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True, default="")
 
     def __str__(self):
         return f"{self.username} ({self.role})"

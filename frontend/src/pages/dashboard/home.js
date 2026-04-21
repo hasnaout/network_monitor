@@ -13,8 +13,9 @@ function formatDate(value) {
 
 
 function getStatusClass(status) {
-  if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
+  const s = String(status || '').toLowerCase();
+  if (s === 'online') return 'status-pill is-online';
+  if (s === 'maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
@@ -49,7 +50,13 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setMachines(data.results || []);
+        // Normaliser les données : convertir minuscule en majuscule pour les statuts
+        const machines = Array.isArray(data) ? data : (data.results || []);
+        const normalizedMachines = machines.map(m => ({
+          ...m,
+          status: m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'Offline'
+        }));
+        setMachines(normalizedMachines);
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");
@@ -64,9 +71,9 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
   }, [auth.accessToken]);
 
   const total = machines.length;
-  const online = machines.filter(m => m.status === "Online").length;
-  const maintenance = machines.filter(m => m.status === "Maintenance").length;
-  const offline = machines.filter(m => m.status === "Offline").length;
+  const online = machines.filter(m => m.status?.toLowerCase() === "online").length;
+  const maintenance = machines.filter(m => m.status?.toLowerCase() === "maintenance").length;
+  const offline = machines.filter(m => m.status?.toLowerCase() === "offline").length;
 
   const health = total === 0
     ? 100
@@ -75,7 +82,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
   const latest = machines[0];
 
   const critical = machines
-    .filter(m => m.status !== "Online")
+    .filter(m => m.status?.toLowerCase() !== "online")
     .slice(0, 4);
 
   return (

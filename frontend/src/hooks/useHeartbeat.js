@@ -6,15 +6,20 @@ export function useHeartbeat(intervalMs = 30000) {
   const [lastUpdate, setLastUpdate] = useState(null);
 
   useEffect(() => {
-    const fetch = async () => {
-      const res = await fetch('/api/heartbeat/postes');
-      const data = await res.json();
-      setPostes(data);
-      setLastUpdate(new Date());
+    const fetchHeartbeats = async () => {
+      try {
+        const res = await fetch('/api/monitoring/');
+        if (!res.ok) throw new Error('Failed to fetch heartbeats');
+        const data = await res.json();
+        setPostes(data);
+        setLastUpdate(new Date());
+      } catch (err) {
+        console.error('Error fetching heartbeats:', err);
+      }
     };
 
-    fetch();
-    const timer = setInterval(fetch, intervalMs);
+    fetchHeartbeats();
+    const timer = setInterval(fetchHeartbeats, intervalMs);
     return () => clearInterval(timer);
   }, [intervalMs]);
 
