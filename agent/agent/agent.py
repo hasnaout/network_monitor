@@ -15,7 +15,7 @@ import win32event
 import servicemanager
 
 # Je définit l'adresse du serveur central (mon PC = le serveur)
-SERVER_URL = "http://localhost:8000/api/monitoring/ping/"
+SERVER_URL = "http://192.168.120.45:8000/api/monitoring/ping/"
 
 # Je définit l'intervalle d'envoi : toutes les 30 secondes
 INTERVAL = 30

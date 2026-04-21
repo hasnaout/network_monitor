@@ -1,4 +1,4 @@
-('C:\\sfe\\network_monitor\\network_monitor\\agent\\build\\agent\\PYZ-00.pyz',
+('C:\\sfe\\network_monitor\\network_monitor\\agent\\agent\\build\\agent\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
@@ -999,6 +999,22 @@
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pprint.py',
    'PYMODULE'),
+  ('psutil',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\__init__.py',
+   'PYMODULE'),
+  ('psutil._common',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_common.py',
+   'PYMODULE'),
+  ('psutil._ntuples',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_ntuples.py',
+   'PYMODULE'),
+  ('psutil._pswindows',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_pswindows.py',
+   'PYMODULE'),
   ('py_compile',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\py_compile.py',
@@ -1014,6 +1030,11 @@
   ('pydoc_data.topics',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\topics.py',
+   'PYMODULE'),
+  ('pywin32_system32', '-', 'PYMODULE'),
+  ('pywintypes',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\win32\\lib\\pywintypes.py',
    'PYMODULE'),
   ('queue',
    'C:\\Users\\salma '
@@ -1974,6 +1995,22 @@
   ('webbrowser',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\webbrowser.py',
+   'PYMODULE'),
+  ('win32con',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\win32\\lib\\win32con.py',
+   'PYMODULE'),
+  ('win32evtlogutil',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\win32\\lib\\win32evtlogutil.py',
+   'PYMODULE'),
+  ('win32serviceutil',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\win32\\lib\\win32serviceutil.py',
+   'PYMODULE'),
+  ('winerror',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\win32\\lib\\winerror.py',
    'PYMODULE'),
   ('xml',
    'C:\\Users\\salma '

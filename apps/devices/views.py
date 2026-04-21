@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from django.utils import timezone
 from datetime import timedelta
 from .models import Device
+from rest_framework.permissions import IsAdminUser, AllowAny
 from .serializers import DeviceSerializer
 
 class DeviceViewSet(viewsets.ModelViewSet):

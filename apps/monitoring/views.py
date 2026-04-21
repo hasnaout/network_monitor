@@ -2,14 +2,17 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from apps.devices.models import Device
+from rest_framework.permissions import IsAdminUser, AllowAny 
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
 
 class HeartbeatViewSet(viewsets.ModelViewSet):
     queryset = Heartbeat.objects.all()
     serializer_class = HeartbeatSerializer
+    permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'],
+      permission_classes=[AllowAny])
     def ping(self, request):
         mac = request.data.get('mac_address')
         name = request.data.get('name')
