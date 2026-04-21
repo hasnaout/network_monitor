@@ -1,5 +1,6 @@
 // src/services/api.js
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_ORIGIN = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = `${API_ORIGIN.replace(/\/$/, '')}/api`;
 
 class ApiService {
   constructor() {
@@ -82,7 +83,7 @@ class ApiService {
 
   // Users endpoints
   async login(credentials) {
-    const response = await fetch(`${this.baseURL.replace('/api', '')}/api/token/`, {
+    const response = await fetch(`${API_ORIGIN.replace(/\/$/, '')}/api/token/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
