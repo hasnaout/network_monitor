@@ -15,7 +15,7 @@ import win32event
 import servicemanager
 
 # Je définit l'adresse du serveur central (mon PC = le serveur)
-SERVER_URL = "http://192.168.120.45:8000/api/monitoring/ping/"
+SERVER_URL = "http://localhost:8000/api/monitoring/ping/"
 
 # Je définit l'intervalle d'envoi : toutes les 30 secondes
 INTERVAL = 30
@@ -65,7 +65,7 @@ def check_connectivity():
     # Méthode 1 : Par Ping vers le serveur central
     try:
         ping_result = subprocess.run(
-            ["ping", "-n", "1", "192.168.120.45"],
+            ["ping", "-n", "1", "localhost"],
             capture_output=True,
             timeout=5
         )
@@ -77,7 +77,7 @@ def check_connectivity():
     # Méthode 2 : Par requête HTTP vers l'API
     try:
         http_result = requests.get(
-            "http://192.168.120.45:8000/",
+            "http://localhost:8000/",
             timeout=5
         )
         # Si le serveur répond avec code 200 → OK
