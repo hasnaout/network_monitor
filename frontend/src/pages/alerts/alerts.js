@@ -28,6 +28,8 @@ function getAlertTypeClass(alertType) {
   return 'event-pill';
 }
 
+
+
 export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState('');
