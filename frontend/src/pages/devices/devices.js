@@ -14,8 +14,9 @@ function formatDate(value) {
 }
 
 function getStatusClass(status) {
-  if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
+  const s = String(status || '').toLowerCase();
+  if (s === 'online') return 'status-pill is-online';
+  if (s === 'maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
@@ -41,7 +42,26 @@ export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpda
           options: { signal: controller.signal },
         });
 
+<<<<<<< HEAD
+        if (res.status === 401) {
+          onSessionExpired();
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || "Erreur API");
+
+        // Normaliser les données
+        const devices = Array.isArray(data) ? data : (data.results || []);
+        const normalizedDevices = devices.map(d => ({
+          ...d,
+          status: d.status ? d.status.charAt(0).toUpperCase() + d.status.slice(1) : 'Offline'
+        }));
+        setDevices(normalizedDevices);
+=======
         setDevices(getCollection(data).map(normalizeDevice));
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
       } catch (e) {
         if (e.name !== 'AbortError') {
           if (e.status === 401) {

@@ -11,9 +11,9 @@ class Device(models.Model):
     status = models.CharField(max_length=20, default="offline")
     
     # Pour stocker l'utilisateur envoyé par le service Windows
-    last_user = models.CharField(max_length=100, null=True, blank=True)
+    last_user = models.CharField(max_length=100, blank=True, default="")
     
-    location = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=100, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(auto_now=True)
 

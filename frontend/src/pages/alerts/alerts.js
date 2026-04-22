@@ -52,7 +52,22 @@ export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdat
           options: { signal: controller.signal },
         });
 
+<<<<<<< HEAD
+        if (res.status === 401) {
+          onSessionExpired();
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.detail || "Erreur API");
+
+        // Normaliser les données
+        const alerts = Array.isArray(data) ? data : (data.results || []);
+        setAlerts(alerts);
+=======
         setAlerts(getCollection(data));
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
       } catch (e) {
         if (e.name !== 'AbortError') {
           if (e.status === 401) {

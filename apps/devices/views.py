@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from .models import Device
+from rest_framework.permissions import IsAdminUser, AllowAny
 from .serializers import DeviceSerializer
 from apps.monitoring.services import mark_stale_devices_offline
 

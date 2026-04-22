@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from apps.devices.models import Device
+from rest_framework.permissions import IsAdminUser, AllowAny 
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
 from .services import create_device_alert, mark_stale_devices_offline
@@ -9,8 +10,10 @@ from .services import create_device_alert, mark_stale_devices_offline
 class HeartbeatViewSet(viewsets.ModelViewSet):
     queryset = Heartbeat.objects.all()
     serializer_class = HeartbeatSerializer
+    permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'],
+      permission_classes=[AllowAny])
     def ping(self, request):
         mark_stale_devices_offline()
 

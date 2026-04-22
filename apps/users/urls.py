@@ -1,6 +1,2 @@
-from django.urls import path
-from .views import login_view
-
-urlpatterns = [
-    path('login/', login_view),
-]
+# URLs for users app are handled by the REST framework router in backend/urls.py
+# No additional URLs needed here
