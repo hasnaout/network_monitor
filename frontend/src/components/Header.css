@@ -25,8 +25,8 @@
 }
 
 .logo-icon {
-  font-size: 1.35rem;
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  font-size: 2rem;
+  background: linear-gradient(135deg, #16a34a 0%, #b0efc7 100%);
   width: 54px;
   height: 54px;
   border-radius: 16px;
@@ -35,6 +35,13 @@
   justify-content: center;
   color: #f8fafc;
   box-shadow: 0 12px 28px rgba(22, 163, 74, 0.35);
+}
+
+.logo-img {
+  width: 150px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
 }
 
 .logo-text h1 {
@@ -228,6 +235,11 @@
 
   .logo-text h1 {
     font-size: 1.1rem;
+  }
+
+  .logo-img {
+    width: 150px;
+    height: 100px;
   }
 
   .logo-text span,

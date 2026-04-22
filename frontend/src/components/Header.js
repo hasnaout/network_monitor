@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHome, FiServer, FiBell, FiLogOut, FiShield, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import './Header.css';
 
 export default function Header({ currentRoute, onLogout }) {
@@ -19,7 +19,11 @@ export default function Header({ currentRoute, onLogout }) {
       <div className="header-container">
         <div className="header-logo">
           <div className="logo-icon">
-            <FiShield />
+            <img
+              src={`${process.env.PUBLIC_URL}/logo.png`}
+              alt="NetworkMonitor"
+              className="logo-img"
+            />
           </div>
           <div className="logo-text">
             <h1>NetworkMonitor</h1>
