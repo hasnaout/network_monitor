@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
+import { getCollection } from "../../utils/apiData";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -39,7 +40,7 @@ export default function Reports({ auth, onLogout, onSessionExpired }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setReports(data.results || []);
+        setReports(getCollection(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");
@@ -51,7 +52,7 @@ export default function Reports({ auth, onLogout, onSessionExpired }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken]);
+  }, [auth.accessToken, onSessionExpired]);
 
   const exportToCSV = () => {
     if (reports.length === 0) return;

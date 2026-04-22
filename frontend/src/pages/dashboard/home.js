@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import "./home.css"
+import { getCollection, normalizeDevice } from "../../utils/apiData";
 const API_URL =process.env.REACT_APP_API_URL;
 
 function formatDate(value) {
@@ -22,8 +23,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  const isAuthenticated = Boolean(auth?.accessToken);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -49,7 +48,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setMachines(data.results || []);
+        setMachines(getCollection(data).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");
@@ -61,7 +60,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken]);
+  }, [auth.accessToken, onSessionExpired]);
 
   const total = machines.length;
   const online = machines.filter(m => m.status === "Online").length;

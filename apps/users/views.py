@@ -7,6 +7,7 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API pour les utilisateurs

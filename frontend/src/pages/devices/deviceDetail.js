@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
+import { normalizeDevice } from "../../utils/apiData";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -46,7 +47,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
         if (!res.ok) throw new Error("Équipement non trouvé");
 
         const data = await res.json();
-        setDevice(data);
+        setDevice(normalizeDevice(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError(e.message);
@@ -58,7 +59,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
 
     if (deviceId) load();
     return () => controller.abort();
-  }, [auth.accessToken, deviceId]);
+  }, [auth.accessToken, deviceId, onSessionExpired]);
 
   if (isLoading) return <div className="screen-state"><h2>Chargement...</h2></div>;
   if (error) return <div className="screen-state"><h2>Erreur: {error}</h2></div>;

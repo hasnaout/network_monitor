@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css"; // Reuse styles
+import { getCollection, normalizeDevice } from "../../utils/apiData";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -46,7 +47,7 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
 
         if (!res.ok) throw new Error(data.detail || "Erreur API");
 
-        setDevices(data.results || []);
+        setDevices(getCollection(data).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
           setError("Impossible de joindre le serveur.");
@@ -58,7 +59,7 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken]);
+  }, [auth.accessToken, onSessionExpired]);
 
   return (
     <div className="dashboard-shell">
