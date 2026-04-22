@@ -82,11 +82,9 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
       <main className="dashboard-main">
 
-        {/* 🔥 HERO PRO */}
         <section className="hero-panel hero-panel--split">
           
           <div className="hero-copy-block">
-            <p className="eyebrow">Network Operations Center</p>
 
             <h2>Surveillance centralisée du parc informatique</h2>
 
@@ -102,7 +100,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
             </div>
           </div>
 
-          {/* 🔥 SUMMARY CARD */}
           <aside className="hero-sidecard">
             <span className="section-label">Health Overview</span>
 
@@ -117,40 +114,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
               <div><span>Maintenance</span><strong>{maintenance}</strong></div>
               <div><span>Offline</span><strong>{offline}</strong></div>
             </div>
-
-            <p className="hero-note">
-              {latest
-                ? `Dernière activité : ${latest.name} (${formatDate(latest.created_at)})`
-                : "Aucune donnée disponible"}
-            </p>
           </aside>
-        </section>
-
-        {/* 🔥 STATS */}
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Disponibilité système</p>
-            <p className="stat-value">{health}%</p>
-            <p className="stat-detail">Calcul basé sur l’état global du parc</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Machines actives</p>
-            <p className="stat-value">{online}</p>
-            <p className="stat-detail">En fonctionnement normal</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Incidents</p>
-            <p className="stat-value">{offline + maintenance}</p>
-            <p className="stat-detail">Demandent une attention</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Inventaire</p>
-            <p className="stat-value">{total}</p>
-            <p className="stat-detail">Machines enregistrées</p>
-          </div>
         </section>
 
         {/* 🔥 TABLE + SIDEBAR */}
