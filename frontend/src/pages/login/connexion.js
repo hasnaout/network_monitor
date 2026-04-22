@@ -60,6 +60,7 @@ export default function Connexion({ onLoginSuccess }) {
     type="text"
     value={username}
     onChange={(e) => setUsername(e.target.value)}
+    autoComplete="username"
   />
 </label>
 
@@ -69,6 +70,7 @@ export default function Connexion({ onLoginSuccess }) {
     type="password"
     value={password}
     onChange={(e) => setPassword(e.target.value)}
+    autoComplete="current-password"
   />
 </label>
           {error && <p style={{ color: 'red' }}>{error}</p>}

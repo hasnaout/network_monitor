@@ -1,12 +1,16 @@
-# J'importe toutes les bibliothèques dont j'ai besoin
-import socket        # Pour récupérer le nom du PC et l'adresse IP
-import uuid          # Pour récupérer l'adresse MAC
-import requests      # Pour envoyer les données au serveur
-import time          # Pour faire des pauses entre chaque envoi
-import subprocess    # Pour exécuter la commande ping
-import getpass       # Pour récupérer l'utilisateur connecté
-from datetime import datetime  # Pour l'horodatage
+# J'importe toutes les bibliotheques dont j'ai besoin
+import getpass
+import json
+import os
+import socket
+import subprocess
+import time
+import uuid
+from datetime import datetime
+from urllib.parse import urlparse
+
 import psutil
+<<<<<<< HEAD
 import os            # Pour les variables d'environnement
 from dotenv import load_dotenv  # Pour charger .env
 
@@ -17,25 +21,55 @@ load_dotenv()
 import win32serviceutil
 import win32service
 import win32event
+=======
+import requests
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
 import servicemanager
+import win32event
+import win32service
+import win32serviceutil
 
+<<<<<<< HEAD
 # Je définit l'adresse du serveur central (configurable via .env)
 SERVER_URL = os.getenv("SERVER_URL", "http://localhost:8000/api/monitoring/ping/")
 
 # Je définit l'intervalle d'envoi : toutes les 30 secondes
+=======
+DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/monitoring/ping/"
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agent.config.json")
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
 INTERVAL = 30
 
-# ============================================================
-# FONCTIONS DE COLLECTE DES INFORMATIONS DU POSTE
-# ============================================================
+
+def load_config():
+    try:
+        with open(CONFIG_FILE, "r", encoding="utf-8") as stream:
+            return json.load(stream)
+    except Exception:
+        return {}
+
+
+def get_server_url():
+    config = load_config()
+    return config.get("server_url") or os.getenv("NETWORK_MONITOR_SERVER_URL") or DEFAULT_SERVER_URL
+
+
+def get_server_base_url():
+    parsed = urlparse(get_server_url())
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def get_server_host():
+    return urlparse(get_server_url()).hostname or "127.0.0.1"
+
 
 def get_pc_name():
-    # Je récupère le nom du PC depuis Windows
     return socket.gethostname()
 
+
 def get_ip():
-    # Je récupère l'adresse IP locale du PC
     try:
+<<<<<<< HEAD
         # Je crée une connexion temporaire vers Google
         # pour trouver quelle interface réseau est utilisée
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -45,44 +79,57 @@ def get_ip():
         return ip
     except socket.error as e:
         # Si ça échoue, je retourne "inconnu"
+=======
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        ip_address = sock.getsockname()[0]
+        sock.close()
+        return ip_address
+    except Exception:
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
         return "inconnu"
+
 
 def get_mac():
-    # Je récupère l'adresse MAC de la carte réseau
-    # uuid.getnode() retourne l'adresse MAC en nombre entier
-    # Je la convertis en format AA:BB:CC:DD:EE:FF
-    mac = ':'.join(['{:02x}'.format(
-        (uuid.getnode() >> elements) & 0xff)
-        for elements in range(0, 2*6, 8)][::-1])
-    return mac
+    return ":".join(
+        ["{:02x}".format((uuid.getnode() >> offset) & 0xFF) for offset in range(0, 2 * 6, 8)][::-1]
+    )
+
 
 def get_user():
-    # Je récupère le nom de l'utilisateur actuellement connecté
     try:
         return getpass.getuser()
+<<<<<<< HEAD
     except Exception as e:
+=======
+    except Exception:
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
         return "inconnu"
 
-def check_connectivity():
-    # Je vérifie la connectivité réseau de deux façons
-    # comme demandé dans le cahier des charges
 
-    # Méthode 1 : Par Ping vers le serveur central
+def check_connectivity():
     try:
         ping_result = subprocess.run(
+<<<<<<< HEAD
             ["ping", "-n", "1", "localhost"],
+=======
+            ["ping", "-n", "1", get_server_host()],
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
             capture_output=True,
-            timeout=5
+            timeout=5,
         )
-        # Si le ping répond → returncode = 0
         ping_ok = ping_result.returncode == 0
+<<<<<<< HEAD
     except subprocess.TimeoutExpired:
         ping_ok = False
     except Exception as e:
+=======
+    except Exception:
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
         ping_ok = False
 
-    # Méthode 2 : Par requête HTTP vers l'API
     try:
+<<<<<<< HEAD
         http_result = requests.get(
             "http://localhost:8000/",
             timeout=5
@@ -92,26 +139,28 @@ def check_connectivity():
     except requests.RequestException as e:
         http_ok = False
     except Exception as e:
+=======
+        http_result = requests.get(get_server_base_url(), timeout=5)
+        http_ok = http_result.status_code == 200
+    except Exception:
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
         http_ok = False
 
-    # Si les deux méthodes réussissent → réseau accessible
     if ping_ok and http_ok:
         return "Accessible"
-    else:
-        return "Non accessible"
+    return "Non accessible"
+
 
 def get_cpu():
     return psutil.cpu_percent(interval=1)
 
+
 def get_ram():
-    return psutil.virtual_memory().percent   
+    return psutil.virtual_memory().percent
 
-
-# ============================================================
-# FONCTION D'ENVOI DU HEARTBEAT AU SERVEUR
-# ============================================================
 
 def send_heartbeat():
+<<<<<<< HEAD
     # Je collecte toutes les informations du poste
    data = {
     "name": get_pc_name(),
@@ -130,57 +179,51 @@ def send_heartbeat():
     except requests.RequestException as e:
         # Si l'envoi échoue → le serveur détectera que ce PC
         # est déconnecté après 2 minutes sans signal
+=======
+    data = {
+        "name": get_pc_name(),
+        "mac_address": get_mac(),
+        "ip_address": get_ip(),
+        "connected_user": get_user(),
+        "network_state": check_connectivity(),
+        "timestamp": datetime.now().isoformat(),
+        "cpu_usage": get_cpu(),
+        "ram_usage": get_ram(),
+    }
+
+    try:
+        requests.post(get_server_url(), json=data, timeout=5)
+    except Exception:
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
         pass
 
-# ============================================================
-# CLASSE DU SERVICE WINDOWS
-# ============================================================
 
 class NetworkAgentService(win32serviceutil.ServiceFramework):
-    # Je définis le nom technique du service
     _svc_name_ = "NetworkAgent"
-    
-    # Je définis le nom affiché dans services.msc
     _svc_display_name_ = "Network Monitoring Agent"
-    
-    # Je définis la description affichée dans services.msc
-    _svc_description_ = "Surveille la connectivité réseau et envoie des heartbeats"
+    _svc_description_ = "Surveille la connectivite reseau et envoie des heartbeats"
 
     def __init__(self, args):
-        # J'initialise le service Windows
         win32serviceutil.ServiceFramework.__init__(self, args)
-        # Je crée un événement pour pouvoir arrêter le service proprement
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
         self.running = True
 
     def SvcStop(self):
-        # Cette fonction est appelée quand on arrête le service
-        # Je signale que le service est en train de s'arrêter
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.stop_event)
         self.running = False
 
     def SvcDoRun(self):
-        # Cette fonction est le cœur du service
-        # Elle s'exécute quand le service démarre
         servicemanager.LogMsg(
             servicemanager.EVENTLOG_INFORMATION_TYPE,
             servicemanager.PYS_SERVICE_STARTED,
-            (self._svc_name_, '')
+            (self._svc_name_, ""),
         )
-        
-        # Je lance une boucle infinie tant que le service tourne
+
         while self.running:
-            # J'envoie le heartbeat au serveur
             send_heartbeat()
-            # J'attends 30 secondes avant le prochain envoi
             time.sleep(INTERVAL)
 
-# ============================================================
-# POINT D'ENTRÉE DU PROGRAMME
-# ============================================================
 
-if __name__ == '__main__':
-    # Je lance la gestion des commandes du service Windows
-    # Cela permet d'utiliser : install, start, stop, remove
+if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(NetworkAgentService)

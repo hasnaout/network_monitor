@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHome, FiServer, FiBell, FiBarChart2, FiLogOut, FiShield, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiServer, FiBell, FiLogOut, FiShield, FiMenu, FiX } from 'react-icons/fi';
 import './Header.css';
 
 export default function Header({ currentRoute, onLogout }) {
@@ -39,10 +39,6 @@ export default function Header({ currentRoute, onLogout }) {
           <a href="#/alerts" className={`nav-link ${isActive('#/alerts') ? 'active' : ''}`} onClick={closeMobileMenu}>
             <FiBell className="nav-icon" />
             Alertes
-          </a>
-          <a href="#/reports" className={`nav-link ${isActive('#/reports') ? 'active' : ''}`} onClick={closeMobileMenu}>
-            <FiBarChart2 className="nav-icon" />
-            Rapports
           </a>
         </nav>
 

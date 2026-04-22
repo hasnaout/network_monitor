@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import "./home.css"
+import { getCollection, normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 const API_URL =process.env.REACT_APP_API_URL;
 
 function formatDate(value) {
@@ -19,12 +21,12 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function Home({ auth, onLogout, onSessionExpired, route }) {
+export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate, route }) {
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  const isAuthenticated = Boolean(auth?.accessToken);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -34,13 +36,14 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+          apiUrl: API_URL,
+          auth: { accessToken, refreshToken },
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
 
+<<<<<<< HEAD
         if (res.status === 401) {
           onSessionExpired();
           return;
@@ -57,8 +60,15 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
           status: m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'Offline'
         }));
         setMachines(normalizedMachines);
+=======
+        setMachines(getCollection(data).map(normalizeDevice));
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
@@ -68,7 +78,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   const total = machines.length;
   const online = machines.filter(m => m.status?.toLowerCase() === "online").length;
@@ -79,8 +89,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
     ? 100
     : Math.round(((online + maintenance * 0.6) / total) * 100);
 
-  const latest = machines[0];
-
   const critical = machines
     .filter(m => m.status?.toLowerCase() !== "online")
     .slice(0, 4);
@@ -90,11 +98,9 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
       <main className="dashboard-main">
 
-        {/* 🔥 HERO PRO */}
         <section className="hero-panel hero-panel--split">
           
           <div className="hero-copy-block">
-            <p className="eyebrow">Network Operations Center</p>
 
             <h2>Surveillance centralisée du parc informatique</h2>
 
@@ -110,7 +116,6 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
             </div>
           </div>
 
-          {/* 🔥 SUMMARY CARD */}
           <aside className="hero-sidecard">
             <span className="section-label">Health Overview</span>
 
@@ -125,40 +130,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
               <div><span>Maintenance</span><strong>{maintenance}</strong></div>
               <div><span>Offline</span><strong>{offline}</strong></div>
             </div>
-
-            <p className="hero-note">
-              {latest
-                ? `Dernière activité : ${latest.name} (${formatDate(latest.created_at)})`
-                : "Aucune donnée disponible"}
-            </p>
           </aside>
-        </section>
-
-        {/* 🔥 STATS */}
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Disponibilité système</p>
-            <p className="stat-value">{health}%</p>
-            <p className="stat-detail">Calcul basé sur l’état global du parc</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Machines actives</p>
-            <p className="stat-value">{online}</p>
-            <p className="stat-detail">En fonctionnement normal</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Incidents</p>
-            <p className="stat-value">{offline + maintenance}</p>
-            <p className="stat-detail">Demandent une attention</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Inventaire</p>
-            <p className="stat-value">{total}</p>
-            <p className="stat-detail">Machines enregistrées</p>
-          </div>
         </section>
 
         {/* 🔥 TABLE + SIDEBAR */}

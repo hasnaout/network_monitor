@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css"; // Reuse styles
+import { getCollection, normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -18,10 +20,12 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function Devices({ auth, onLogout, onSessionExpired }) {
+export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -31,13 +35,14 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+          apiUrl: API_URL,
+          auth: { accessToken, refreshToken },
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
 
+<<<<<<< HEAD
         if (res.status === 401) {
           onSessionExpired();
           return;
@@ -54,8 +59,15 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
           status: d.status ? d.status.charAt(0).toUpperCase() + d.status.slice(1) : 'Offline'
         }));
         setDevices(normalizedDevices);
+=======
+        setDevices(getCollection(data).map(normalizeDevice));
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
@@ -65,7 +77,7 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   return (
     <div className="dashboard-shell">

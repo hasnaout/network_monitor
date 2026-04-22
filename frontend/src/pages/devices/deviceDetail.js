@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
+import { normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -13,15 +15,16 @@ function formatDate(value) {
 
 function getStatusClass(status) {
   if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
-export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }) {
+export default function DeviceDetail({ auth, onLogout, onSessionExpired, onTokensUpdate, route }) {
   const deviceId = route.split('/').pop(); // Simple parsing for #/devices/1
   const [device, setDevice] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -31,24 +34,20 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/${deviceId}/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/${deviceId}/`, {
+          apiUrl: API_URL,
+          auth: { accessToken, refreshToken },
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
 
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        if (!res.ok) throw new Error("Équipement non trouvé");
-
-        const data = await res.json();
-        setDevice(data);
+        setDevice(normalizeDevice(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError(e.message);
         }
       } finally {
@@ -58,7 +57,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
 
     if (deviceId) load();
     return () => controller.abort();
-  }, [auth.accessToken, deviceId]);
+  }, [accessToken, refreshToken, deviceId, onSessionExpired, onTokensUpdate]);
 
   if (isLoading) return <div className="screen-state"><h2>Chargement...</h2></div>;
   if (error) return <div className="screen-state"><h2>Erreur: {error}</h2></div>;
@@ -71,17 +70,6 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
           <div className="hero-copy-block">
             <p className="eyebrow">Détails de l'Équipement</p>
             <h2>{device.name}</h2>
-            <p className="hero-copy">
-              Informations détaillées et métriques de l'équipement.
-            </p>
-            <div className="hero-actions">
-              <a className="primary-link" href="#/devices">
-                Retour à la liste
-              </a>
-              <a className="primary-link" href="#/">
-                Dashboard
-              </a>
-            </div>
           </div>
           <aside className="hero-sidecard">
             <span className="section-label">Statut</span>
@@ -96,32 +84,20 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
               <div><span>Localisation</span><strong>{device.location || "—"}</strong></div>
               <div><span>Dernière activité</span><strong>{formatDate(device.last_seen || device.created_at)}</strong></div>
             </div>
-          </aside>
-        </section>
 
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Disponibilité</p>
-            <p className="stat-value">{device.status === 'Online' ? '100%' : '0%'}</p>
-            <p className="stat-detail">Statut actuel</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Adresse MAC</p>
-            <p className="stat-value">{device.mac_address || "—"}</p>
-            <p className="stat-detail">Identifiant physique</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Créé le</p>
-            <p className="stat-value">{formatDate(device.created_at)}</p>
-            <p className="stat-detail">Date d'ajout</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Actions</p>
-            <p className="stat-value">
-              <button className="secondary-button">Modifier</button>
-            </p>
-            <p className="stat-detail">Gérer l'équipement</p>
-          </div>
+
+            <div className="hero-sidecard__grid" style={{ marginTop: '1.5rem' }}>
+              <div><span>Disponibilité</span><strong>{device.status === 'Online' ? '100%' : '0%'}</strong></div>
+              <div><span>Adresse MAC</span><strong>{device.mac_address || "—"}</strong></div>
+              <div><span>Créé le</span><strong>{formatDate(device.created_at)}</strong></div>
+              <div>
+                <span>Actions</span>
+                <strong>
+                  <button className="secondary-button">Modifier</button>
+                </strong>
+              </div>
+            </div>
+          </aside>
         </section>
       </main>
     </div>

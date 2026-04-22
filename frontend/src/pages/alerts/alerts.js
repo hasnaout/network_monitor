@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
+import { getCollection } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
+const REFRESH_INTERVAL_MS = 15000;
 
 function formatDate(value) {
   if (!value) return '—';
@@ -11,13 +14,21 @@ function formatDate(value) {
   });
 }
 
-function getSeverityClass(severity) {
-  if (severity === 'critical') return 'status-pill is-offline';
-  if (severity === 'warning') return 'status-pill is-maintenance';
-  return 'status-pill is-online';
+function getAlertTypeLabel(alertType) {
+  if (alertType === 'device_connected') return 'Connectee';
+  if (alertType === 'device_reconnected') return 'Reconnectee';
+  if (alertType === 'device_disconnected') return 'Deconnectee';
+  return alertType || 'Evenement';
 }
 
-export default function Alerts({ auth, onLogout, onSessionExpired }) {
+function getAlertTypeClass(alertType) {
+  if (alertType === 'device_disconnected') return 'event-pill is-disconnected';
+  if (alertType === 'device_reconnected') return 'event-pill is-reconnected';
+  if (alertType === 'device_connected') return 'event-pill is-connected';
+  return 'event-pill';
+}
+
+export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -25,18 +36,21 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function load() {
-      setIsLoading(true);
+    async function load(showLoader = true) {
+      if (showLoader) {
+        setIsLoading(true);
+      }
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/alerts/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/alerts/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
 
+<<<<<<< HEAD
         if (res.status === 401) {
           onSessionExpired();
           return;
@@ -49,18 +63,32 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
         // Normaliser les données
         const alerts = Array.isArray(data) ? data : (data.results || []);
         setAlerts(alerts);
+=======
+        setAlerts(getCollection(data));
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
-        setIsLoading(false);
+        if (showLoader) {
+          setIsLoading(false);
+        }
       }
     }
 
     load();
-    return () => controller.abort();
-  }, [auth.accessToken]);
+    const intervalId = window.setInterval(() => load(false), REFRESH_INTERVAL_MS);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(intervalId);
+    };
+  }, [auth.accessToken, onSessionExpired]);
 
   return (
     <div className="dashboard-shell">
@@ -69,7 +97,7 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
           <div className="hero-copy-block">
             <h2>Alertes</h2>
             <p className="hero-copy">
-              Surveillance et gestion des incidents système
+              Suivi en direct des connexions, deconnexions et reconnexions
             </p>
           </div>
         </section>
@@ -77,7 +105,7 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
         <section className="table-panel">
           <div className="panel-heading">
             <h3>Alertes ({alerts.length})</h3>
-            <span className="live-badge">Live API</span>
+            <span className="live-badge">Refresh 15s</span>
           </div>
 
           {error && <p className="feedback error-feedback">{error}</p>}
@@ -92,10 +120,9 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                 <thead>
                   <tr>
                     <th>Équipement</th>
-                    <th>Type</th>
+                    <th>Événement</th>
                     <th>Message</th>
-                    <th>Sévérité</th>
-                    <th>Résolu</th>
+                    <th>Statut</th>
                     <th>Date</th>
                   </tr>
                 </thead>
@@ -103,14 +130,13 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                   {alerts.map(a => (
                     <tr key={a.id}>
                       <td><strong>{a.device_name}</strong></td>
-                      <td>{a.alert_type}</td>
-                      <td>{a.message}</td>
                       <td>
-                        <span className={getSeverityClass(a.severity)}>
-                          {a.severity}
+                        <span className={getAlertTypeClass(a.alert_type)}>
+                          {getAlertTypeLabel(a.alert_type)}
                         </span>
                       </td>
-                      <td>{a.is_resolved ? 'Oui' : 'Non'}</td>
+                      <td>{a.message}</td>
+                      <td>{a.is_resolved ? 'Résolue' : 'Active'}</td>
                       <td>{formatDate(a.created_at)}</td>
                     </tr>
                   ))}

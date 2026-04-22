@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from pathlib import Path
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -18,8 +16,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
-
 ALLOWED_HOSTS = ['*']
+
 
 AUTH_USER_MODEL = 'users.User'
 # Application definition
@@ -35,7 +33,6 @@ INSTALLED_APPS = [
 
     'apps.devices',
     'apps.monitoring',
-    'apps.rapport',
     'apps.users',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -45,6 +42,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -75,14 +73,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+DB_ENGINE = (os.getenv("DB_ENGINE") or "mysql").strip().lower()
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -125,10 +125,19 @@ STATIC_URL = 'static/'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+<<<<<<< HEAD
+=======
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://192.168.120.237:3000",
+    "http://192.168.120.237:3001",
+    "http://192.168.120.237:5173",
 ]
 
+<<<<<<< HEAD
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -151,3 +160,10 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 }
+=======
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+>>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5

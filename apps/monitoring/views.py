@@ -5,6 +5,7 @@ from apps.devices.models import Device
 from rest_framework.permissions import IsAdminUser, AllowAny 
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
+from .services import create_device_alert, mark_stale_devices_offline
 
 class HeartbeatViewSet(viewsets.ModelViewSet):
     queryset = Heartbeat.objects.all()
@@ -14,6 +15,8 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'],
       permission_classes=[AllowAny])
     def ping(self, request):
+        mark_stale_devices_offline()
+
         mac = request.data.get('mac_address')
         name = request.data.get('name')
         ip = request.data.get('ip_address')
@@ -27,6 +30,9 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 status=400
             )
 
+        existing_device = Device.objects.filter(mac_address=mac).first()
+        was_offline = existing_device is not None and existing_device.status != 'online'
+
         device, created = Device.objects.update_or_create(
             mac_address=mac,
             defaults={
@@ -36,6 +42,21 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 'status': 'online',
             }
         )
+
+        if created:
+            create_device_alert(
+                device=device,
+                alert_type='device_connected',
+                message=f"La machine {device.name} a ete detectee et ajoutee.",
+                severity='info',
+            )
+        elif was_offline:
+            create_device_alert(
+                device=device,
+                alert_type='device_reconnected',
+                message=f"La machine {device.name} est reconnectee.",
+                severity='warning',
+            )
 
         Heartbeat.objects.create(
             device=device,
@@ -52,8 +73,11 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
 
 
 class AlertViewSet(viewsets.ModelViewSet):
-    queryset = Alert.objects.all()
     serializer_class = AlertSerializer
+
+    def get_queryset(self):
+        mark_stale_devices_offline()
+        return Alert.objects.all()
 
     @action(detail=True, methods=['post'])
     def resolve(self, request, pk=None):
@@ -64,6 +88,7 @@ class AlertViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def open(self, request):
+        mark_stale_devices_offline()
         alerts = Alert.objects.filter(is_resolved=False)
         serializer = self.get_serializer(alerts, many=True)
         return Response(serializer.data)
