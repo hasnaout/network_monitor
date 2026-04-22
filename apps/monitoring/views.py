@@ -85,6 +85,7 @@ class AlertViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def open(self, request):
+        mark_stale_devices_offline()
         alerts = Alert.objects.filter(is_resolved=False)
         serializer = self.get_serializer(alerts, many=True)
         return Response(serializer.data)

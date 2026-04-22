@@ -68,14 +68,6 @@ class ApiService {
   }
 
   // Reports endpoints
-  async getReports() {
-    return this.request('/reports/');
-  }
-
-  async getReport(id) {
-    return this.request(`/reports/${id}/`);
-  }
-
   // Monitoring/Heartbeat endpoints
   async getMonitoring() {
     return this.request('/monitoring/');

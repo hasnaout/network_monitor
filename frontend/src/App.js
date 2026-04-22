@@ -6,7 +6,6 @@ import Home from "./pages/dashboard/home.js";
 import Devices from "./pages/devices/devices.js";
 import DeviceDetail from "./pages/devices/deviceDetail.js";
 import Alerts from "./pages/alerts/alerts.js";
-import Reports from "./pages/reports/reports.js";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const ALERT_POLL_INTERVAL_MS = 15000;
@@ -225,15 +224,6 @@ function App() {
       <>
         <Header currentRoute={route} onLogout={handleLogout} />
         <Alerts auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} onTokensUpdate={handleTokensUpdate} />
-      </>
-    );
-  }
-
-  if (route === '#/reports') {
-    return (
-      <>
-        <Header currentRoute={route} onLogout={handleLogout} />
-        <Reports auth={auth} onLogout={handleLogout} onSessionExpired={handleSessionExpired} onTokensUpdate={handleTokensUpdate} />
       </>
     );
   }

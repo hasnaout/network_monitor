@@ -34,7 +34,6 @@ INSTALLED_APPS = [
 
     'apps.devices',
     'apps.monitoring',
-    'apps.rapport',
     'apps.users',
     'rest_framework',
 ]

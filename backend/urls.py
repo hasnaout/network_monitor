@@ -5,14 +5,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.devices.views import DeviceViewSet
 from apps.monitoring.views import HeartbeatViewSet, AlertViewSet
-from apps.rapport.views import ReportViewSet
 from apps.users.views import UserViewSet
 
 router = DefaultRouter()
 router.register(r'devices', DeviceViewSet, basename='device')
 router.register(r'monitoring', HeartbeatViewSet, basename='monitoring')
 router.register(r'alerts', AlertViewSet, basename='alert')
-router.register(r'reports', ReportViewSet, basename='report')
 router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [

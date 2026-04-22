@@ -7,7 +7,7 @@ from apps.devices.models import Device
 from .models import Alert
 
 
-OFFLINE_THRESHOLD_MINUTES = 2
+OFFLINE_THRESHOLD_MINUTES = 1
 
 
 def create_device_alert(device, alert_type, message, severity="info"):

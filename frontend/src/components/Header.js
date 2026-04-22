@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHome, FiServer, FiBell, FiBarChart2, FiLogOut, FiShield, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiServer, FiBell, FiLogOut, FiShield, FiMenu, FiX } from 'react-icons/fi';
 import './Header.css';
 
 export default function Header({ currentRoute, onLogout }) {
@@ -12,20 +12,6 @@ export default function Header({ currentRoute, onLogout }) {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
-  };
-
-  const enableNotifications = async () => {
-    if (!('Notification' in window)) {
-      console.warn('Notifications not supported by this browser.');
-      return;
-    }
-
-    try {
-      const permission = await Notification.requestPermission();
-      console.info('Notification permission:', permission);
-    } catch (e) {
-      console.warn('Notification permission request failed:', e);
-    }
   };
 
   return (
@@ -54,17 +40,9 @@ export default function Header({ currentRoute, onLogout }) {
             <FiBell className="nav-icon" />
             Alertes
           </a>
-          <a href="#/reports" className={`nav-link ${isActive('#/reports') ? 'active' : ''}`} onClick={closeMobileMenu}>
-            <FiBarChart2 className="nav-icon" />
-            Rapports
-          </a>
         </nav>
 
         <div className="header-actions">
-          <button className="logout-btn" onClick={enableNotifications} title="Activer les notifications desktop">
-            <FiBell className="logout-icon" />
-            Notifications
-          </button>
           <button className="logout-btn" onClick={onLogout}>
             <FiLogOut className="logout-icon" />
             Déconnexion
