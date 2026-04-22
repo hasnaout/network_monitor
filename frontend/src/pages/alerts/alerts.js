@@ -34,6 +34,8 @@ export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdat
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,29 +47,14 @@ export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdat
       setError('');
 
       try {
-        const data = await fetchJsonWithAuth(`${API_URL}/api/alerts/`, {
+        const payload = await fetchJsonWithAuth(`${API_URL}/api/alerts/`, {
           apiUrl: API_URL,
-          auth,
+          auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
 
-<<<<<<< HEAD
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
-
-        // Normaliser les données
-        const alerts = Array.isArray(data) ? data : (data.results || []);
-        setAlerts(alerts);
-=======
-        setAlerts(getCollection(data));
->>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
+        setAlerts(getCollection(payload));
       } catch (e) {
         if (e.name !== 'AbortError') {
           if (e.status === 401) {
@@ -90,7 +77,7 @@ export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdat
       controller.abort();
       window.clearInterval(intervalId);
     };
-  }, [auth.accessToken, onSessionExpired]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   return (
     <div className="dashboard-shell">

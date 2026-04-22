@@ -125,11 +125,8 @@ STATIC_URL = 'static/'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-<<<<<<< HEAD
-=======
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
->>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
+
+
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://192.168.120.237:3000",
@@ -137,7 +134,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.120.237:5173",
 ]
 
-<<<<<<< HEAD
+
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -160,10 +157,4 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 }
-=======
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-}
->>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
+

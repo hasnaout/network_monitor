@@ -35,33 +35,14 @@ export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpda
       setError('');
 
       try {
-        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+        const payload = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
           apiUrl: API_URL,
           auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
 
-<<<<<<< HEAD
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
-
-        // Normaliser les données
-        const devices = Array.isArray(data) ? data : (data.results || []);
-        const normalizedDevices = devices.map(d => ({
-          ...d,
-          status: d.status ? d.status.charAt(0).toUpperCase() + d.status.slice(1) : 'Offline'
-        }));
-        setDevices(normalizedDevices);
-=======
-        setDevices(getCollection(data).map(normalizeDevice));
->>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
+        setDevices(getCollection(payload).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
           if (e.status === 401) {

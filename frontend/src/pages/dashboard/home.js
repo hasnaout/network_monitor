@@ -36,33 +36,14 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
       setError('');
 
       try {
-        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+        const payload = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
           apiUrl: API_URL,
           auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
 
-<<<<<<< HEAD
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
-
-        // Normaliser les données : convertir minuscule en majuscule pour les statuts
-        const machines = Array.isArray(data) ? data : (data.results || []);
-        const normalizedMachines = machines.map(m => ({
-          ...m,
-          status: m.status ? m.status.charAt(0).toUpperCase() + m.status.slice(1) : 'Offline'
-        }));
-        setMachines(normalizedMachines);
-=======
-        setMachines(getCollection(data).map(normalizeDevice));
->>>>>>> 61da80e1d9fe001d2328834aa6f89d7eaee311e5
+        setMachines(getCollection(payload).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
           if (e.status === 401) {
@@ -81,16 +62,16 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
   }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   const total = machines.length;
-  const online = machines.filter(m => m.status?.toLowerCase() === "online").length;
-  const maintenance = machines.filter(m => m.status?.toLowerCase() === "maintenance").length;
-  const offline = machines.filter(m => m.status?.toLowerCase() === "offline").length;
+  const online = machines.filter(m => String(m.status || '').toLowerCase() === "online").length;
+  const maintenance = machines.filter(m => String(m.status || '').toLowerCase() === "maintenance").length;
+  const offline = machines.filter(m => String(m.status || '').toLowerCase() === "offline").length;
 
   const health = total === 0
     ? 100
     : Math.round(((online + maintenance * 0.6) / total) * 100);
 
   const critical = machines
-    .filter(m => m.status?.toLowerCase() !== "online")
+    .filter(m => String(m.status || '').toLowerCase() !== "online")
     .slice(0, 4);
 
   return (
