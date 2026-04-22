@@ -24,6 +24,8 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -35,7 +37,7 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
       try {
         const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
           apiUrl: API_URL,
-          auth,
+          auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
@@ -56,7 +58,7 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken, onSessionExpired]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   const total = machines.length;
   const online = machines.filter(m => m.status === "Online").length;
@@ -66,8 +68,6 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
   const health = total === 0
     ? 100
     : Math.round(((online + maintenance * 0.6) / total) * 100);
-
-  const latest = machines[0];
 
   const critical = machines
     .filter(m => m.status !== "Online")

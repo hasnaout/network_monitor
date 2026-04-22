@@ -23,6 +23,8 @@ export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpda
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -34,7 +36,7 @@ export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpda
       try {
         const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
           apiUrl: API_URL,
-          auth,
+          auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
@@ -55,7 +57,7 @@ export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpda
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken, auth.refreshToken, onSessionExpired, onTokensUpdate]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   return (
     <div className="dashboard-shell">

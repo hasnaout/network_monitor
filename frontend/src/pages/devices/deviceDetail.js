@@ -23,6 +23,8 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, onToken
   const [device, setDevice] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -34,7 +36,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, onToken
       try {
         const data = await fetchJsonWithAuth(`${API_URL}/api/devices/${deviceId}/`, {
           apiUrl: API_URL,
-          auth,
+          auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
@@ -55,7 +57,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, onToken
 
     if (deviceId) load();
     return () => controller.abort();
-  }, [auth.accessToken, auth.refreshToken, deviceId, onSessionExpired, onTokensUpdate]);
+  }, [accessToken, refreshToken, deviceId, onSessionExpired, onTokensUpdate]);
 
   if (isLoading) return <div className="screen-state"><h2>Chargement...</h2></div>;
   if (error) return <div className="screen-state"><h2>Erreur: {error}</h2></div>;

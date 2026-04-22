@@ -16,6 +16,8 @@ export default function Reports({ auth, onLogout, onSessionExpired, onTokensUpda
   const [reports, setReports] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const accessToken = auth?.accessToken;
+  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -27,7 +29,7 @@ export default function Reports({ auth, onLogout, onSessionExpired, onTokensUpda
       try {
         const data = await fetchJsonWithAuth(`${API_URL}/api/reports/`, {
           apiUrl: API_URL,
-          auth,
+          auth: { accessToken, refreshToken },
           onTokensUpdate,
           options: { signal: controller.signal },
         });
@@ -48,7 +50,7 @@ export default function Reports({ auth, onLogout, onSessionExpired, onTokensUpda
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken, auth.refreshToken, onSessionExpired, onTokensUpdate]);
+  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
 
   const exportToCSV = () => {
     if (reports.length === 0) return;
