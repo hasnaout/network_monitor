@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css"; // Reuse styles
 import { getCollection, normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -18,7 +19,7 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function Devices({ auth, onLogout, onSessionExpired }) {
+export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -31,25 +32,20 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
-
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
 
         setDevices(getCollection(data).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
@@ -59,7 +55,7 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken, onSessionExpired]);
+  }, [auth.accessToken, auth.refreshToken, onSessionExpired, onTokensUpdate]);
 
   return (
     <div className="dashboard-shell">

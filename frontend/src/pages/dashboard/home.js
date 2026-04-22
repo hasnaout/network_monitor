@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import "./home.css"
 import { getCollection, normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 const API_URL =process.env.REACT_APP_API_URL;
 
 function formatDate(value) {
@@ -19,7 +20,7 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function Home({ auth, onLogout, onSessionExpired, route }) {
+export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate, route }) {
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -32,25 +33,20 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
-
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
 
         setMachines(getCollection(data).map(normalizeDevice));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {

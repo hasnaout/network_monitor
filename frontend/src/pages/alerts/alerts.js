@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import { getCollection } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 const REFRESH_INTERVAL_MS = 15000;
@@ -11,12 +12,6 @@ function formatDate(value) {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
-}
-
-function getSeverityClass(severity) {
-  if (severity === 'critical') return 'status-pill is-offline';
-  if (severity === 'warning') return 'status-pill is-maintenance';
-  return 'status-pill is-online';
 }
 
 function getAlertTypeLabel(alertType) {
@@ -33,7 +28,7 @@ function getAlertTypeClass(alertType) {
   return 'event-pill';
 }
 
-export default function Alerts({ auth, onLogout, onSessionExpired }) {
+export default function Alerts({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -48,25 +43,20 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/alerts/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/alerts/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
-
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
 
         setAlerts(getCollection(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
@@ -85,10 +75,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
     };
   }, [auth.accessToken, onSessionExpired]);
 
-  const connectedCount = alerts.filter((alert) => alert.alert_type === 'device_connected').length;
-  const reconnectedCount = alerts.filter((alert) => alert.alert_type === 'device_reconnected').length;
-  const disconnectedCount = alerts.filter((alert) => alert.alert_type === 'device_disconnected').length;
-
   return (
     <div className="dashboard-shell">
       <main className="dashboard-main">
@@ -98,24 +84,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
             <p className="hero-copy">
               Suivi en direct des connexions, deconnexions et reconnexions
             </p>
-          </div>
-        </section>
-
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Connectees</p>
-            <p className="stat-value">{connectedCount}</p>
-            <p className="stat-detail">Machines detectees pour la premiere fois</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Reconnectees</p>
-            <p className="stat-value">{reconnectedCount}</p>
-            <p className="stat-detail">Machines revenues en ligne</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Deconnectees</p>
-            <p className="stat-value">{disconnectedCount}</p>
-            <p className="stat-detail">Machines passees hors ligne</p>
           </div>
         </section>
 
@@ -139,7 +107,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                     <th>Équipement</th>
                     <th>Événement</th>
                     <th>Message</th>
-                    <th>Sévérité</th>
                     <th>Statut</th>
                     <th>Date</th>
                   </tr>
@@ -154,11 +121,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                         </span>
                       </td>
                       <td>{a.message}</td>
-                      <td>
-                        <span className={getSeverityClass(a.severity)}>
-                          {a.severity}
-                        </span>
-                      </td>
                       <td>{a.is_resolved ? 'Résolue' : 'Active'}</td>
                       <td>{formatDate(a.created_at)}</td>
                     </tr>

@@ -14,6 +14,20 @@ export default function Header({ currentRoute, onLogout }) {
     setIsMobileMenuOpen(false);
   };
 
+  const enableNotifications = async () => {
+    if (!('Notification' in window)) {
+      console.warn('Notifications not supported by this browser.');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      console.info('Notification permission:', permission);
+    } catch (e) {
+      console.warn('Notification permission request failed:', e);
+    }
+  };
+
   return (
     <header className="app-header">
       <div className="header-container">
@@ -47,6 +61,10 @@ export default function Header({ currentRoute, onLogout }) {
         </nav>
 
         <div className="header-actions">
+          <button className="logout-btn" onClick={enableNotifications} title="Activer les notifications desktop">
+            <FiBell className="logout-icon" />
+            Notifications
+          </button>
           <button className="logout-btn" onClick={onLogout}>
             <FiLogOut className="logout-icon" />
             Déconnexion

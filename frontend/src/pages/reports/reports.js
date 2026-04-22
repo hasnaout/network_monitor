@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import { getCollection } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -11,7 +12,7 @@ function formatDate(value) {
   });
 }
 
-export default function Reports({ auth, onLogout, onSessionExpired }) {
+export default function Reports({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -24,25 +25,20 @@ export default function Reports({ auth, onLogout, onSessionExpired }) {
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/reports/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/reports/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
-
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.detail || "Erreur API");
 
         setReports(getCollection(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError("Impossible de joindre le serveur.");
         }
       } finally {
@@ -52,7 +48,7 @@ export default function Reports({ auth, onLogout, onSessionExpired }) {
 
     load();
     return () => controller.abort();
-  }, [auth.accessToken, onSessionExpired]);
+  }, [auth.accessToken, auth.refreshToken, onSessionExpired, onTokensUpdate]);
 
   const exportToCSV = () => {
     if (reports.length === 0) return;

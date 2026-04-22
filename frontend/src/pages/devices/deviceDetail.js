@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import { normalizeDevice } from "../../utils/apiData";
+import { fetchJsonWithAuth } from "../../utils/authFetch";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -17,7 +18,7 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }) {
+export default function DeviceDetail({ auth, onLogout, onSessionExpired, onTokensUpdate, route }) {
   const deviceId = route.split('/').pop(); // Simple parsing for #/devices/1
   const [device, setDevice] = useState(null);
   const [error, setError] = useState('');
@@ -31,24 +32,20 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
       setError('');
 
       try {
-        const res = await fetch(`${API_URL}/api/devices/${deviceId}/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-          signal: controller.signal,
+        const data = await fetchJsonWithAuth(`${API_URL}/api/devices/${deviceId}/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate,
+          options: { signal: controller.signal },
         });
 
-        if (res.status === 401) {
-          onSessionExpired();
-          return;
-        }
-
-        if (!res.ok) throw new Error("Équipement non trouvé");
-
-        const data = await res.json();
         setDevice(normalizeDevice(data));
       } catch (e) {
         if (e.name !== 'AbortError') {
+          if (e.status === 401) {
+            onSessionExpired();
+            return;
+          }
           setError(e.message);
         }
       } finally {
@@ -58,7 +55,7 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
 
     if (deviceId) load();
     return () => controller.abort();
-  }, [auth.accessToken, deviceId, onSessionExpired]);
+  }, [auth.accessToken, auth.refreshToken, deviceId, onSessionExpired, onTokensUpdate]);
 
   if (isLoading) return <div className="screen-state"><h2>Chargement...</h2></div>;
   if (error) return <div className="screen-state"><h2>Erreur: {error}</h2></div>;
