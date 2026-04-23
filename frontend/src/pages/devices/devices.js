@@ -14,7 +14,6 @@ function formatDate(value) {
 
 function getStatusClass(status) {
   if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
@@ -76,7 +75,6 @@ export default function Devices({ auth, onLogout, onSessionExpired }) {
         <section className="table-panel">
           <div className="panel-heading">
             <h3>Équipements ({devices.length})</h3>
-            <span className="live-badge">Live API</span>
           </div>
 
           {error && <p className="feedback error-feedback">{error}</p>}

@@ -12,21 +12,18 @@ function formatDate(value) {
   });
 }
 
-
 function getStatusClass(status) {
   if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
-export default function Home({ auth, onLogout, onSessionExpired, route }) {
+export default function Home({auth, onLogout,onSessionExpired, route }) {
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
-
     async function load() {
       setIsLoading(true);
       setError('');
@@ -64,14 +61,11 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
 
   const total = machines.length;
   const online = machines.filter(m => m.status === "Online").length;
-  const maintenance = machines.filter(m => m.status === "Maintenance").length;
   const offline = machines.filter(m => m.status === "Offline").length;
 
   const health = total === 0
     ? 100
-    : Math.round(((online + maintenance * 0.6) / total) * 100);
-
-  const latest = machines[0];
+    : Math.round((online / total) * 100);
 
   const critical = machines
     .filter(m => m.status !== "Online")
@@ -81,13 +75,9 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
     <div className="dashboard-shell">
 
       <main className="dashboard-main">
-
-        {/* 🔥 HERO PRO */}
         <section className="hero-panel hero-panel--split">
           
           <div className="hero-copy-block">
-            <p className="eyebrow">Network Operations Center</p>
-
             <h2>Surveillance centralisée du parc informatique</h2>
 
             <p className="hero-copy">
@@ -102,7 +92,7 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
             </div>
           </div>
 
-          {/* 🔥 SUMMARY CARD */}
+          {/* SUMMARY CARD */}
           <aside className="hero-sidecard">
             <span className="section-label">Health Overview</span>
 
@@ -114,53 +104,17 @@ export default function Home({ auth, onLogout, onSessionExpired, route }) {
             <div className="hero-sidecard__grid">
               <div><span>Total</span><strong>{total}</strong></div>
               <div><span>Online</span><strong>{online}</strong></div>
-              <div><span>Maintenance</span><strong>{maintenance}</strong></div>
               <div><span>Offline</span><strong>{offline}</strong></div>
             </div>
-
-            <p className="hero-note">
-              {latest
-                ? `Dernière activité : ${latest.name} (${formatDate(latest.created_at)})`
-                : "Aucune donnée disponible"}
-            </p>
           </aside>
         </section>
 
-        {/* 🔥 STATS */}
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Disponibilité système</p>
-            <p className="stat-value">{health}%</p>
-            <p className="stat-detail">Calcul basé sur l’état global du parc</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Machines actives</p>
-            <p className="stat-value">{online}</p>
-            <p className="stat-detail">En fonctionnement normal</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Incidents</p>
-            <p className="stat-value">{offline + maintenance}</p>
-            <p className="stat-detail">Demandent une attention</p>
-          </div>
-
-          <div className="stat-card">
-            <p className="stat-label">Inventaire</p>
-            <p className="stat-value">{total}</p>
-            <p className="stat-detail">Machines enregistrées</p>
-          </div>
-        </section>
-
-        {/* 🔥 TABLE + SIDEBAR */}
         <section className="dashboard-columns">
 
           {/* TABLE */}
           <article className="table-panel">
             <div className="panel-heading">
               <h3>Machines récentes</h3>
-              <span className="live-badge">Live API</span>
             </div>
 
             {error && <p className="feedback error-feedback">{error}</p>}
