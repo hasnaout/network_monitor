@@ -14,12 +14,11 @@ function formatDate(value) {
 
 function getStatusClass(status) {
   if (status === 'Online') return 'status-pill is-online';
-  if (status === 'Maintenance') return 'status-pill is-maintenance';
   return 'status-pill is-offline';
 }
 
 export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }) {
-  const deviceId = route.split('/').pop(); // Simple parsing for #/devices/1
+  const deviceId = route.split('/').pop();
   const [device, setDevice] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -72,17 +71,6 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
           <div className="hero-copy-block">
             <p className="eyebrow">Détails de l'Équipement</p>
             <h2>{device.name}</h2>
-            <p className="hero-copy">
-              Informations détaillées et métriques de l'équipement.
-            </p>
-            <div className="hero-actions">
-              <a className="primary-link" href="#/devices">
-                Retour à la liste
-              </a>
-              <a className="primary-link" href="#/">
-                Dashboard
-              </a>
-            </div>
           </div>
           <aside className="hero-sidecard">
             <span className="section-label">Statut</span>
@@ -96,33 +84,10 @@ export default function DeviceDetail({ auth, onLogout, onSessionExpired, route }
               <div><span>IP</span><strong>{device.ip_address}</strong></div>
               <div><span>Localisation</span><strong>{device.location || "—"}</strong></div>
               <div><span>Dernière activité</span><strong>{formatDate(device.last_seen || device.created_at)}</strong></div>
+              <div><span>Adresse MAC</span><strong>{device.mac_address || "—"}</strong></div>
+              <div><span>Créé le</span><strong>{formatDate(device.created_at)}</strong></div>
             </div>
           </aside>
-        </section>
-
-        <section className="stats-grid">
-          <div className="stat-card">
-            <p className="stat-label">Disponibilité</p>
-            <p className="stat-value">{device.status === 'Online' ? '100%' : '0%'}</p>
-            <p className="stat-detail">Statut actuel</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Adresse MAC</p>
-            <p className="stat-value">{device.mac_address || "—"}</p>
-            <p className="stat-detail">Identifiant physique</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Créé le</p>
-            <p className="stat-value">{formatDate(device.created_at)}</p>
-            <p className="stat-detail">Date d'ajout</p>
-          </div>
-          <div className="stat-card">
-            <p className="stat-label">Actions</p>
-            <p className="stat-value">
-              <button className="secondary-button">Modifier</button>
-            </p>
-            <p className="stat-detail">Gérer l'équipement</p>
-          </div>
         </section>
       </main>
     </div>
