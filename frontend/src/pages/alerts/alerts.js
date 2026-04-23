@@ -13,12 +13,6 @@ function formatDate(value) {
   });
 }
 
-function getSeverityClass(severity) {
-  if (severity === 'critical') return 'status-pill is-offline';
-  if (severity === 'warning') return 'status-pill is-maintenance';
-  return 'status-pill is-online';
-}
-
 function getAlertTypeLabel(alertType) {
   if (alertType === 'device_connected') return 'Connectee';
   if (alertType === 'device_reconnected') return 'Reconnectee';
@@ -105,17 +99,14 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
           <div className="stat-card">
             <p className="stat-label">Connectees</p>
             <p className="stat-value">{connectedCount}</p>
-            <p className="stat-detail">Machines detectees pour la premiere fois</p>
           </div>
           <div className="stat-card">
             <p className="stat-label">Reconnectees</p>
             <p className="stat-value">{reconnectedCount}</p>
-            <p className="stat-detail">Machines revenues en ligne</p>
           </div>
           <div className="stat-card">
             <p className="stat-label">Deconnectees</p>
             <p className="stat-value">{disconnectedCount}</p>
-            <p className="stat-detail">Machines passees hors ligne</p>
           </div>
         </section>
 
@@ -154,11 +145,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                         </span>
                       </td>
                       <td>{a.message}</td>
-                      <td>
-                        <span className={getSeverityClass(a.severity)}>
-                          {a.severity}
-                        </span>
-                      </td>
                       <td>{a.is_resolved ? 'Résolue' : 'Active'}</td>
                       <td>{formatDate(a.created_at)}</td>
                     </tr>
