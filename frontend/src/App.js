@@ -6,6 +6,7 @@ import Home from "./pages/dashboard/home.js";
 import Devices from "./pages/devices/devices.js";
 import DeviceDetail from "./pages/devices/deviceDetail.js";
 import Alerts from "./pages/alerts/alerts.js";
+import { fetchJsonWithAuth } from './utils/authFetch';
 
 const API_URL = process.env.REACT_APP_API_URL;
 const ALERT_POLL_INTERVAL_MS = 15000;
@@ -92,18 +93,11 @@ function App() {
 
     async function poll() {
       try {
-        const res = await fetch(`${API_URL}/api/alerts/open/`, {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
+        const data = await fetchJsonWithAuth(`${API_URL}/api/alerts/open/`, {
+          apiUrl: API_URL,
+          auth,
+          onTokensUpdate: handleTokensUpdate,
         });
-
-        if (!res.ok) {
-          console.warn('Alert poll failed:', res.status);
-          return;
-        }
-
-        const data = await res.json();
         console.info('Alert poll ok:', Array.isArray(data) ? data.length : typeof data);
         if (!Array.isArray(data)) return;
 
@@ -121,8 +115,10 @@ function App() {
         if (maxId > lastNotifiedId) {
           localStorage.setItem('last_notified_alert_id', String(maxId));
         }
-      } catch {
-        // Ignore polling errors
+      } catch (error) {
+        if (error?.status === 401) {
+          handleSessionExpired();
+        }
       }
     }
 
@@ -135,7 +131,7 @@ function App() {
       stopped = true;
       window.clearInterval(intervalId);
     };
-  }, [auth.accessToken]);
+  }, [auth.accessToken, auth.refreshToken]);
 
   // ---------------- LOGIN ----------------
   const handleLoginSuccess = ({ accessToken, refreshToken, username }) => {

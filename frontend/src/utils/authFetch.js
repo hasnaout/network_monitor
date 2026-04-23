@@ -14,7 +14,10 @@ export async function refreshAccessToken(apiUrl, refreshToken) {
     throw new Error('Refresh missing access token');
   }
 
-  return data.access;
+  return {
+    accessToken: data.access,
+    refreshToken: data.refresh || refreshToken,
+  };
 }
 
 export async function fetchJsonWithAuth(url, { apiUrl, auth, onTokensUpdate, options = {} }) {
@@ -35,9 +38,9 @@ export async function fetchJsonWithAuth(url, { apiUrl, auth, onTokensUpdate, opt
   let res = await doFetch(auth?.accessToken);
 
   if (res.status === 401 && auth?.refreshToken) {
-    const newAccess = await refreshAccessToken(apiUrl, auth.refreshToken);
-    onTokensUpdate?.({ accessToken: newAccess, refreshToken: auth.refreshToken });
-    res = await doFetch(newAccess);
+    const newTokens = await refreshAccessToken(apiUrl, auth.refreshToken);
+    onTokensUpdate?.(newTokens);
+    res = await doFetch(newTokens.accessToken);
   }
 
   const contentType = res.headers.get('content-type') || '';

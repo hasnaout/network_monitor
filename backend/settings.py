@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'apps.users',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -129,6 +130,9 @@ CORS_ALLOWED_ORIGINS = [
 
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://10.229.88.134:3000",
+    "http://10.229.88.134:3001",
+    "http://10.229.88.134:5173",
     "http://192.168.120.237:3000",
     "http://192.168.120.237:3001",
     "http://192.168.120.237:5173",
