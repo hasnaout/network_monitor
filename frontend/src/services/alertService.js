@@ -7,3 +7,11 @@ export function getOpenAlerts(token) {
     },
   });
 }
+
+export function getAllAlerts(token) {
+  return apiFetch('/api/alerts/', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}

@@ -7,14 +7,7 @@ import Home from "./pages/dashboard/home.js";
 import Devices from "./pages/devices/devices.js";
 import DeviceDetail from "./pages/devices/deviceDetail.js";
 import Alerts from "./pages/alerts/alerts.js";
-import { fetchJsonWithAuth } from './utils/authFetch';
 
-const API_URL = process.env.REACT_APP_API_URL;
-const ALERT_POLL_INTERVAL_MS = 15000;
-
-function getCurrentRoute() {
-  return window.location.hash || '#/connexion';
-}
 
 function getAlertTypeLabel(alertType) {
   if (alertType === 'device_connected') return 'Connectee';
