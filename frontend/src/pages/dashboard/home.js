@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
-import "./home.css"
-import { getCollection, normalizeDevice } from "../../utils/apiData";
-import { fetchJsonWithAuth } from "../../utils/authFetch";
-const API_URL =process.env.REACT_APP_API_URL;
+import "./home.css";
+import { useAuth } from "../../context/AuthContext";
+import { getDevices } from "../../services/device";
 
 function formatDate(value) {
   if (!value) return '—';
-
   return new Date(value).toLocaleString('fr-FR', {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
 }
-
 
 function getStatusClass(status) {
   const s = String(status || '').toLowerCase();
@@ -21,73 +18,55 @@ function getStatusClass(status) {
   return 'status-pill is-offline';
 }
 
-export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate, route }) {
+export default function Home() {
+
+  const { auth } = useAuth();
   const [machines, setMachines] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const accessToken = auth?.accessToken;
-  const refreshToken = auth?.refreshToken;
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (!auth.accessToken) return;
 
     async function load() {
-      setIsLoading(true);
-      setError('');
-
       try {
-        const payload = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
-          apiUrl: API_URL,
-          auth: { accessToken, refreshToken },
-          onTokensUpdate,
-          options: { signal: controller.signal },
-        });
+        setIsLoading(true);
+        setError('');
 
-        setMachines(getCollection(payload).map(normalizeDevice));
-      } catch (e) {
-        if (e.name !== 'AbortError') {
-          if (e.status === 401) {
-            onSessionExpired();
-            return;
-          }
-          setError("Impossible de joindre le serveur.");
-        }
+        const res = await getDevices();
+        setMachines(res.data);
+
+      } catch (err) {
+        setError("Impossible de charger les données");
       } finally {
         setIsLoading(false);
       }
     }
 
     load();
-    return () => controller.abort();
-  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
+  }, [auth.accessToken]);
 
   const total = machines.length;
-  const online = machines.filter(m => String(m.status || '').toLowerCase() === "online").length;
-  const maintenance = machines.filter(m => String(m.status || '').toLowerCase() === "maintenance").length;
-  const offline = machines.filter(m => String(m.status || '').toLowerCase() === "offline").length;
+  const online = machines.filter(m => m.status === "online").length;
+  const maintenance = machines.filter(m => m.status === "maintenance").length;
+  const offline = machines.filter(m => m.status === "offline").length;
 
   const health = total === 0
     ? 100
     : Math.round(((online + maintenance * 0.6) / total) * 100);
 
-  const critical = machines
-    .filter(m => String(m.status || '').toLowerCase() !== "online")
-    .slice(0, 4);
+  const critical = machines.filter(m => m.status !== "online").slice(0, 4);
 
   return (
     <div className="dashboard-shell">
-
       <main className="dashboard-main">
 
         <section className="hero-panel hero-panel--split">
-          
+
           <div className="hero-copy-block">
-
             <h2>Surveillance centralisée du parc informatique</h2>
-
             <p className="hero-copy">
-              Visualisez en temps réel l’état de vos équipements, identifiez les incidents
-              et pilotez votre infrastructure depuis une interface unifiée.
+              Visualisation temps réel de votre infrastructure
             </p>
 
             <div className="hero-actions">
@@ -102,7 +81,7 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
 
             <div className="hero-score">
               <strong>{health}%</strong>
-              <span>Disponibilité globale du système</span>
+              <span>Disponibilité globale</span>
             </div>
 
             <div className="hero-sidecard__grid">
@@ -112,24 +91,22 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
               <div><span>Offline</span><strong>{offline}</strong></div>
             </div>
           </aside>
+
         </section>
 
-        {/* 🔥 TABLE + SIDEBAR */}
         <section className="dashboard-columns">
 
-          {/* TABLE */}
           <article className="table-panel">
+
             <div className="panel-heading">
               <h3>Machines récentes</h3>
               <span className="live-badge">Live API</span>
             </div>
 
-            {error && <p className="feedback error-feedback">{error}</p>}
+            {error && <p className="error-feedback">{error}</p>}
 
             {isLoading ? (
-              <div className="empty-state">
-                Chargement des équipements...
-              </div>
+              <div className="empty-state">Chargement...</div>
             ) : (
               <div className="table-wrap">
                 <table>
@@ -146,8 +123,8 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
                   <tbody>
                     {machines.slice(0, 6).map(m => (
                       <tr key={m.id}>
-                        <td><a href={`#/devices/${m.id}`} className="device-link"><strong>{m.name}</strong></a></td>
-                        <td>{m.ip}</td>
+                        <td><strong>{m.name}</strong></td>
+                        <td>{m.ip_address}</td>
                         <td>{m.location || "—"}</td>
                         <td>
                           <span className={getStatusClass(m.status)}>
@@ -162,27 +139,9 @@ export default function Home({ auth, onLogout, onSessionExpired, onTokensUpdate,
                 </table>
               </div>
             )}
+
           </article>
 
-          {/* SIDEBAR */}
-          <aside className="dashboard-side">
-
-            <article className="insight-card">
-              <h3>Équipements à surveiller</h3>
-
-              {critical.length === 0 ? (
-                <p>Aucun incident détecté</p>
-              ) : (
-                critical.map(m => (
-                  <div key={m.id} className="priority-item">
-                    <strong>{m.name}</strong>
-                    <span>{m.status}</span>
-                  </div>
-                ))
-              )}
-            </article>
-
-          </aside>
         </section>
 
       </main>

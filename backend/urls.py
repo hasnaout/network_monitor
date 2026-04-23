@@ -9,13 +9,17 @@ from apps.users.views import UserViewSet
 
 router = DefaultRouter()
 router.register(r'devices', DeviceViewSet, basename='device')
-router.register(r'monitoring', HeartbeatViewSet, basename='monitoring')
+router.register(r'heartbeat', HeartbeatViewSet, basename='heartbeat')
 router.register(r'alerts', AlertViewSet, basename='alert')
 router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # AUTH
+    path('api/token/', TokenObtainPairView.as_view()),
+    path('api/token/refresh/', TokenRefreshView.as_view()),
+
+    # API
     path('api/', include(router.urls)),
 ]

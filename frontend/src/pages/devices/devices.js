@@ -1,126 +1,76 @@
 import { useEffect, useState } from 'react';
-import "../dashboard/home.css"; // Reuse styles
-import { getCollection, normalizeDevice } from "../../utils/apiData";
-import { fetchJsonWithAuth } from "../../utils/authFetch";
+import "../dashboard/home.css";
+import { useAuth } from "../../context/AuthContext";
+import { getDevices } from "../../services/device";
 
-const API_URL = process.env.REACT_APP_API_URL;
+export default function Devices() {
 
-function formatDate(value) {
-  if (!value) return '—';
-  return new Date(value).toLocaleString('fr-FR', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-}
-
-function getStatusClass(status) {
-  const s = String(status || '').toLowerCase();
-  if (s === 'online') return 'status-pill is-online';
-  if (s === 'maintenance') return 'status-pill is-maintenance';
-  return 'status-pill is-offline';
-}
-
-export default function Devices({ auth, onLogout, onSessionExpired, onTokensUpdate }) {
+  const { auth } = useAuth();
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const accessToken = auth?.accessToken;
-  const refreshToken = auth?.refreshToken;
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const controller = new AbortController();
+
+    if (!auth.accessToken) return;
 
     async function load() {
-      setIsLoading(true);
-      setError('');
-
       try {
-        const payload = await fetchJsonWithAuth(`${API_URL}/api/devices/`, {
-          apiUrl: API_URL,
-          auth: { accessToken, refreshToken },
-          onTokensUpdate,
-          options: { signal: controller.signal },
-        });
-
-        setDevices(getCollection(payload).map(normalizeDevice));
-      } catch (e) {
-        if (e.name !== 'AbortError') {
-          if (e.status === 401) {
-            onSessionExpired();
-            return;
-          }
-          setError("Impossible de joindre le serveur.");
-        }
+        setLoading(true);
+        const res = await getDevices();
+        setDevices(res.data);
+      } catch {
+        setError("Erreur chargement devices");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     }
 
     load();
-    return () => controller.abort();
-  }, [accessToken, refreshToken, onSessionExpired, onTokensUpdate]);
+  }, [auth.accessToken]);
 
   return (
     <div className="dashboard-shell">
       <main className="dashboard-main">
+
         <section className="hero-panel">
           <div className="hero-copy-block">
             <h2>Équipements</h2>
-            <p className="hero-copy">
-              Gestion et surveillance de votre parc informatique
-            </p>
           </div>
         </section>
 
         <section className="table-panel">
-          <div className="panel-heading">
-            <h3>Équipements ({devices.length})</h3>
-            <span className="live-badge">Live API</span>
-          </div>
 
-          {error && <p className="feedback error-feedback">{error}</p>}
+          {error && <p className="error-feedback">{error}</p>}
 
-          {isLoading ? (
-            <div className="empty-state">
-              Chargement des équipements...
-            </div>
+          {loading ? (
+            <div className="empty-state">Chargement...</div>
           ) : (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>IP</th>
-                    <th>Type</th>
-                    <th>Localisation</th>
-                    <th>Statut</th>
-                    <th>Dernière activité</th>
-                    <th>Actions</th>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>IP</th>
+                  <th>Type</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {devices.map(d => (
+                  <tr key={d.id}>
+                    <td>{d.name}</td>
+                    <td>{d.ip_address}</td>
+                    <td>{d.device_type}</td>
+                    <td>{d.status}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {devices.map(d => (
-                    <tr key={d.id}>
-                      <td><a href={`#/devices/${d.id}`} className="device-link"><strong>{d.name}</strong></a></td>
-                      <td>{d.ip_address}</td>
-                      <td>{d.device_type}</td>
-                      <td>{d.location || "—"}</td>
-                      <td>
-                        <span className={getStatusClass(d.status)}>
-                          {d.status}
-                        </span>
-                      </td>
-                      <td>{formatDate(d.last_seen || d.created_at)}</td>
-                      <td>
-                        <a href={`#/devices/${d.id}`}>Détails</a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
+
         </section>
+
       </main>
     </div>
   );

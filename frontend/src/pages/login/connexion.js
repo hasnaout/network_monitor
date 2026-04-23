@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import "./connexion.css";
+import { AuthContext } from '../../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export default function Connexion({ onLoginSuccess }) {
+export default function Connexion() {
+
+  const { login } = useContext(AuthContext);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,7 +39,8 @@ export default function Connexion({ onLoginSuccess }) {
         throw new Error(data.detail || 'Connexion impossible');
       }
 
-      onLoginSuccess({
+      // ✅ CENTRALISÉ DANS CONTEXT
+      login({
         accessToken: data.access,
         refreshToken: data.refresh,
         username,
@@ -54,30 +59,33 @@ export default function Connexion({ onLoginSuccess }) {
         <h2>Connexion</h2>
 
         <form className="connexion-form" onSubmit={handleSubmit}>
-<label className="form-group">
-  <span>Nom d'utilisateur</span>
-  <input
-    type="text"
-    value={username}
-    onChange={(e) => setUsername(e.target.value)}
-    autoComplete="username"
-  />
-</label>
 
-<label className="form-group">
-  <span>Mot de passe</span>
-  <input
-    type="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    autoComplete="current-password"
-  />
-</label>
+          <label className="form-group">
+            <span>Nom d'utilisateur</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+            />
+          </label>
+
+          <label className="form-group">
+            <span>Mot de passe</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </label>
+
           {error && <p style={{ color: 'red' }}>{error}</p>}
 
           <button className="btn-submit" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Connexion..." : "Se connecter"}
           </button>
+
         </form>
       </section>
     </div>
