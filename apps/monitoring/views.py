@@ -37,6 +37,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 'ip_address': ip,
                 'last_user': user,
                 'status': 'online',
+                'location': request.data.get('location') or "unknown"
             }
         )
 
