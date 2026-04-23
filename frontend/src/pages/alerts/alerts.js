@@ -130,8 +130,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                     <th>Équipement</th>
                     <th>Événement</th>
                     <th>Message</th>
-                    <th>Sévérité</th>
-                    <th>Statut</th>
                     <th>Date</th>
                   </tr>
                 </thead>
@@ -145,7 +143,6 @@ export default function Alerts({ auth, onLogout, onSessionExpired }) {
                         </span>
                       </td>
                       <td>{a.message}</td>
-                      <td>{a.is_resolved ? 'Résolue' : 'Active'}</td>
                       <td>{formatDate(a.created_at)}</td>
                     </tr>
                   ))}
