@@ -19,14 +19,9 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
     def ping(self, request):
 
         mark_stale_devices_offline()
-
         mac = request.data.get('mac_address')
         name = request.data.get('name')
         ip = request.data.get('ip_address')
-        user = request.data.get('connected_user')
-        cpu = request.data.get('cpu_usage', 0.0)
-        ram = request.data.get('ram_usage', 0.0)
-
         if not mac:
             return Response(
                 {"error": "MAC address requise"},
@@ -41,7 +36,6 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
             defaults={
                 "name": name,
                 "ip_address": ip,
-                "last_user": user,
                 "status": "online",
             }
         )
@@ -63,9 +57,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
             )
 
         Heartbeat.objects.create(
-            device=device,
-            cpu_usage=cpu,
-            ram_usage=ram,
+            device=device
         )
 
         return Response({

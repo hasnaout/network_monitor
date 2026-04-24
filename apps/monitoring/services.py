@@ -17,19 +17,16 @@ def send_alert_ws(alert):
                 "id": alert.id,
                 "device": alert.device.name,
                 "message": alert.message,
-                "severity": alert.severity,
             },
         }
     )
 OFFLINE_THRESHOLD_MINUTES = 1
 
-
-def create_device_alert(device, alert_type, message, severity="info"):
+def create_device_alert(device, alert_type, message):
     return Alert.objects.create(
         device=device,
         alert_type=alert_type,
         message=message,
-        severity=severity,
     )
 
 
@@ -41,15 +38,15 @@ def mark_stale_devices_offline():
         status="online"
     )
 
-    for device in stale_devices:
-        device.status = "offline"
-        device.save(update_fields=["status"])
+    stale_devices.update(status="offline")
 
-        create_device_alert(
+    for device in stale_devices:
+        alert = create_device_alert(
             device=device,
             alert_type="device_disconnected",
             message=f"La machine {device.name} est déconnectée.",
-            severity="critical",
         )
+
+        send_alert_ws(alert)
 
     return stale_devices.count()

@@ -4,11 +4,10 @@ import { NavLink } from 'react-router-dom';
 import './Header.css';
 
 export default function Header({ onLogout }) {
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(prev => !prev);
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const closeMobileMenu = () => {
@@ -17,12 +16,9 @@ export default function Header({ onLogout }) {
 
   return (
     <header className="app-header">
-
       <div className="header-container">
 
-        {/* LOGO */}
         <div className="header-logo">
-
           <div className="logo-icon">
             <img
               src={`${process.env.PUBLIC_URL}/logo.png`}
@@ -35,35 +31,22 @@ export default function Header({ onLogout }) {
             <h1>NetworkMonitor</h1>
             <span>Surveillance Infrastructure</span>
           </div>
-
         </div>
 
         {/* NAV */}
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
-          <NavLink
-            to="/"
-            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-            onClick={closeMobileMenu}
-          >
+          <NavLink to="/" className="nav-link" onClick={closeMobileMenu}>
             <FiHome className="nav-icon" />
             Dashboard
           </NavLink>
 
-          <NavLink
-            to="/devices"
-            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-            onClick={closeMobileMenu}
-          >
+          <NavLink to="/devices" className="nav-link" onClick={closeMobileMenu}>
             <FiServer className="nav-icon" />
             Équipements
           </NavLink>
 
-          <NavLink
-            to="/alerts"
-            className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
-            onClick={closeMobileMenu}
-          >
+          <NavLink to="/alerts" className="nav-link" onClick={closeMobileMenu}>
             <FiBell className="nav-icon" />
             Alertes
           </NavLink>
@@ -83,9 +66,7 @@ export default function Header({ onLogout }) {
           </button>
 
         </div>
-
       </div>
-
     </header>
   );
 }

@@ -13,16 +13,14 @@ class DeviceAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "name",
-        "mac_address",
-        "ip_address",
+    "name",
+    "mac_address",
+    "ip_address",
     )
-
     list_filter = (
         "status",
         "device_type",
     )
 
     ordering = ("-last_seen",)
-
     readonly_fields = ("created_at", "last_seen")
