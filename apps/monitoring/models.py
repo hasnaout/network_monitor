@@ -22,23 +22,25 @@ class Heartbeat(models.Model):
 
 class Alert(models.Model):
 
+    ALERT_TYPES = [
+        ("device_connected", "Connectee"),
+        ("device_disconnected", "Deconnectee"),
+        ("device_reconnecte", "Reconnecte"),
+    ]
+
     device = models.ForeignKey(
         Device,
         on_delete=models.CASCADE,
         related_name='alerts'
     )
-   ALERT_TYPES = [
-    ("device_connected", "Connectee"),
-    ("device_disconnected", "Deconnectee"),
-    ("device_reconnecte", "reconnecte"),
-    ]
 
-alert_type = models.CharField(max_length=50, choices=ALERT_TYPES)
+
+    alert_type = models.CharField(max_length=50, choices=ALERT_TYPES)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f" {self.device.name}"
+      return f"{self.device.name} - {self.alert_type}"
 
     class Meta:
         ordering = ['-created_at']

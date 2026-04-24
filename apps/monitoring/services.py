@@ -23,11 +23,13 @@ def send_alert_ws(alert):
 OFFLINE_THRESHOLD_MINUTES = 1
 
 def create_device_alert(device, alert_type, message):
-    return Alert.objects.create(
+  alert = Alert.objects.create(
         device=device,
         alert_type=alert_type,
         message=message,
     )
+    send_alert_ws(alert)
+    return alert
 
 
 def mark_stale_devices_offline():

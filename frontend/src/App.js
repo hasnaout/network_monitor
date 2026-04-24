@@ -15,7 +15,6 @@ function App() {
     <AuthProvider>
       <LoadingProvider>
         <SocketProvider>
-
           <BrowserRouter>
             <Routes>
               <Route path="/connexion" element={<Connexion />} />

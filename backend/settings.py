@@ -11,8 +11,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 
-DEBUG = os.getenv("DEBUG") == "True"
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "192.168.120.237",
+    "10.229.88.134",
+]
 
 
 AUTH_USER_MODEL = 'users.User'
@@ -29,6 +34,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    "channels"
 ]
 
 MIDDLEWARE = [
@@ -112,8 +118,6 @@ STATIC_URL = 'static/'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-
-
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://10.229.88.134:3000",
@@ -147,11 +151,11 @@ SIMPLE_JWT = {
 CORS_ALLOW_CREDENTIALS = True
 
 ASGI_APPLICATION = "backend.asgi.application"
-
-INSTALLED_APPS += ["channels"]
-
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
     },
 }
