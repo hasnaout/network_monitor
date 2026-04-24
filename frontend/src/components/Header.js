@@ -17,7 +17,6 @@ export default function Header({ onLogout }) {
   return (
     <header className="app-header">
       <div className="header-container">
-
         <div className="header-logo">
           <div className="logo-icon">
             <img
@@ -26,16 +25,11 @@ export default function Header({ onLogout }) {
               className="logo-img"
             />
           </div>
-
           <div className="logo-text">
-            <h1>NetworkMonitor</h1>
-            <span>Surveillance Infrastructure</span>
+            <h1>NOVOS</h1>
           </div>
         </div>
-
-        {/* NAV */}
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-
           <NavLink to="/" className="nav-link" onClick={closeMobileMenu}>
             <FiHome className="nav-icon" />
             Dashboard
@@ -53,9 +47,7 @@ export default function Header({ onLogout }) {
 
         </nav>
 
-        {/* ACTIONS */}
         <div className="header-actions">
-
           <button className="logout-btn" onClick={onLogout}>
             <FiLogOut className="logout-icon" />
             Déconnexion

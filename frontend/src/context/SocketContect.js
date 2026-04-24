@@ -7,23 +7,26 @@ export function SocketProvider({ children }) {
 
   const { auth } = useAuth();
   const [socket, setSocket] = useState(null);
+  const [alerts, setAlerts] = useState([]);
 
-useEffect(() => {
-  if (!auth.accessToken) return;
+  useEffect(() => {
+    if (!auth.accessToken) return;
 
-  const ws = new WebSocket(`ws://localhost:8000/ws/alerts/`);
+    const ws = new WebSocket(`ws://localhost:8000/ws/alerts/`);
 
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("NEW ALERT", data);
-  };
+    setSocket(ws); // ✅ IMPORTANT
 
-  setSocket(ws);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setAlerts(prev => [data, ...prev]);
+    };
 
-  return () => ws.close();
-}, [auth.accessToken]);
+    return () => ws.close();
+
+  }, [auth.accessToken]);
+
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={{ socket, alerts }}>
       {children}
     </SocketContext.Provider>
   );
