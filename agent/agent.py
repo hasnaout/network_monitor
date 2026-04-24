@@ -34,9 +34,6 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
                     "mac_address": get_mac(),
                     "name": get_hostname(),
                     "ip_address": get_ip(),
-                    "connected_user": get_user(),
-                    "cpu_usage": get_cpu(),
-                    "ram_usage": get_ram(),
                 }
 
                 requests.post(API_URL, json=payload, timeout=5)

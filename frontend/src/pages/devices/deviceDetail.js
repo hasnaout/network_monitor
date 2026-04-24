@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
+import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
 import { getDeviceById } from "../../services/deviceService";
@@ -63,8 +64,8 @@ export default function DeviceDetail() {
   if (!device) return null;
 
   return (
+    <>  <Header />
     <div className="dashboard-shell">
-
       <main className="dashboard-main">
 
         {/* 🔵 HEADER DEVICE */}
@@ -138,5 +139,6 @@ export default function DeviceDetail() {
       </main>
 
     </div>
+    </>
   );
 }

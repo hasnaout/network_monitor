@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import "../dashboard/home.css";
+import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContect";
 import { getAlerts } from "../../services/alertService";
@@ -54,8 +55,9 @@ export default function Alerts() {
   }, [liveAlerts, apiAlerts]);
 
   return (
+    <>
+        <Header/>
     <div className="dashboard-shell">
-
       <main className="dashboard-main">
 
         {/* 🔵 HEADER */}
@@ -68,11 +70,6 @@ export default function Alerts() {
               Surveillance en temps réel de l’infrastructure
             </p>
 
-            {liveAlerts.length > 0 && (
-              <div className="live-alert">
-                🚨 {liveAlerts[0].device} : {liveAlerts[0].message}
-              </div>
-            )}
 
           </div>
         </section>
@@ -135,5 +132,6 @@ export default function Alerts() {
       </main>
 
     </div>
+    </>
   );
 }

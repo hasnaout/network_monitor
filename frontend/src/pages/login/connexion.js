@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "./connexion.css";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -7,50 +8,55 @@ const API_URL = process.env.REACT_APP_API_URL;
 export default function Connexion() {
 
   const { login } = useAuth();
-
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!username || !password) {
-      setError("Veuillez remplir tous les champs");
-      return;
+  if (!username || !password) {
+    setError("Veuillez remplir tous les champs");
+    return;
+  }
+
+  setError('');
+  setIsSubmitting(true);
+
+  try {
+    const response = await fetch(`${API_URL}/api/token/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Connexion échouée");
     }
 
-    setError('');
-    setIsSubmitting(true);
+    login({
+      accessToken: data.access,
+      refreshToken: data.refresh,
+      username,
+    });
 
-    try {
-      const response = await fetch(`${API_URL}/api/token/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
 
-      const data = await response.json();
+  setTimeout(() => {
+  navigate("/");
+}, 50);
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Connexion échouée");
-      }
-
-      login({
-        accessToken: data.access,
-        refreshToken: data.refresh,
-        username,
-      });
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="connexion-container">

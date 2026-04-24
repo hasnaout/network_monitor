@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import "../dashboard/home.css";
+import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
 import { useSocket } from "../../context/SocketContect";
 import { getDevices } from "../../services/deviceService";
@@ -50,8 +51,8 @@ export default function Devices() {
   }, [devices]);
 
   return (
+    <>    <Header />
     <div className="dashboard-shell">
-
       <main className="dashboard-main">
 
         {/* 🔵 HEADER */}
@@ -63,13 +64,6 @@ export default function Devices() {
             <p className="hero-copy">
               Gestion centralisée des machines du réseau
             </p>
-
-            {/* 🔥 LIVE ALERT (OPTIONNEL) */}
-            {alerts.length > 0 && (
-              <div className="live-alert">
-                🚨 {alerts[0].device} : {alerts[0].message}
-              </div>
-            )}
 
           </div>
         </section>
@@ -158,5 +152,6 @@ export default function Devices() {
       </main>
 
     </div>
+    </>
   );
 }

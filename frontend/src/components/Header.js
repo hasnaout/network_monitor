@@ -3,8 +3,8 @@ import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi'
 import { NavLink } from 'react-router-dom';
 import './Header.css';
 
-import { useAuth } from '../../context/AuthContext';
-import { useSocket } from '../../context/SocketContext';
+import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContect";
 
 export default function Header() {
 
@@ -27,8 +27,6 @@ export default function Header() {
     <header className="app-header">
 
       <div className="header-container">
-
-        {/* 🔵 LOGO */}
         <div className="header-logo">
           <img
             src={`${process.env.PUBLIC_URL}/logo.png`}
@@ -70,12 +68,7 @@ export default function Header() {
 
         </nav>
 
-        {/* ⚙️ ACTIONS */}
         <div className="header-actions">
-
-          <span className="username">
-            {auth.username}
-          </span>
 
           <button className="logout-btn" onClick={logout}>
             <FiLogOut className="logout-icon" />
