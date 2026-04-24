@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import "./home.css";
 import { useAuth } from "../../context/AuthContext";
-import { useSocket } from "../../context/SocketContext";
-import { getDevices } from "../../services/device";
+import { useSocket } from "../../context/SocketContect";
+import { getDevices } from "../../services/deviceService";
 
 function formatDate(value) {
   if (!value) return '—';

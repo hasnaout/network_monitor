@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
-import { getDeviceById } from "../../services/device";
-import { useSocket } from "../../context/SocketContext";
+import { getDeviceById } from "../../services/deviceService";
+import { useSocket } from "../../context/SocketContect";
 
 export default function DeviceDetail() {
 

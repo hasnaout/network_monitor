@@ -1,7 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { SocketProvider } from './context/SocketContext';
+import { SocketProvider } from './context/SocketContect';
 import { LoadingProvider } from './context/LoadingContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Connexion from "./pages/login/connexion.js";

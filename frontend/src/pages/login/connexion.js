@@ -39,7 +39,6 @@ export default function Connexion() {
         throw new Error(data.detail || "Connexion échouée");
       }
 
-      // 🔥 LOGIN CENTRALISÉ
       login({
         accessToken: data.access,
         refreshToken: data.refresh,

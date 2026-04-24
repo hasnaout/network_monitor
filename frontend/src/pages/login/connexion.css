@@ -26,12 +26,12 @@ body {
   flex-direction: column;
   gap: 15px;
 }
-.form-group span {
+.connexion-form span {
   font-weight: bold;
   font-size: 14px;
   color: #334155;
 }
-.form-group input {
+.connexion-form input {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
@@ -40,7 +40,7 @@ body {
   transition: 0.3s;
   margin-top: 5px;
 }
-.form-group input:focus {
+.connexion-form input:focus {
   border-color: #20ae8f;
   box-shadow: 0 0 5px rgba(32, 174, 143, 0.3);
 }
@@ -55,7 +55,7 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
-.error-feedback {
+.error-text {
   color: red;
   font-size: 14px;
   text-align: center;

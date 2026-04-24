@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import "../dashboard/home.css";
 import { useAuth } from "../../context/AuthContext";
-import { useSocket } from "../../context/SocketContext";
-import { getAlerts } from "../../services/alerts";
+import { useSocket } from "../../context/SocketContect";
+import { getAlerts } from "../../services/alertService";
 
 export default function Alerts() {
 

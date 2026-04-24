@@ -1,34 +1,41 @@
 from django.contrib import admin
-from .models import Heartbeat, Alert
-
-@admin.register(Heartbeat)
-class HeartbeatAdmin(admin.ModelAdmin):
-
-    list_display = (
-        "device",
-        "is_alive",
-        "cpu_usage",
-        "ram_usage",
-        "timestamp",
-    )
-
-    list_filter = ("is_alive",)
-    ordering = ("-timestamp",)
+from .models import Alert, Heartbeat
 
 
 @admin.register(Alert)
 class AlertAdmin(admin.ModelAdmin):
 
     list_display = (
+        "id",
         "device",
         "alert_type",
-        "severity",
-        "is_resolved",
+        "message",
         "created_at",
     )
 
-    list_filter = ("severity", "is_resolved")
+    list_filter = (
+        "alert_type",
+        "created_at",
+    )
 
-    search_fields = ("device__name", "message")
+    search_fields = (
+        "message",
+        "device__name",
+    )
 
-    ordering = ("-created_at",)
+
+@admin.register(Heartbeat)
+class HeartbeatAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "device",
+        "is_alive",
+        "timestamp",
+        "response_time_ms",
+    )
+
+    list_filter = (
+        "is_alive",
+        "timestamp",
+    )

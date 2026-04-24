@@ -6,6 +6,7 @@ class Device(models.Model):
         ("online", "Online"),
         ("offline", "Offline"),
     ]
+
     name = models.CharField(max_length=100)
     ip_address = models.GenericIPAddressField(null=True,blank=True)
     mac_address = models.CharField(max_length=17,unique=True, validators=[
