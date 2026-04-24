@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import "../dashboard/home.css";
 import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 import { getDevices } from "../../services/device";
 
 export default function Devices() {
 
   const { auth } = useAuth();
+  const { alerts } = useSocket(); // 🔥 prêt pour extension temps réel
+
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // 🔵 LOAD DEVICES
   useEffect(() => {
 
     if (!auth.accessToken) return;
@@ -17,9 +21,12 @@ export default function Devices() {
     async function load() {
       try {
         setLoading(true);
+        setError('');
+
         const res = await getDevices();
         setDevices(res.data);
-      } catch {
+
+      } catch (err) {
         setError("Erreur chargement devices");
       } finally {
         setLoading(false);
@@ -27,18 +34,76 @@ export default function Devices() {
     }
 
     load();
+
   }, [auth.accessToken]);
+
+  // 🔥 STATS OPTIMISÉES
+  const stats = useMemo(() => {
+
+    const total = devices.length;
+    const online = devices.filter(d => d.status === "online").length;
+    const maintenance = devices.filter(d => d.status === "maintenance").length;
+    const offline = devices.filter(d => d.status === "offline").length;
+
+    return { total, online, maintenance, offline };
+
+  }, [devices]);
 
   return (
     <div className="dashboard-shell">
+
       <main className="dashboard-main">
 
+        {/* 🔵 HEADER */}
         <section className="hero-panel">
           <div className="hero-copy-block">
+
             <h2>Équipements</h2>
+
+            <p className="hero-copy">
+              Gestion centralisée des machines du réseau
+            </p>
+
+            {/* 🔥 LIVE ALERT (OPTIONNEL) */}
+            {alerts.length > 0 && (
+              <div className="live-alert">
+                🚨 {alerts[0].device} : {alerts[0].message}
+              </div>
+            )}
+
           </div>
         </section>
 
+        {/* 🔵 STATS */}
+        <section className="hero-sidecard">
+
+          <div className="hero-sidecard__grid">
+
+            <div>
+              <span>Total</span>
+              <strong>{stats.total}</strong>
+            </div>
+
+            <div>
+              <span>Online</span>
+              <strong>{stats.online}</strong>
+            </div>
+
+            <div>
+              <span>Maintenance</span>
+              <strong>{stats.maintenance}</strong>
+            </div>
+
+            <div>
+              <span>Offline</span>
+              <strong>{stats.offline}</strong>
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* 🔵 TABLE */}
         <section className="table-panel">
 
           {error && <p className="error-feedback">{error}</p>}
@@ -46,32 +111,52 @@ export default function Devices() {
           {loading ? (
             <div className="empty-state">Chargement...</div>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>IP</th>
-                  <th>Type</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
+            <div className="table-wrap">
 
-              <tbody>
-                {devices.map(d => (
-                  <tr key={d.id}>
-                    <td>{d.name}</td>
-                    <td>{d.ip_address}</td>
-                    <td>{d.device_type}</td>
-                    <td>{d.status}</td>
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>IP</th>
+                    <th>Type</th>
+                    <th>Statut</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+
+                  {devices.map(device => (
+                    <tr key={device.id}>
+
+                      <td>
+                        <strong>{device.name}</strong>
+                      </td>
+
+                      <td>{device.ip_address}</td>
+
+                      <td>{device.device_type}</td>
+
+                      <td>
+                        <span className={`status-pill ${device.status}`}>
+                          {device.status}
+                        </span>
+                      </td>
+
+                    </tr>
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
           )}
 
         </section>
 
       </main>
+
     </div>
   );
 }

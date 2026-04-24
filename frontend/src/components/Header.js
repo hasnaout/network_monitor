@@ -3,33 +3,48 @@ import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi'
 import { NavLink } from 'react-router-dom';
 import './Header.css';
 
-export default function Header({ onLogout }) {
+import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
+
+export default function Header() {
+
+  const { logout, auth } = useAuth();
+  const { alerts } = useSocket();
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setIsMobileMenuOpen(prev => !prev);
   };
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const unreadAlerts = alerts.length;
+
   return (
     <header className="app-header">
+
       <div className="header-container">
+
+        {/* 🔵 LOGO */}
         <div className="header-logo">
-          <div className="logo-icon">
-            <img
-              src={`${process.env.PUBLIC_URL}/logo.png`}
-              alt="NetworkMonitor"
-              className="logo-img"
-            />
-          </div>
+          <img
+            src={`${process.env.PUBLIC_URL}/logo.png`}
+            alt="NetworkMonitor"
+            className="logo-img"
+          />
+
           <div className="logo-text">
-            <h1>NOVOS</h1>
+            <h1>NetworkMonitor</h1>
+            <span>Surveillance Infrastructure</span>
           </div>
         </div>
+
+        {/* 🧭 NAVIGATION */}
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+
           <NavLink to="/" className="nav-link" onClick={closeMobileMenu}>
             <FiHome className="nav-icon" />
             Dashboard
@@ -43,12 +58,26 @@ export default function Header({ onLogout }) {
           <NavLink to="/alerts" className="nav-link" onClick={closeMobileMenu}>
             <FiBell className="nav-icon" />
             Alertes
+
+            {/* 🔥 BADGE LIVE ALERTS */}
+            {unreadAlerts > 0 && (
+              <span className="alert-badge">
+                {unreadAlerts}
+              </span>
+            )}
+
           </NavLink>
 
         </nav>
 
+        {/* ⚙️ ACTIONS */}
         <div className="header-actions">
-          <button className="logout-btn" onClick={onLogout}>
+
+          <span className="username">
+            {auth.username}
+          </span>
+
+          <button className="logout-btn" onClick={logout}>
             <FiLogOut className="logout-icon" />
             Déconnexion
           </button>
@@ -58,7 +87,9 @@ export default function Header({ onLogout }) {
           </button>
 
         </div>
+
       </div>
+
     </header>
   );
 }

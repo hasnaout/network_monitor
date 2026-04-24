@@ -1,23 +1,23 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import "./connexion.css";
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Connexion() {
 
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     if (!username || !password) {
-      setError('Veuillez remplir tous les champs');
+      setError("Veuillez remplir tous les champs");
       return;
     }
 
@@ -36,10 +36,10 @@ export default function Connexion() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Connexion impossible');
+        throw new Error(data.detail || "Connexion échouée");
       }
 
-      // ✅ CENTRALISÉ DANS CONTEXT
+      // 🔥 LOGIN CENTRALISÉ
       login({
         accessToken: data.access,
         refreshToken: data.refresh,
@@ -55,12 +55,14 @@ export default function Connexion() {
 
   return (
     <div className="connexion-container">
+
       <section className="connexion-card">
+
         <h2>Connexion</h2>
 
-        <form className="connexion-form" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="connexion-form">
 
-          <label className="form-group">
+          <label>
             <span>Nom d'utilisateur</span>
             <input
               type="text"
@@ -70,7 +72,7 @@ export default function Connexion() {
             />
           </label>
 
-          <label className="form-group">
+          <label>
             <span>Mot de passe</span>
             <input
               type="password"
@@ -80,14 +82,22 @@ export default function Connexion() {
             />
           </label>
 
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && (
+            <p className="error-text">{error}</p>
+          )}
 
-          <button className="btn-submit" type="submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn-submit"
+          >
             {isSubmitting ? "Connexion..." : "Se connecter"}
           </button>
 
         </form>
+
       </section>
+
     </div>
   );
 }

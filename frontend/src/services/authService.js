@@ -1,15 +1,13 @@
-import { apiFetch } from './api';
+import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
+// 🔵 LOGIN
 export async function login(username, password) {
-  return apiFetch('/api/token/', {
-    method: 'POST',
-    body: JSON.stringify({ username, password }),
+  const res = await axios.post(`${API_URL}/api/token/`, {
+    username,
+    password,
   });
-}
 
-export async function refreshToken(refresh) {
-  return apiFetch('/api/token/refresh/', {
-    method: 'POST',
-    body: JSON.stringify({ refresh }),
-  });
+  return res.data;
 }

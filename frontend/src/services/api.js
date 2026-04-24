@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
+// 🔵 INSTANCE AXIOS
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -24,16 +25,17 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
+        const refresh = localStorage.getItem('refresh_token');
 
         const res = await axios.post(`${API_URL}/api/token/refresh/`, {
-          refresh: refreshToken,
+          refresh,
         });
 
         const newAccess = res.data.access;
@@ -43,6 +45,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
 
         return api(originalRequest);
+
       } catch (err) {
         localStorage.clear();
         window.location.href = '/connexion';
