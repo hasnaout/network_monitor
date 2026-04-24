@@ -98,7 +98,6 @@ export default function Home() {
           <article className="table-panel">
             <div className="panel-heading">
               <h3>Machines récentes</h3>
-              <span className="live-badge">LIVE</span>
             </div>
             {error && <p className="error-feedback">{error}</p>}
             {isLoading ? (

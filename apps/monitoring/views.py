@@ -45,7 +45,6 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 device,
                 "device_connected",
                 f"{device.name} ajouté",
-                "info"
             )
 
         elif was_offline:
@@ -53,7 +52,6 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 device,
                 "device_reconnected",
                 f"{device.name} reconnecté",
-                "warning"
             )
 
         Heartbeat.objects.create(
@@ -83,5 +81,6 @@ class AlertViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def open(self, request):
+        alerts = Alert.objects.filter(resolved=False)
         serializer = self.get_serializer(alerts, many=True)
         return Response(serializer.data)

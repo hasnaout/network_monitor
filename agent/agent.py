@@ -44,23 +44,24 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
 
         win32event.WaitForSingleObject(self.stop_event, win32event.INFINITE)
 
-def main(self):
-    while self.running:
-        try:
-            payload = {
-                "mac_address": get_mac(),
-                "name": get_hostname(),
-                "ip_address": get_ip(),
-            }
-
+     def main(self):
+        while self.running:
             try:
-                requests.post(API_URL, json=payload, timeout=2)
-            except:
-                logging.warning("API non accessible")
+                payload = {
+                    "mac_address": get_mac(),
+                    "name": get_hostname(),
+                    "ip_address": get_ip(),
+                }
 
-        except Exception as e:
-            logging.error(str(e))
+                requests.post(
+                    API_URL,
+                    json=payload,
+                    timeout=5
+                )
 
-        time.sleep(INTERVAL)
+            except Exception as e:
+                logging.error(str(e))
+
+            time.sleep(INTERVAL)
 if __name__ == '__main__':
     win32serviceutil.HandleCommandLine(NetworkAgent)

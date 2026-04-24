@@ -1,4 +1,3 @@
-/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -253,17 +252,6 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: #e7f6ec;
-}
-
-.live-badge {
-  background: rgba(16, 185, 129, 0.16);
-  color: #86efac;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
 .table-wrap {
