@@ -40,7 +40,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* 🧭 NAVIGATION */}
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
           <NavLink to="/" className="nav-link" onClick={closeMobileMenu}>

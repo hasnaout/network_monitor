@@ -1,9 +1,9 @@
 @echo off
 
-echo Installation du service NetworkAgent...
+echo Installation Network Agent...
 
-python agent.py install
-python agent.py start
+NetworkAgent.exe install
+NetworkAgent.exe start
 
-echo Service installé et démarré !
+echo Service installe avec succes !
 pause
