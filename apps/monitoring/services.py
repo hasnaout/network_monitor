@@ -6,6 +6,8 @@ from .models import Alert
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+
+# ---------------- WEBSOCKET ALERT ----------------
 def send_alert_ws(alert):
     channel_layer = get_channel_layer()
 
@@ -16,22 +18,31 @@ def send_alert_ws(alert):
             "data": {
                 "id": alert.id,
                 "device": alert.device.name,
-                "message": alert.message,
+                "message": alert.message
             },
         }
     )
+
+
+# ---------------- CONFIG ----------------
 OFFLINE_THRESHOLD_MINUTES = 1
 
+
+# ---------------- CREATE ALERT ----------------
 def create_device_alert(device, alert_type, message):
-  alert = Alert.objects.create(
+    alert = Alert.objects.create(
         device=device,
         alert_type=alert_type,
-        message=message,
+        message=message
     )
+
+    # 🔥 ENVOI WEBSOCKET UNE SEULE FOIS
     send_alert_ws(alert)
+
     return alert
 
 
+# ---------------- OFFLINE CHECK ----------------
 def mark_stale_devices_offline():
     limit = timezone.now() - timedelta(minutes=OFFLINE_THRESHOLD_MINUTES)
 
@@ -43,12 +54,11 @@ def mark_stale_devices_offline():
     stale_devices.update(status="offline")
 
     for device in stale_devices:
-        alert = create_device_alert(
+
+        create_device_alert(
             device=device,
             alert_type="device_disconnected",
-            message=f"La machine {device.name} est déconnectée.",
+            message=f"La machine {device.name} est déconnectée."
         )
-
-        send_alert_ws(alert)
 
     return stale_devices.count()

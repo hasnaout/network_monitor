@@ -19,8 +19,6 @@ ALLOWED_HOSTS = [
     "10.229.88.134",
 ]
 
-
-AUTH_USER_MODEL = 'users.User'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
