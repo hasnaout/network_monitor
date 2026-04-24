@@ -52,13 +52,6 @@
   line-height: 1.1;
 }
 
-.logo-text span {
-  font-size: 0.8rem;
-  color: #c7f9d5;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-}
-
 .header-nav {
   display: flex;
   gap: 0.5rem;

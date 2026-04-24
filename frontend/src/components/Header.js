@@ -8,9 +8,9 @@ import { useSocket } from "../context/SocketContect";
 
 export default function Header() {
 
-  const { logout, auth } = useAuth();
+  const { logout} = useAuth();
   const { alerts } = useSocket();
-
+  const unreadAlerts = alerts.length;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -21,22 +21,21 @@ export default function Header() {
     setIsMobileMenuOpen(false);
   };
 
-  const unreadAlerts = alerts.length;
 
   return (
     <header className="app-header">
-
       <div className="header-container">
         <div className="header-logo">
-          <img
+          <div className='logo-icon'>
+         <img
             src={`${process.env.PUBLIC_URL}/logo.png`}
             alt="NetworkMonitor"
             className="logo-img"
           />
+          </div>
 
           <div className="logo-text">
-            <h1>NetworkMonitor</h1>
-            <span>Surveillance Infrastructure</span>
+            <h1>NOVOS</h1>
           </div>
         </div>
 
@@ -55,8 +54,6 @@ export default function Header() {
           <NavLink to="/alerts" className="nav-link" onClick={closeMobileMenu}>
             <FiBell className="nav-icon" />
             Alertes
-
-            {/* 🔥 BADGE LIVE ALERTS */}
             {unreadAlerts > 0 && (
               <span className="alert-badge">
                 {unreadAlerts}
@@ -77,11 +74,8 @@ export default function Header() {
           <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
             {isMobileMenuOpen ? <FiX /> : <FiMenu />}
           </button>
-
         </div>
-
       </div>
-
     </header>
   );
 }

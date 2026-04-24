@@ -5,12 +5,11 @@ export default function ProtectedRoute({ children }) {
 
   const { auth } = useAuth();
 
-  // 🔵 loading safe check (évite flash redirect)
   if (auth.accessToken === undefined) {
-    return null; // ou spinner
+    return null; 
   }
 
-  // 🔴 not logged in
+
   if (!auth.accessToken) {
     return <Navigate to="/connexion" replace />;
   }

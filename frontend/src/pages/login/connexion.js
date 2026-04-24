@@ -60,13 +60,9 @@ const handleSubmit = async (e) => {
 
   return (
     <div className="connexion-container">
-
       <section className="connexion-card">
-
         <h2>Connexion</h2>
-
         <form onSubmit={handleSubmit} className="connexion-form">
-
           <label>
             <span>Nom d'utilisateur</span>
             <input
@@ -76,7 +72,6 @@ const handleSubmit = async (e) => {
               autoComplete="username"
             />
           </label>
-
           <label>
             <span>Mot de passe</span>
             <input
@@ -90,7 +85,6 @@ const handleSubmit = async (e) => {
           {error && (
             <p className="error-text">{error}</p>
           )}
-
           <button
             type="submit"
             disabled={isSubmitting}
@@ -98,11 +92,8 @@ const handleSubmit = async (e) => {
           >
             {isSubmitting ? "Connexion..." : "Se connecter"}
           </button>
-
         </form>
-
       </section>
-
     </div>
   );
 }

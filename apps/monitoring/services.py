@@ -7,7 +7,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 
-# ---------------- WEBSOCKET ALERT ----------------
+
 def send_alert_ws(alert):
     channel_layer = get_channel_layer()
 
@@ -24,11 +24,9 @@ def send_alert_ws(alert):
     )
 
 
-# ---------------- CONFIG ----------------
 OFFLINE_THRESHOLD_MINUTES = 1
 
 
-# ---------------- CREATE ALERT ----------------
 def create_device_alert(device, alert_type, message):
     alert = Alert.objects.create(
         device=device,
@@ -36,13 +34,12 @@ def create_device_alert(device, alert_type, message):
         message=message
     )
 
-    # 🔥 ENVOI WEBSOCKET UNE SEULE FOIS
+
     send_alert_ws(alert)
 
     return alert
 
 
-# ---------------- OFFLINE CHECK ----------------
 def mark_stale_devices_offline():
     limit = timezone.now() - timedelta(minutes=OFFLINE_THRESHOLD_MINUTES)
 
