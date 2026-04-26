@@ -3,10 +3,7 @@ from .models import Heartbeat, Alert
 
 
 class HeartbeatSerializer(serializers.ModelSerializer):
-    device_name = serializers.CharField(
-        source='device.name',
-        read_only=True
-    )
+    device_name = serializers.CharField(source='device.name',read_only=True)
 
     class Meta:
         model = Heartbeat
@@ -14,10 +11,7 @@ class HeartbeatSerializer(serializers.ModelSerializer):
 
 
 class AlertSerializer(serializers.ModelSerializer):
-    device_name = serializers.CharField(
-        source='device.name',
-        read_only=True
-    )
+    device_name = serializers.CharField(source='device.name',read_only=True)
 
     class Meta:
         model = Alert
