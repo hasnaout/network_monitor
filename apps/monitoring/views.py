@@ -2,12 +2,10 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
 from apps.devices.models import Device
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
 from .services import create_device_alert, mark_stale_devices_offline
-
 
 class HeartbeatViewSet(viewsets.ModelViewSet):
 
@@ -23,13 +21,10 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
         name = request.data.get('name')
         ip = request.data.get('ip_address')
         if not mac:
-            return Response(
-                {"error": "MAC address requise"},
-                status=400
-            )
+            return Response({"error": "MAC address requise"},  status=400)
 
         existing = Device.objects.filter(mac_address=mac).first()
-        was_offline = existing and existing.status != "online"
+        was_offline = existing and existing.status == "offline"
 
         device, created = Device.objects.update_or_create(
             mac_address=mac,
@@ -41,46 +36,19 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
         )
 
         if created:
-          create_device_alert(
-             device,
-             "first_connection",
-              f"{device.name} connecté pour la première fois",
-        )
+          handle_first_connection(device)
 
         elif was_offline:
-           create_device_alert(
-             device,
-             "reconnection",
-             f"{device.name} reconnecté",
-        )
+           handle_reconnection(device)
 
-        Heartbeat.objects.create(
-            device=device
-        )
+        Heartbeat.objects.create(device=device)
 
-        return Response({
-            "status": "ok",
-            "device": device.name,
-        }, status=status.HTTP_201_CREATED)
+        return Response({"status": "ok","device": device.name,}, status=status.HTTP_201_CREATED)
 
-
-class AlertViewSet(viewsets.ModelViewSet):
+class AlertViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = AlertSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        mark_stale_devices_offline()
         return Alert.objects.all()
-
-    @action(detail=True, methods=['post'])
-    def resolve(self, request, pk=None):
-        alert = self.get_object()
-        alert.save()
-        return Response({"status": "resolved"})
-
-    @action(detail=False, methods=['get'])
-    def open(self, request):
-        alerts = Alert.objects.filter(resolved=False)
-        serializer = self.get_serializer(alerts, many=True)
-        return Response(serializer.data)
