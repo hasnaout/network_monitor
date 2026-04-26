@@ -41,18 +41,18 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
         )
 
         if created:
-            create_device_alert(
-                device,
-                "device_connected",
-                f"{device.name} ajouté",
-            )
+          create_device_alert(
+             device,
+             "first_connection",
+              f"{device.name} connecté pour la première fois",
+        )
 
         elif was_offline:
-            create_device_alert(
-                device,
-                "device_reconnected",
-                f"{device.name} reconnecté",
-            )
+           create_device_alert(
+             device,
+             "reconnection",
+             f"{device.name} reconnecté",
+        )
 
         Heartbeat.objects.create(
             device=device
