@@ -23,9 +23,9 @@ class Heartbeat(models.Model):
 class Alert(models.Model):
 
     ALERT_TYPES = [
-        ("device_connected", "Connectee"),
-        ("device_disconnected", "Deconnectee"),
-        ("device_reconnecte", "Reconnecte"),
+        ("first_connection", "Premiere connexion"),
+        ("reconnection", "Reconnexion"),
+        ("disconnection", "Deconnexion"),
     ]
 
     device = models.ForeignKey(
