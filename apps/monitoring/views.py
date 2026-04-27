@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from apps.devices.models import Device
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
-from .services import create_device_alert, mark_stale_devices_offline
+from .services import handle_first_connection, handle_reconnection, mark_stale_devices_offline
 
 class HeartbeatViewSet(viewsets.ModelViewSet):
 
@@ -36,10 +36,9 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
         )
 
         if created:
-          handle_first_connection(device)
-
+            handle_first_connection(device)
         elif was_offline:
-           handle_reconnection(device)
+            handle_reconnection(device)
 
         Heartbeat.objects.create(device=device)
 

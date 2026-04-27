@@ -1,4 +1,6 @@
+import logging
 from datetime import timedelta
+
 from django.utils import timezone
 from apps.devices.models import Device
 from .models import Alert
@@ -6,24 +8,30 @@ from .models import Alert
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+logger = logging.getLogger(__name__)
 
 
 def send_alert_ws(alert):
-    channel_layer = get_channel_layer()
+    try:
+        channel_layer = get_channel_layer()
+        if channel_layer is None:
+            return
 
-    async_to_sync(channel_layer.group_send)(
-        "alerts",
-        {
-            "type": "send_alert",
-            "data": {
-                "id": alert.id,
-                "device": alert.device.name,
-                "alert_type": alert.alert_type,
-                "message": alert.message,
-                "created_at": str(alert.created_at),
+        async_to_sync(channel_layer.group_send)(
+            "alerts",
+            {
+                "type": "send_alert",
+                "data": {
+                    "id": alert.id,
+                    "device": alert.device.name,
+                    "alert_type": alert.alert_type,
+                    "message": alert.message,
+                    "created_at": str(alert.created_at),
+                },
             },
-        }
-    )
+        )
+    except Exception as exc:
+        logger.warning("Impossible d'envoyer l'alerte via websocket: %s", exc)
 
 
 OFFLINE_THRESHOLD_MINUTES = 1
