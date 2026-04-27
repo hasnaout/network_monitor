@@ -1,20 +1,5 @@
 ('C:\\sfe\\network_monitor\\network_monitor\\agent\\build\\agent\\PYZ-00.pyz',
- [('OpenSSL',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\OpenSSL\\__init__.py',
-   'PYMODULE'),
-  ('OpenSSL.SSL',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\OpenSSL\\SSL.py',
-   'PYMODULE'),
-  ('OpenSSL._util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\OpenSSL\\_util.py',
-   'PYMODULE'),
-  ('OpenSSL.crypto',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\OpenSSL\\crypto.py',
-   'PYMODULE'),
-  ('OpenSSL.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\OpenSSL\\version.py',
-   'PYMODULE'),
-  ('__future__',
+ [('__future__',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
    'PYMODULE'),
@@ -31,10 +16,12 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_compression.py',
    'PYMODULE'),
   ('_distutils_hack',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\_distutils_hack\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_distutils_hack\\__init__.py',
    'PYMODULE'),
   ('_distutils_hack.override',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\_distutils_hack\\override.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_distutils_hack\\override.py',
    'PYMODULE'),
   ('_py_abc',
    'C:\\Users\\salma '
@@ -200,9 +187,17 @@
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\base64.py',
    'PYMODULE'),
+  ('bcrypt',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\bcrypt\\__init__.py',
+   'PYMODULE'),
   ('bisect',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bisect.py',
+   'PYMODULE'),
+  ('brotli',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\brotli.py',
    'PYMODULE'),
   ('bz2',
    'C:\\Users\\salma '
@@ -213,31 +208,44 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\calendar.py',
    'PYMODULE'),
   ('certifi',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\certifi\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\__init__.py',
    'PYMODULE'),
   ('certifi.core',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\certifi\\core.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\certifi\\core.py',
    'PYMODULE'),
   ('charset_normalizer',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\__init__.py',
    'PYMODULE'),
   ('charset_normalizer.api',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\api.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\api.py',
+   'PYMODULE'),
+  ('charset_normalizer.cd',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\cd.py',
    'PYMODULE'),
   ('charset_normalizer.constant',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\constant.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\constant.py',
    'PYMODULE'),
   ('charset_normalizer.legacy',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\legacy.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\legacy.py',
    'PYMODULE'),
   ('charset_normalizer.models',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\models.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\models.py',
    'PYMODULE'),
   ('charset_normalizer.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\utils.py',
    'PYMODULE'),
   ('charset_normalizer.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\charset_normalizer\\version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\version.py',
    'PYMODULE'),
   ('concurrent',
    'C:\\Users\\salma '
@@ -276,163 +284,200 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\copy.py',
    'PYMODULE'),
   ('cryptography',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\__init__.py',
    'PYMODULE'),
   ('cryptography.__about__',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\__about__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\__about__.py',
    'PYMODULE'),
   ('cryptography.exceptions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\exceptions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\exceptions.py',
    'PYMODULE'),
   ('cryptography.hazmat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat._oid',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\_oid.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\_oid.py',
    'PYMODULE'),
   ('cryptography.hazmat.backends',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\backends\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.backends.openssl',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.backends.openssl.backend',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\backend.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\backends\\openssl\\backend.py',
    'PYMODULE'),
   ('cryptography.hazmat.bindings',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.bindings.openssl',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.bindings.openssl._conditional',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\_conditional.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\_conditional.py',
    'PYMODULE'),
   ('cryptography.hazmat.bindings.openssl.binding',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\binding.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\openssl\\binding.py',
    'PYMODULE'),
   ('cryptography.hazmat.decrepit',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.decrepit.ciphers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\ciphers\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\ciphers\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.decrepit.ciphers.algorithms',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\ciphers\\algorithms.py',
-   'PYMODULE'),
-  ('cryptography.hazmat.decrepit.ciphers.modes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\ciphers\\modes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\decrepit\\ciphers\\algorithms.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives._asymmetric',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_asymmetric.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_asymmetric.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives._cipheralgorithm',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_cipheralgorithm.py',
-   'PYMODULE'),
-  ('cryptography.hazmat.primitives._modes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_modes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_cipheralgorithm.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives._serialization',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_serialization.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\_serialization.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.dh',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dh.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dh.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.dsa',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dsa.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\dsa.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.ec',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ec.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ec.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.ed25519',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed25519.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed25519.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.ed448',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed448.py',
-   'PYMODULE'),
-  ('cryptography.hazmat.primitives.asymmetric.mldsa',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\mldsa.py',
-   'PYMODULE'),
-  ('cryptography.hazmat.primitives.asymmetric.mlkem',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\mlkem.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\ed448.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.padding',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\padding.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\padding.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.rsa',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\rsa.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\rsa.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.types',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\types.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\types.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\utils.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.x25519',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x25519.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x25519.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.asymmetric.x448',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x448.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\asymmetric\\x448.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.ciphers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.ciphers.algorithms',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\algorithms.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\algorithms.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.ciphers.base',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\base.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\base.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.ciphers.modes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\modes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\ciphers\\modes.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.constant_time',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\constant_time.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\constant_time.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.hashes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\hashes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\hashes.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.serialization',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\__init__.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.serialization.base',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\base.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\base.py',
    'PYMODULE'),
   ('cryptography.hazmat.primitives.serialization.ssh',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\ssh.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\hazmat\\primitives\\serialization\\ssh.py',
    'PYMODULE'),
   ('cryptography.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\utils.py',
    'PYMODULE'),
   ('cryptography.x509',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\__init__.py',
    'PYMODULE'),
   ('cryptography.x509.base',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\base.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\base.py',
    'PYMODULE'),
   ('cryptography.x509.certificate_transparency',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\certificate_transparency.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\certificate_transparency.py',
    'PYMODULE'),
   ('cryptography.x509.extensions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\extensions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\extensions.py',
    'PYMODULE'),
   ('cryptography.x509.general_name',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\general_name.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\general_name.py',
    'PYMODULE'),
   ('cryptography.x509.name',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\name.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\name.py',
    'PYMODULE'),
   ('cryptography.x509.oid',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\oid.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\oid.py',
    'PYMODULE'),
   ('cryptography.x509.verification',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\cryptography\\x509\\verification.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\cryptography\\x509\\verification.py',
    'PYMODULE'),
   ('csv',
    'C:\\Users\\salma '
@@ -619,22 +664,28 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\server.py',
    'PYMODULE'),
   ('idna',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\__init__.py',
    'PYMODULE'),
   ('idna.core',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\core.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\core.py',
    'PYMODULE'),
   ('idna.idnadata',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\idnadata.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\idnadata.py',
    'PYMODULE'),
   ('idna.intranges',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\intranges.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\intranges.py',
    'PYMODULE'),
   ('idna.package_data',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\package_data.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\package_data.py',
    'PYMODULE'),
   ('idna.uts46data',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\idna\\uts46data.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\idna\\uts46data.py',
    'PYMODULE'),
   ('importlib',
    'C:\\Users\\salma '
@@ -869,46 +920,64 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\opcode.py',
    'PYMODULE'),
   ('packaging',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\__init__.py',
    'PYMODULE'),
   ('packaging._elffile',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\_elffile.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_elffile.py',
    'PYMODULE'),
   ('packaging._manylinux',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\_manylinux.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_manylinux.py',
    'PYMODULE'),
   ('packaging._musllinux',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\_musllinux.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_musllinux.py',
    'PYMODULE'),
   ('packaging._parser',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\_parser.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_parser.py',
+   'PYMODULE'),
+  ('packaging._structures',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_structures.py',
    'PYMODULE'),
   ('packaging._tokenizer',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\_tokenizer.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_tokenizer.py',
    'PYMODULE'),
   ('packaging.licenses',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\licenses\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\licenses\\__init__.py',
    'PYMODULE'),
   ('packaging.licenses._spdx',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\licenses\\_spdx.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\licenses\\_spdx.py',
    'PYMODULE'),
   ('packaging.markers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\markers.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\markers.py',
    'PYMODULE'),
   ('packaging.requirements',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\requirements.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\requirements.py',
    'PYMODULE'),
   ('packaging.specifiers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\specifiers.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\specifiers.py',
    'PYMODULE'),
   ('packaging.tags',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\tags.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\tags.py',
    'PYMODULE'),
   ('packaging.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\utils.py',
    'PYMODULE'),
   ('packaging.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\packaging\\version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\version.py',
    'PYMODULE'),
   ('pathlib',
    'C:\\Users\\salma '
@@ -946,10 +1015,6 @@
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\topics.py',
    'PYMODULE'),
-  ('pywin32_system32', '-', 'PYMODULE'),
-  ('pywintypes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\pywintypes.py',
-   'PYMODULE'),
   ('queue',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\queue.py',
@@ -963,55 +1028,72 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\random.py',
    'PYMODULE'),
   ('requests',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\__init__.py',
    'PYMODULE'),
   ('requests.__version__',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\__version__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\__version__.py',
    'PYMODULE'),
   ('requests._internal_utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\_internal_utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\_internal_utils.py',
    'PYMODULE'),
   ('requests.adapters',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\adapters.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\adapters.py',
    'PYMODULE'),
   ('requests.api',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\api.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\api.py',
    'PYMODULE'),
   ('requests.auth',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\auth.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\auth.py',
    'PYMODULE'),
   ('requests.certs',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\certs.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\certs.py',
    'PYMODULE'),
   ('requests.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\compat.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\compat.py',
    'PYMODULE'),
   ('requests.cookies',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\cookies.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\cookies.py',
    'PYMODULE'),
   ('requests.exceptions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\exceptions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\exceptions.py',
    'PYMODULE'),
   ('requests.hooks',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\hooks.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\hooks.py',
    'PYMODULE'),
   ('requests.models',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\models.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\models.py',
    'PYMODULE'),
   ('requests.packages',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\packages.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\packages.py',
    'PYMODULE'),
   ('requests.sessions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\sessions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\sessions.py',
    'PYMODULE'),
   ('requests.status_codes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\status_codes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\status_codes.py',
    'PYMODULE'),
   ('requests.structures',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\structures.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\structures.py',
    'PYMODULE'),
   ('requests.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\requests\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\requests\\utils.py',
    'PYMODULE'),
   ('rlcompleter',
    'C:\\Users\\salma '
@@ -1030,410 +1112,544 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\selectors.py',
    'PYMODULE'),
   ('setuptools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\__init__.py',
    'PYMODULE'),
   ('setuptools._core_metadata',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_core_metadata.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_core_metadata.py',
    'PYMODULE'),
   ('setuptools._discovery',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_discovery.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_discovery.py',
    'PYMODULE'),
   ('setuptools._distutils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\__init__.py',
    'PYMODULE'),
   ('setuptools._distutils._log',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_log.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\_log.py',
    'PYMODULE'),
   ('setuptools._distutils._modified',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_modified.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\_modified.py',
    'PYMODULE'),
   ('setuptools._distutils._msvccompiler',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\_msvccompiler.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\_msvccompiler.py',
    'PYMODULE'),
   ('setuptools._distutils.archive_util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\archive_util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\archive_util.py',
    'PYMODULE'),
   ('setuptools._distutils.ccompiler',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\ccompiler.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\ccompiler.py',
    'PYMODULE'),
   ('setuptools._distutils.cmd',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\cmd.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\cmd.py',
    'PYMODULE'),
   ('setuptools._distutils.command',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\command\\__init__.py',
    'PYMODULE'),
   ('setuptools._distutils.command.bdist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\bdist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\command\\bdist.py',
    'PYMODULE'),
   ('setuptools._distutils.command.build',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\command\\build.py',
    'PYMODULE'),
   ('setuptools._distutils.command.build_ext',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\build_ext.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\command\\build_ext.py',
    'PYMODULE'),
   ('setuptools._distutils.command.sdist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\command\\sdist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\command\\sdist.py',
    'PYMODULE'),
   ('setuptools._distutils.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compat\\__init__.py',
    'PYMODULE'),
   ('setuptools._distutils.compat.numpy',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\numpy.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compat\\numpy.py',
    'PYMODULE'),
   ('setuptools._distutils.compat.py39',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compat\\py39.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compat\\py39.py',
    'PYMODULE'),
   ('setuptools._distutils.compilers', '-', 'PYMODULE'),
   ('setuptools._distutils.compilers.C', '-', 'PYMODULE'),
   ('setuptools._distutils.compilers.C.base',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\base.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\base.py',
    'PYMODULE'),
   ('setuptools._distutils.compilers.C.errors',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\errors.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\errors.py',
    'PYMODULE'),
   ('setuptools._distutils.compilers.C.msvc',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\msvc.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\compilers\\C\\msvc.py',
    'PYMODULE'),
   ('setuptools._distutils.core',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\core.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\core.py',
    'PYMODULE'),
   ('setuptools._distutils.debug',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\debug.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\debug.py',
    'PYMODULE'),
   ('setuptools._distutils.dir_util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\dir_util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\dir_util.py',
    'PYMODULE'),
   ('setuptools._distutils.dist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\dist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\dist.py',
    'PYMODULE'),
   ('setuptools._distutils.errors',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\errors.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\errors.py',
    'PYMODULE'),
   ('setuptools._distutils.extension',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\extension.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\extension.py',
    'PYMODULE'),
   ('setuptools._distutils.fancy_getopt',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\fancy_getopt.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\fancy_getopt.py',
    'PYMODULE'),
   ('setuptools._distutils.file_util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\file_util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\file_util.py',
    'PYMODULE'),
   ('setuptools._distutils.filelist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\filelist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\filelist.py',
    'PYMODULE'),
   ('setuptools._distutils.log',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\log.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\log.py',
    'PYMODULE'),
   ('setuptools._distutils.spawn',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\spawn.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\spawn.py',
    'PYMODULE'),
   ('setuptools._distutils.sysconfig',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\sysconfig.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\sysconfig.py',
    'PYMODULE'),
   ('setuptools._distutils.text_file',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\text_file.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\text_file.py',
    'PYMODULE'),
   ('setuptools._distutils.util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\util.py',
    'PYMODULE'),
   ('setuptools._distutils.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\version.py',
    'PYMODULE'),
   ('setuptools._distutils.versionpredicate',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_distutils\\versionpredicate.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_distutils\\versionpredicate.py',
    'PYMODULE'),
   ('setuptools._entry_points',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_entry_points.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_entry_points.py',
    'PYMODULE'),
   ('setuptools._imp',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_imp.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_imp.py',
    'PYMODULE'),
   ('setuptools._importlib',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_importlib.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_importlib.py',
    'PYMODULE'),
   ('setuptools._itertools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_itertools.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_itertools.py',
    'PYMODULE'),
   ('setuptools._normalization',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_normalization.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_normalization.py',
    'PYMODULE'),
   ('setuptools._path',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_path.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_path.py',
    'PYMODULE'),
   ('setuptools._reqs',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_reqs.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_reqs.py',
    'PYMODULE'),
   ('setuptools._shutil',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_shutil.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_shutil.py',
    'PYMODULE'),
   ('setuptools._static',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_static.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_static.py',
    'PYMODULE'),
   ('setuptools._vendor', '-', 'PYMODULE'),
   ('setuptools._vendor.backports',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\backports\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.backports.tarfile',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.backports.tarfile.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.backports.tarfile.compat.py38',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\py38.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\backports\\tarfile\\compat\\py38.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._adapters',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_adapters.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_adapters.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._collections',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_collections.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_collections.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_compat.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_compat.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._functools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_functools.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_functools.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._itertools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_itertools.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_itertools.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._meta',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_meta.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_meta.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._text',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_text.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_text.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata._typing',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_typing.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\_typing.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata.compat.py311',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py311.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py311.py',
    'PYMODULE'),
   ('setuptools._vendor.importlib_metadata.compat.py39',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py39.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata\\compat\\py39.py',
    'PYMODULE'),
   ('setuptools._vendor.jaraco', '-', 'PYMODULE'),
   ('setuptools._vendor.jaraco.context',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\context\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\context\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.jaraco.functools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\functools\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\functools\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.jaraco.text',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.more_itertools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.more_itertools.more',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\more.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\more.py',
    'PYMODULE'),
   ('setuptools._vendor.more_itertools.recipes',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\recipes.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\more_itertools\\recipes.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._elffile',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_elffile.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_elffile.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._manylinux',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_manylinux.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_manylinux.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._musllinux',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_musllinux.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_musllinux.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._parser',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_parser.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_parser.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._structures',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_structures.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging._tokenizer',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_tokenizer.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\_tokenizer.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.markers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\markers.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.requirements',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\requirements.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.specifiers',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\specifiers.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.tags',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\tags.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\utils.py',
    'PYMODULE'),
   ('setuptools._vendor.packaging.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\packaging\\version.py',
    'PYMODULE'),
   ('setuptools._vendor.tomli',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.tomli._parser',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_parser.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_parser.py',
    'PYMODULE'),
   ('setuptools._vendor.tomli._re',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_re.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_re.py',
    'PYMODULE'),
   ('setuptools._vendor.tomli._types',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_types.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\tomli\\_types.py',
    'PYMODULE'),
   ('setuptools._vendor.wheel',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.wheel.macosx_libfile',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\macosx_libfile.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\macosx_libfile.py',
    'PYMODULE'),
   ('setuptools._vendor.wheel.wheelfile',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\wheelfile.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\wheel\\wheelfile.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp._functools',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\_functools.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\_functools.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\__init__.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp.compat.overlay',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\overlay.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\overlay.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp.compat.py310',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py310.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py310.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp.compat.py313',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py313.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\compat\\py313.py',
    'PYMODULE'),
   ('setuptools._vendor.zipp.glob',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\glob.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\_vendor\\zipp\\glob.py',
    'PYMODULE'),
   ('setuptools.archive_util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\archive_util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\archive_util.py',
    'PYMODULE'),
   ('setuptools.command',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\__init__.py',
    'PYMODULE'),
   ('setuptools.command._requirestxt',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\_requirestxt.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\_requirestxt.py',
    'PYMODULE'),
   ('setuptools.command.bdist_egg',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\bdist_egg.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\bdist_egg.py',
    'PYMODULE'),
   ('setuptools.command.bdist_wheel',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\bdist_wheel.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\bdist_wheel.py',
    'PYMODULE'),
   ('setuptools.command.build',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\build.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\build.py',
    'PYMODULE'),
   ('setuptools.command.egg_info',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\egg_info.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\egg_info.py',
    'PYMODULE'),
   ('setuptools.command.sdist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\sdist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\sdist.py',
    'PYMODULE'),
   ('setuptools.command.setopt',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\command\\setopt.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\command\\setopt.py',
    'PYMODULE'),
   ('setuptools.compat',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\compat\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\compat\\__init__.py',
    'PYMODULE'),
   ('setuptools.compat.py310',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\compat\\py310.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\compat\\py310.py',
    'PYMODULE'),
   ('setuptools.compat.py311',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\compat\\py311.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\compat\\py311.py',
    'PYMODULE'),
   ('setuptools.compat.py39',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\compat\\py39.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\compat\\py39.py',
    'PYMODULE'),
   ('setuptools.config',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\__init__.py',
    'PYMODULE'),
   ('setuptools.config._apply_pyprojecttoml',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_apply_pyprojecttoml.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_apply_pyprojecttoml.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\__init__.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject.error_reporting',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\error_reporting.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\error_reporting.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject.extra_validations',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\extra_validations.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\extra_validations.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject.fastjsonschema_exceptions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_exceptions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_exceptions.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject.fastjsonschema_validations',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_validations.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\fastjsonschema_validations.py',
    'PYMODULE'),
   ('setuptools.config._validate_pyproject.formats',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\formats.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\_validate_pyproject\\formats.py',
    'PYMODULE'),
   ('setuptools.config.expand',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\expand.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\expand.py',
    'PYMODULE'),
   ('setuptools.config.pyprojecttoml',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\pyprojecttoml.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\pyprojecttoml.py',
    'PYMODULE'),
   ('setuptools.config.setupcfg',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\config\\setupcfg.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\config\\setupcfg.py',
    'PYMODULE'),
   ('setuptools.depends',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\depends.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\depends.py',
    'PYMODULE'),
   ('setuptools.discovery',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\discovery.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\discovery.py',
    'PYMODULE'),
   ('setuptools.dist',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\dist.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\dist.py',
    'PYMODULE'),
   ('setuptools.errors',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\errors.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\errors.py',
    'PYMODULE'),
   ('setuptools.extension',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\extension.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\extension.py',
    'PYMODULE'),
   ('setuptools.glob',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\glob.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\glob.py',
    'PYMODULE'),
   ('setuptools.installer',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\installer.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\installer.py',
    'PYMODULE'),
   ('setuptools.logging',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\logging.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\logging.py',
    'PYMODULE'),
   ('setuptools.monkey',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\monkey.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\monkey.py',
    'PYMODULE'),
   ('setuptools.msvc',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\msvc.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\msvc.py',
    'PYMODULE'),
   ('setuptools.unicode_utils',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\unicode_utils.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\unicode_utils.py',
    'PYMODULE'),
   ('setuptools.version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\version.py',
    'PYMODULE'),
   ('setuptools.warnings',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\warnings.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\warnings.py',
    'PYMODULE'),
   ('setuptools.wheel',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\wheel.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\wheel.py',
    'PYMODULE'),
   ('setuptools.windows_support',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\setuptools\\windows_support.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\setuptools\\windows_support.py',
    'PYMODULE'),
   ('shlex',
    'C:\\Users\\salma '
@@ -1536,7 +1752,8 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\typing.py',
    'PYMODULE'),
   ('typing_extensions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\typing_extensions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\typing_extensions.py',
    'PYMODULE'),
   ('unittest',
    'C:\\Users\\salma '
@@ -1607,112 +1824,148 @@
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\response.py',
    'PYMODULE'),
   ('urllib3',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\__init__.py',
    'PYMODULE'),
   ('urllib3._base_connection',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\_base_connection.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\_base_connection.py',
    'PYMODULE'),
   ('urllib3._collections',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\_collections.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\_collections.py',
    'PYMODULE'),
   ('urllib3._request_methods',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\_request_methods.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\_request_methods.py',
    'PYMODULE'),
   ('urllib3._version',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\_version.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\_version.py',
    'PYMODULE'),
   ('urllib3.connection',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\connection.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\connection.py',
    'PYMODULE'),
   ('urllib3.connectionpool',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\connectionpool.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\connectionpool.py',
    'PYMODULE'),
   ('urllib3.contrib',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\__init__.py',
    'PYMODULE'),
   ('urllib3.contrib.emscripten',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\__init__.py',
    'PYMODULE'),
   ('urllib3.contrib.emscripten.connection',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\connection.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\connection.py',
    'PYMODULE'),
   ('urllib3.contrib.emscripten.fetch',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\fetch.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\fetch.py',
    'PYMODULE'),
   ('urllib3.contrib.emscripten.request',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\request.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\request.py',
    'PYMODULE'),
   ('urllib3.contrib.emscripten.response',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\response.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\emscripten\\response.py',
    'PYMODULE'),
   ('urllib3.contrib.pyopenssl',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\pyopenssl.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\pyopenssl.py',
    'PYMODULE'),
   ('urllib3.contrib.socks',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\contrib\\socks.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\contrib\\socks.py',
    'PYMODULE'),
   ('urllib3.exceptions',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\exceptions.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\exceptions.py',
    'PYMODULE'),
   ('urllib3.fields',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\fields.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\fields.py',
    'PYMODULE'),
   ('urllib3.filepost',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\filepost.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\filepost.py',
    'PYMODULE'),
   ('urllib3.http2',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\http2\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\http2\\__init__.py',
    'PYMODULE'),
   ('urllib3.http2.connection',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\http2\\connection.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\http2\\connection.py',
    'PYMODULE'),
   ('urllib3.http2.probe',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\http2\\probe.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\http2\\probe.py',
    'PYMODULE'),
   ('urllib3.poolmanager',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\poolmanager.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\poolmanager.py',
    'PYMODULE'),
   ('urllib3.response',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\response.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\response.py',
    'PYMODULE'),
   ('urllib3.util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\__init__.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\__init__.py',
    'PYMODULE'),
   ('urllib3.util.connection',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\connection.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\connection.py',
    'PYMODULE'),
   ('urllib3.util.proxy',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\proxy.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\proxy.py',
    'PYMODULE'),
   ('urllib3.util.request',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\request.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\request.py',
    'PYMODULE'),
   ('urllib3.util.response',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\response.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\response.py',
    'PYMODULE'),
   ('urllib3.util.retry',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\retry.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\retry.py',
    'PYMODULE'),
   ('urllib3.util.ssl_',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\ssl_.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\ssl_.py',
    'PYMODULE'),
   ('urllib3.util.ssl_match_hostname',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\ssl_match_hostname.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\ssl_match_hostname.py',
    'PYMODULE'),
   ('urllib3.util.ssltransport',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\ssltransport.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\ssltransport.py',
    'PYMODULE'),
   ('urllib3.util.timeout',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\timeout.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\timeout.py',
    'PYMODULE'),
   ('urllib3.util.url',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\url.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\url.py',
    'PYMODULE'),
   ('urllib3.util.util',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\util.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\util.py',
    'PYMODULE'),
   ('urllib3.util.wait',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\urllib3\\util\\wait.py',
+   'C:\\Users\\salma '
+   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\urllib3\\util\\wait.py',
    'PYMODULE'),
   ('uuid',
    'C:\\Users\\salma '
@@ -1721,21 +1974,6 @@
   ('webbrowser',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\webbrowser.py',
-   'PYMODULE'),
-  ('win32con',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\win32con.py',
-   'PYMODULE'),
-  ('win32evtlogutil',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\win32evtlogutil.py',
-   'PYMODULE'),
-  ('win32serviceutil',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\win32serviceutil.py',
-   'PYMODULE'),
-  ('win32timezone',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\win32timezone.py',
-   'PYMODULE'),
-  ('winerror',
-   'C:\\sfe\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\lib\\winerror.py',
    'PYMODULE'),
   ('xml',
    'C:\\Users\\salma '
@@ -1784,10 +2022,6 @@
   ('zipfile',
    'C:\\Users\\salma '
    'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\__init__.py',
-   'PYMODULE'),
-  ('zipfile.__main__',
-   'C:\\Users\\salma '
-   'aoujil\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\__main__.py',
    'PYMODULE'),
   ('zipfile._path',
    'C:\\Users\\salma '

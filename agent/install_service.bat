@@ -4,7 +4,7 @@ setlocal
 cd /d "%~dp0"
 
 if not exist "agent.config.json" (
-  > "agent.config.json" echo { "server_url": "http://192.168.120.237:8000/api/heartbeat/ping/" }
+  > "agent.config.json" echo { "server_url": "http://192.168.120.237:8000/api/monitoring/ping/" }
 )
 
 echo Verification de l'etat du service NetworkAgent...
@@ -16,7 +16,7 @@ if %errorlevel%==0 (
 )
 
 echo Installation du service NetworkAgent...
-"%~dp0agent.exe" install
+python "agent.py" install
 if errorlevel 1 (
   echo Echec pendant l'installation du service.
   exit /b 1
@@ -28,7 +28,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-"%~dp0agent.exe" start
+python "agent.py" start
 if errorlevel 1 (
   echo Le service est installe mais n'a pas pu etre demarre.
   exit /b 1

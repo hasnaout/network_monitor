@@ -6,26 +6,17 @@ Modifiez `agent.config.json` avant installation :
 
 ```json
 {
-  "server_url": "http://192.168.120.237:8000/api/heartbeat/ping/"
+  "server_url": "http://192.168.120.237:8000/api/monitoring/ping/"
 }
 ```
 
 ## Installation
 
-Copiez au minimum ces fichiers sur le PC client :
-
-- `agent.exe`
-- `agent.config.json`
-- `install_service.bat`
-- `uninstall_service.bat`
-
-Lancer ensuite l'invite de commandes en administrateur, puis executer :
+Lancer l'invite de commandes en administrateur, puis executer :
 
 ```bat
 install_service.bat
 ```
-
-Aucune installation de Python ni des dependances n'est necessaire sur le PC client.
 
 ## Desinstallation
 

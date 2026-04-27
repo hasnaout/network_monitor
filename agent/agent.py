@@ -1,30 +1,24 @@
+# J'importe toutes les bibliotheques dont j'ai besoin
+import getpass
 import json
 import os
 import socket
 import subprocess
-import sys
+import time
 import uuid
 from datetime import datetime
 from urllib.parse import urlparse
 
+import psutil
 import requests
 import servicemanager
 import win32event
 import win32service
 import win32serviceutil
 
-DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/heartbeat/ping/"
+DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/monitoring/ping/"
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agent.config.json")
 INTERVAL = 30
-REQUEST_TIMEOUT = 5
-
-
-def get_runtime_dir():
-    if getattr(sys, "frozen", False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(__file__)
-
-
-CONFIG_FILE = os.path.join(get_runtime_dir(), "agent.config.json")
 
 
 def load_config():
@@ -49,43 +43,32 @@ def get_server_host():
     return urlparse(get_server_url()).hostname or "127.0.0.1"
 
 
-def get_server_port():
-    parsed = urlparse(get_server_url())
-    if parsed.port:
-        return parsed.port
-    return 443 if parsed.scheme == "https" else 80
-
-
 def get_pc_name():
     return socket.gethostname()
 
 
-def get_mac():
-    mac = uuid.getnode()
-    return ":".join(f"{(mac >> shift) & 0xFF:02X}" for shift in range(40, -1, -8))
-
-
 def get_ip():
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.connect(("8.8.8.8", 80))
-            return sock.getsockname()[0]
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        ip_address = sock.getsockname()[0]
+        sock.close()
+        return ip_address
     except Exception:
-        return "127.0.0.1"
+        return "inconnu"
 
 
-def log_info(message):
+def get_mac():
+    return ":".join(
+        ["{:02x}".format((uuid.getnode() >> offset) & 0xFF) for offset in range(0, 2 * 6, 8)][::-1]
+    )
+
+
+def get_user():
     try:
-        servicemanager.LogInfoMsg(f"{NetworkAgentService._svc_name_}: {message}")
+        return getpass.getuser()
     except Exception:
-        pass
-
-
-def log_error(message):
-    try:
-        servicemanager.LogErrorMsg(f"{NetworkAgentService._svc_name_}: {message}")
-    except Exception:
-        pass
+        return "inconnu"
 
 
 def check_connectivity():
@@ -93,21 +76,29 @@ def check_connectivity():
         ping_result = subprocess.run(
             ["ping", "-n", "1", get_server_host()],
             capture_output=True,
-            timeout=REQUEST_TIMEOUT,
+            timeout=5,
         )
         ping_ok = ping_result.returncode == 0
     except Exception:
         ping_ok = False
 
     try:
-        with socket.create_connection((get_server_host(), get_server_port()), timeout=REQUEST_TIMEOUT):
-            tcp_ok = True
+        http_result = requests.get(get_server_base_url(), timeout=5)
+        http_ok = http_result.status_code == 200
     except Exception:
-        tcp_ok = False
+        http_ok = False
 
-    if ping_ok or tcp_ok:
+    if ping_ok and http_ok:
         return "Accessible"
     return "Non accessible"
+
+
+def get_cpu():
+    return psutil.cpu_percent(interval=1)
+
+
+def get_ram():
+    return psutil.virtual_memory().percent
 
 
 def send_heartbeat():
@@ -115,17 +106,17 @@ def send_heartbeat():
         "name": get_pc_name(),
         "mac_address": get_mac(),
         "ip_address": get_ip(),
+        "connected_user": get_user(),
         "network_state": check_connectivity(),
         "timestamp": datetime.now().isoformat(),
+        "cpu_usage": get_cpu(),
+        "ram_usage": get_ram(),
     }
 
     try:
-        response = requests.post(get_server_url(), json=data, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        return True
-    except requests.RequestException as exc:
-        log_error(f"Echec d'envoi du heartbeat vers {get_server_url()}: {exc}")
-        return False
+        requests.post(get_server_url(), json=data, timeout=5)
+    except Exception:
+        pass
 
 
 class NetworkAgentService(win32serviceutil.ServiceFramework):
@@ -149,15 +140,10 @@ class NetworkAgentService(win32serviceutil.ServiceFramework):
             servicemanager.PYS_SERVICE_STARTED,
             (self._svc_name_, ""),
         )
-        log_info("Service demarre")
 
         while self.running:
             send_heartbeat()
-            wait_result = win32event.WaitForSingleObject(self.stop_event, INTERVAL * 1000)
-            if wait_result == win32event.WAIT_OBJECT_0:
-                break
-
-        log_info("Service arrete")
+            time.sleep(INTERVAL)
 
 
 if __name__ == "__main__":

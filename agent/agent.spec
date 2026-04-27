@@ -1,16 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-from pathlib import Path
-
-project_dir = Path(SPECPATH)
-
 
 a = Analysis(
     ['agent.py'],
     pathex=[],
     binaries=[],
-    datas=[(str(project_dir / 'agent.config.json'), '.')],
-    hiddenimports=['win32timezone'],
+    datas=[],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -25,12 +21,15 @@ exe = EXE(
     a.scripts,
     a.binaries,
     a.datas,
+    [],
     name='agent',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
