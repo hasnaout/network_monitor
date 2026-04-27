@@ -4,6 +4,7 @@ import json
 import os
 import socket
 import subprocess
+import sys
 import time
 import uuid
 from datetime import datetime
@@ -17,7 +18,22 @@ import win32service
 import win32serviceutil
 
 DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/heartbeat/ping/"
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agent.config.json")
+
+
+def get_config_path():
+    """Obtenir le chemin du fichier config"""
+    # Quand compilé avec PyInstaller, utiliser le répertoire de l'exécutable
+    if getattr(sys, 'frozen', False):
+        # L'app est exécutée depuis PyInstaller
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        # L'app est exécutée directement depuis Python
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    return os.path.join(base_dir, "agent.config.json")
+
+
+CONFIG_FILE = get_config_path()
 INTERVAL = 30
 
 

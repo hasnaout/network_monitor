@@ -1,5 +1,8 @@
-# Agent Build Requirements (Developers only)
-# These dependencies are needed to compile the agent.py into agent.exe
-# Run: pip install -r requirements-agent-build.txt
-
 pyinstaller==6.10.0
+requests==2.31.0
+urllib3==1.26.18
+six
+certifi
+idna
+charset_normalizer
+pywin32
