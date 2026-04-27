@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import "./connexion.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { login as loginService } from '../../services/authService'; // ✅ utiliser service
 
 export default function Connexion() {
 
@@ -13,50 +12,28 @@ export default function Connexion() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!username || !password) {
-    setError("Veuillez remplir tous les champs");
-    return;
-  }
-
-  setError('');
-  setIsSubmitting(true);
-
-  try {
-    const response = await fetch(`${API_URL}/api/token/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.detail || "Connexion échouée");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setError("Veuillez remplir tous les champs");
+      return;
     }
-
-    login({
-      accessToken: data.access,
-      refreshToken: data.refresh,
-      username,
-    });
-
-
-  setTimeout(() => {
-  navigate("/");
-}, 50);
-
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const data = await loginService(username, password);
+      login({
+        accessToken: data.access,
+        refreshToken: data.refresh,
+        username,
+      });
+      navigate("/");
+    } catch (err) {
+      setError(err?.response?.data?.detail || "Connexion échouée");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="connexion-container">
@@ -81,7 +58,6 @@ const handleSubmit = async (e) => {
               autoComplete="current-password"
             />
           </label>
-
           {error && (
             <p className="error-text">{error}</p>
           )}

@@ -19,17 +19,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 api.interceptors.response.use(
-  (response) => response,
+  res => res,
   async (error) => {
 
     const originalRequest = error.config;
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const refresh = localStorage.getItem('refresh_token');
-        const res = await axios.post(`${API_URL}/api/token/refresh/`, {
+        const res = await api.post('/api/token/refresh/', {
           refresh,
         });
+
         const newAccess = res.data.access;
         localStorage.setItem('access_token', newAccess);
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
