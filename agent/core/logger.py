@@ -1,7 +1,10 @@
 import logging
+import os
+
+log_path = os.path.join(os.path.dirname(__file__), "agent.log")
 
 logging.basicConfig(
-    filename="agent.log",
+    filename=log_path,
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )

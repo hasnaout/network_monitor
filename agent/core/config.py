@@ -1,2 +1,2 @@
-API_URL = "https://trinity-unherolike-meanly.ngrok-free.d/api/heartbeat/ping/"
-INTERVAL = 10
+API_URL = "http://192.168.120.45:8000/api/monitoring/ping/"
+INTERVAL = 30

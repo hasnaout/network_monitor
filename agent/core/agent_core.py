@@ -1,27 +1,37 @@
-def run_agent(stop_event):
-    import time
-    from core.config import INTERVAL
-    from core.system_info import get_ip, get_hostname, get_mac
-    from core.logger import log
+import time
+import requests
+from core.config import API_URL, INTERVAL
+from core.system_info import (
+    get_hostname, get_ip, get_mac,
+    get_user, get_cpu, get_ram, check_network
+)
 
-    log("Agent started")
+def run_agent(stop_event=None):
+    print("Agent démarré")
 
     while True:
-        # arrêt propre service
-        import win32event
-        if win32event.WaitForSingleObject(stop_event, 0) == 0:
-            break
+        if stop_event is not None:
+            try:
+                import win32event
+                if win32event.WaitForSingleObject(stop_event, 0) == 0:
+                    break
+            except:
+                pass
 
         data = {
-            "mac_address": get_mac(),
             "name": get_hostname(),
+            "mac_address": get_mac(),
             "ip_address": get_ip(),
+            "connected_user": get_user(),
+            "network_state": check_network(),
+            "cpu_usage": get_cpu(),
+            "ram_usage": get_ram(),
         }
 
         try:
-            import requests
-            requests.post("https://trinity-unherolike-meanly.ngrok-free.d/api/heartbeat/ping/", json=data, timeout=5)
-        except:
-            pass
+            response = requests.post(API_URL, json=data, timeout=5)
+            print(f"Signal envoyé : {data['name']} - {response.status_code}")
+        except Exception as e:
+            print(f"Erreur : {e}")
 
         time.sleep(INTERVAL)
