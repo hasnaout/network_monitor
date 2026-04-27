@@ -1,0 +1,9 @@
+ENTRY ERROR: name 'NetworkAgentService' is not defined
+ENTRY ERROR: name 'NetworkAgentService' is not defined
+SERVICE STARTED
+TRY HEARTBEAT
+HEARTBEAT OK
+TRY HEARTBEAT
+HEARTBEAT OK
+ENTRY ERROR: name 'NetworkAgentService' is not defined
+ENTRY ERROR: name 'NetworkAgentService' is not defined

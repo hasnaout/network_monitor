@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+import pywin32_system32
 
 a = Analysis(
     ['agent.py'],
@@ -7,6 +7,7 @@ a = Analysis(
     binaries=[],
     datas=[('agent.config.json', '.')],
     hiddenimports=[
+       "win32timezone",
         'psutil',
         'requests',
         'servicemanager',
@@ -38,10 +39,11 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
 )
+
