@@ -3,8 +3,19 @@ setlocal
 
 cd /d "%~dp0"
 
+REM Verifier si l'exe compilé existe
+if not exist "dist\agent.exe" (
+  echo ERREUR: dist\agent.exe n'existe pas.
+  echo Vous devez d'abord compiler l'agent avec PyInstaller.
+  echo.
+  echo Commandes:
+  echo   pip install pyinstaller
+  echo   pyinstaller agent.spec
+  exit /b 1
+)
+
 if not exist "agent.config.json" (
-  > "agent.config.json" echo { "server_url": "http://192.168.120.237:8000/api/monitoring/ping/" }
+  > "agent.config.json" echo { "server_url": "http://192.168.120.237:8000/api/heartbeat/ping/" }
 )
 
 echo Verification de l'etat du service NetworkAgent...
@@ -16,7 +27,7 @@ if %errorlevel%==0 (
 )
 
 echo Installation du service NetworkAgent...
-python "agent.py" install
+"dist\agent.exe" install
 if errorlevel 1 (
   echo Echec pendant l'installation du service.
   exit /b 1
@@ -28,7 +39,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-python "agent.py" start
+"dist\agent.exe" start
 if errorlevel 1 (
   echo Le service est installe mais n'a pas pu etre demarre.
   exit /b 1

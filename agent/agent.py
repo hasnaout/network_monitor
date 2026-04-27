@@ -16,7 +16,7 @@ import win32event
 import win32service
 import win32serviceutil
 
-DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/monitoring/ping/"
+DEFAULT_SERVER_URL = "http://192.168.120.237:8000/api/heartbeat/ping/"
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agent.config.json")
 INTERVAL = 30
 
@@ -64,13 +64,6 @@ def get_mac():
     )
 
 
-def get_user():
-    try:
-        return getpass.getuser()
-    except Exception:
-        return "inconnu"
-
-
 def check_connectivity():
     try:
         ping_result = subprocess.run(
@@ -93,29 +86,17 @@ def check_connectivity():
     return "Non accessible"
 
 
-def get_cpu():
-    return psutil.cpu_percent(interval=1)
-
-
-def get_ram():
-    return psutil.virtual_memory().percent
-
-
 def send_heartbeat():
     data = {
         "name": get_pc_name(),
         "mac_address": get_mac(),
         "ip_address": get_ip(),
-        "connected_user": get_user(),
-        "network_state": check_connectivity(),
-        "timestamp": datetime.now().isoformat(),
-        "cpu_usage": get_cpu(),
-        "ram_usage": get_ram(),
     }
 
     try:
-        requests.post(get_server_url(), json=data, timeout=5)
-    except Exception:
+        response = requests.post(get_server_url(), json=data, timeout=5)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
         pass
 
 
