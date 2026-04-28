@@ -1,49 +1,73 @@
 # -*- mode: python ; coding: utf-8 -*-
-import pywin32_system32
+
+import sys
+from PyInstaller.utils.hooks import collect_submodules
+
+block_cipher = None
+
+# PyWin32 modules (important pour service Windows)
+hidden_imports = [
+    "win32timezone",
+    "win32service",
+    "win32serviceutil",
+    "win32event",
+    "servicemanager",
+    "win32api",
+    "pywintypes",
+    "netifaces",          # ← ajouté pour get_mac() fiable
+]
+hidden_imports += collect_submodules("requests")
+
+# Si requests ou dépendances cachées
+hidden_imports += collect_submodules("requests")
+
 
 a = Analysis(
     ['agent.py'],
     pathex=[],
     binaries=[],
-    datas=[('agent.config.json', '.')],
-    hiddenimports=[
-       "win32timezone",
-        'psutil',
-        'requests',
-        'servicemanager',
-        'win32event',
-        'win32service',
-        'win32serviceutil',
-        'win32api',
-        'pywintypes',
+    datas=[
+        # si tu veux inclure config par défaut
+        ('agent.config.json', '.'),
     ],
+    hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        "tkinter",
+        "matplotlib",
+        "pandas",
+        "numpy",
+        "IPython"
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
-pyz = PYZ(a.pure)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
-    name='agent',
+    exclude_binaries=True,
+    name='NetworkAgent',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
+    console=False,   # pas de fenêtre cmd (service)
 )
 
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    name='NetworkAgent'
+)
