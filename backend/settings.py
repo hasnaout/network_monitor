@@ -12,7 +12,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 INSTALLED_APPS = [
     "daphne",
@@ -135,22 +139,29 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+AGENT_TOKEN = os.getenv("AGENT_TOKEN")
+
 CORS_ALLOW_CREDENTIALS = True
 
 ASGI_APPLICATION = "backend.asgi.application"
 
-if DEBUG:
+CHANNEL_LAYER = os.getenv("CHANNEL_LAYER", "memory").strip().lower()
+
+if CHANNEL_LAYER == "redis":
     CHANNEL_LAYERS = {
         "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer",
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(
+                    os.getenv("REDIS_HOST", "127.0.0.1"),
+                    int(os.getenv("REDIS_PORT", "6379")),
+                )],
+            },
         }
     }
 else:
     CHANNEL_LAYERS = {
         "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [("127.0.0.1", 6379)],
-            },
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
         }
     }

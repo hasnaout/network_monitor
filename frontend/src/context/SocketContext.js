@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { API_URL } from '../services/api';
 
 const SocketContext = createContext();
 
@@ -13,7 +14,9 @@ export function SocketProvider({ children }) {
 useEffect(() => {
   if (!auth.accessToken) return;
 
-  const ws = new WebSocket("ws://127.0.0.1:8000/ws/alerts/");
+  const wsUrl = process.env.REACT_APP_WS_URL
+    || API_URL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws/alerts/';
+  const ws = new WebSocket(wsUrl);
   ws.onopen = () => {
     console.log("WebSocket connected");
     setConnected(true);

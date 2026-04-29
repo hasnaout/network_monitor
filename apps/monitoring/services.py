@@ -49,22 +49,22 @@ def create_device_alert(device, alert_type, message):
 def mark_stale_devices_offline():
     limit = timezone.now() - timedelta(minutes=OFFLINE_THRESHOLD_MINUTES)
 
-    stale_devices = Device.objects.filter(
+    stale_devices = list(Device.objects.filter(
         last_seen__lt=limit,
         status="online"
-    )
+    ))
 
     for device in stale_devices:
 
         device.status = "offline"
-        device.save()
+        device.save(update_fields=["status"])
         create_device_alert(
             device=device,
             alert_type="disconnection",
             message=f"{device.name} s'est déconnecté."
         )
 
-    return stale_devices.count()
+    return len(stale_devices)
 
 def handle_first_connection(device):
     create_device_alert(

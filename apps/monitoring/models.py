@@ -7,6 +7,7 @@ class Heartbeat(models.Model):
     is_alive = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     response_time_ms = models.IntegerField(null=True, blank=True)
+
     class Meta:
         ordering = ['-timestamp']
 

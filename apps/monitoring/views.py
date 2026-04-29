@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.conf import settings
 from apps.devices.models import Device
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
@@ -17,9 +18,15 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
     def ping(self, request):
 
         mark_stale_devices_offline()
-        mac = request.data.get('mac_address')
-        name = request.data.get('name')
+        agent_token = getattr(settings, "AGENT_TOKEN", None)
+        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+            return Response({"error": "Token agent invalide"}, status=401)
+
+        mac = (request.data.get('mac_address') or '').strip().lower()
+        name = (request.data.get('name') or '').strip()
         ip = request.data.get('ip_address')
+        if ip in ("", "unknown"):
+            ip = None
         if not mac:
             return Response({"error": "MAC address requise"},  status=400)
 
@@ -29,7 +36,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
         device, created = Device.objects.update_or_create(
             mac_address=mac,
             defaults={
-                "name": name,
+                "name": name or mac,
                 "ip_address": ip,
                 "status": "online",
             }

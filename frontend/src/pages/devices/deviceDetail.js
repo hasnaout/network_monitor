@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+ import { useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
 import { getDeviceById } from "../../services/deviceService";
+import { getAlerts } from "../../services/alertService";
 import { useSocket } from "../../context/SocketContext";
 
 function getStatusClass(status) {
@@ -19,6 +20,7 @@ export default function DeviceDetail() {
   const { alerts = [] } = useSocket();
 
   const [device, setDevice] = useState(null);
+  const [apiAlerts, setApiAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -31,8 +33,12 @@ export default function DeviceDetail() {
         setLoading(true);
         setError('');
 
-        const res = await getDeviceById(id);
-        setDevice(res.data);
+        const [deviceRes, alertsRes] = await Promise.all([
+          getDeviceById(id),
+          getAlerts(),
+        ]);
+        setDevice(deviceRes.data);
+        setApiAlerts(alertsRes.data);
 
       } catch (err) {
         setError("Erreur chargement device");
@@ -44,9 +50,19 @@ export default function DeviceDetail() {
     load();
 
   }, [auth?.accessToken, id]);
-  const deviceAlerts = alerts.filter(a =>
-    a.device === device?.name
+
+  const mergedAlerts = [...alerts, ...apiAlerts].filter(
+    (item, index, self) =>
+      index === self.findIndex(a => a.id === item.id)
   );
+
+  const deviceAlerts = mergedAlerts
+    .filter(a =>
+      String(a.device) === String(device?.id) ||
+      a.device === device?.name ||
+      a.device_name === device?.name
+    )
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   if (loading) {
     return <div className="screen-state">Chargement...</div>;
@@ -66,6 +82,7 @@ export default function DeviceDetail() {
             <h2>{device.name}</h2>
             <div className="device-meta">
               <p><strong>IP :</strong> {device.ip_address || "—"}</p>
+              <p><strong>MAC :</strong> {device.mac_address || "—"}</p>
               <p><strong>Type :</strong> {device.device_type || "—"}</p>
 
               <p>
@@ -80,7 +97,7 @@ export default function DeviceDetail() {
           <section className="table-panel">
 
             <div className="panel-heading">
-              <h3>Alertes du device (Live)</h3>
+              <h3>Alertes du device</h3>
             </div>
 
             {deviceAlerts.length === 0 ? (
@@ -94,6 +111,7 @@ export default function DeviceDetail() {
                   <tr>
                     <th>Type</th>
                     <th>Message</th>
+                    <th>Date</th>
                   </tr>
                 </thead>
 
@@ -102,6 +120,11 @@ export default function DeviceDetail() {
                     <tr key={a.id}>
                       <td>{a.alert_type}</td>
                       <td>{a.message}</td>
+                      <td>
+                        {a.created_at
+                          ? new Date(a.created_at).toLocaleString('fr-FR')
+                          : "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

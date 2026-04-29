@@ -6,7 +6,7 @@ import { useSocket } from "../../context/SocketContext";
 import { getAlerts } from "../../services/alertService";
 
 function getAlertTypeClass(type) {
-  if (type === "device_connected" || type === "device_reconnected") {
+  if (type === "first_connection" || type === "reconnection") {
     return "status-pill is-online";
   }
   return "status-pill is-offline";
@@ -99,7 +99,7 @@ export default function Alerts() {
                     const deviceName =
                       typeof a.device === "object"
                         ? a.device.name
-                        : a.device;
+                        : a.device_name || a.device;
                     return (
                       <tr key={a.id}>
                         <td><strong>{deviceName}</strong></td>

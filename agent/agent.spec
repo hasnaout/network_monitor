@@ -14,11 +14,7 @@ hidden_imports = [
     "servicemanager",
     "win32api",
     "pywintypes",
-    "netifaces",          # ← ajouté pour get_mac() fiable
 ]
-hidden_imports += collect_submodules("requests")
-
-# Si requests ou dépendances cachées
 hidden_imports += collect_submodules("requests")
 
 
@@ -26,9 +22,10 @@ a = Analysis(
     ['agent.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        # si tu veux inclure config par défaut
+datas=[
         ('agent.config.json', '.'),
+        ('install.bat', '.'),
+        ('uninstall.bat', '.'),
     ],
     hiddenimports=hidden_imports,
     hookspath=[],
@@ -59,7 +56,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,   # pas de fenêtre cmd (service)
+    console=False,
 )
 
 coll = COLLECT(
