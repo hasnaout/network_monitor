@@ -1,89 +1,137 @@
 import json
 import os
 import socket
-import subprocess
-import sys
 import time
 import uuid
 import requests
+import sys
+import logging
 
-import servicemanager
 import win32event
 import win32service
 import win32serviceutil
+import servicemanager
 
-import sys
+# ================= PATH =================
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
 
+BASE_DIR = get_base_dir()
+CONFIG_FILE = os.path.join(BASE_DIR, "agent.config.json")
+
+# ================= LOGGING =================
+# Remplacement du log() maison par le module standard
+logging.basicConfig(
+    filename=os.path.join(BASE_DIR, "agent.log"),
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("NetworkAgent")
 
 # ================= CONFIG =================
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "agent.config.json")
+# Chargée une seule fois au démarrage, pas à chaque heartbeat
+_config: dict = {}
 
-DEFAULT_SERVER_URL = "http://127.0.0.1:8000/api/heartbeat/ping/"
-
-
-# ================= CONFIG LOAD =================
-def load_config():
+def load_config() -> dict:
+    global _config
     try:
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+        with open(CONFIG_FILE, "r") as f:
+            _config = json.load(f)
+            logger.info("Config chargée depuis %s", CONFIG_FILE)
+    except FileNotFoundError:
+        logger.warning("Fichier config introuvable, valeurs par défaut utilisées.")
+    except json.JSONDecodeError as e:
+        logger.error("Config JSON invalide : %s", e)
+    return _config
 
+def get_server_url() -> str:
+    return _config.get("server_url", "http://127.0.0.1:8000").rstrip("/")
 
-def get_server_url():
-    config = load_config()
-    return config.get("server_url") or DEFAULT_SERVER_URL
-
-
-def get_server_host():
-    return socket.gethostbyname("localhost")
-
+def get_heartbeat_interval() -> int:
+    """Intervalle en ms, configurable depuis le JSON."""
+    return int(_config.get("heartbeat_interval_ms", 30_000))
 
 # ================= DEVICE INFO =================
-def get_pc_name():
+def get_hostname() -> str:
     return socket.gethostname()
 
-
-def get_ip():
+def get_ip() -> str:
     try:
-        return socket.gethostbyname(socket.gethostname())
-    except:
+        # Connexion UDP fictive — retourne la bonne IP locale sans envoyer de paquet
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception:
         return "unknown"
 
+def get_mac() -> str:
+    """
+    CORRECTION : uuid.getnode() peut renvoyer une MAC aléatoire.
+    On préfère itérer sur les interfaces réseau via netifaces si disponible,
+    sinon fallback sur uuid.getnode().
+    """
+    try:
+        import netifaces
+        for iface in netifaces.interfaces():
+            addrs = netifaces.ifaddresses(iface)
+            if netifaces.AF_LINK in addrs:
+                mac = addrs[netifaces.AF_LINK][0].get("addr", "")
+                if mac and mac != "00:00:00:00:00:00":
+                    return mac
+    except ImportError:
+        pass  # netifaces non installé, fallback
 
-def get_mac():
+    node = uuid.getnode()
     return ":".join(
-        ["{:02x}".format((uuid.getnode() >> i) & 0xff) for i in range(0, 48, 8)][::-1]
+        ["{:02x}".format((node >> i) & 0xff) for i in range(0, 48, 8)][::-1]
     )
 
+def build_payload() -> dict:
+    return {
+        "name": get_hostname(),
+        "mac_address": get_mac(),
+        "ip_address": get_ip(),
+    }
 
-# ================= HEARTBEAT =================
-def send_heartbeat():
-    with open("agent.log", "a") as f:
-        f.write("TRY HEARTBEAT\n")
+# ================= HEARTBEAT avec retry =================
+MAX_RETRIES = 3
+RETRY_DELAY_S = 5
 
-    try:
-        response = requests.post(get_server_url(), json={
-            "name": get_pc_name(),
-            "mac_address": get_mac(),
-            "ip_address": get_ip(),
-        }, timeout=5)
+def send_heartbeat() -> bool:
+    url = get_server_url() + "/api/heartbeat/ping/"
+    payload = build_payload()
 
-        response.raise_for_status()
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            r = requests.post(url, json=payload, timeout=5)
+            r.raise_for_status()
+            logger.info("Heartbeat OK → %s", url)
+            return True
+        except requests.exceptions.ConnectionError:
+            logger.warning("Tentative %d/%d — serveur injoignable", attempt, MAX_RETRIES)
+        except requests.exceptions.Timeout:
+            logger.warning("Tentative %d/%d — timeout", attempt, MAX_RETRIES)
+        except requests.exceptions.HTTPError as e:
+            logger.error("Erreur HTTP %s", e)
+            return False  # Pas de retry sur 4xx/5xx
+        except Exception as e:
+            logger.error("Erreur inattendue : %s", e)
+            return False
 
-        with open("agent.log", "a") as f:
-            f.write("HEARTBEAT OK\n")
+        if attempt < MAX_RETRIES:
+            time.sleep(RETRY_DELAY_S)
 
-    except Exception as e:
-        with open("agent.log", "a") as f:
-            f.write(f"HEARTBEAT ERROR: {e}\n")
-
+    logger.error("Heartbeat ÉCHOUÉ après %d tentatives", MAX_RETRIES)
+    return False
 
 # ================= SERVICE =================
-class NetworkAgentService(win32serviceutil.ServiceFramework):
+class NetworkAgent(win32serviceutil.ServiceFramework):
     _svc_name_ = "NetworkAgent"
     _svc_display_name_ = "Network Monitoring Agent"
-    _svc_description_ = "Surveille le réseau et envoie des heartbeats"
+    _svc_description_ = "Agent léger de supervision réseau"
 
     def __init__(self, args):
         super().__init__(args)
@@ -94,34 +142,22 @@ class NetworkAgentService(win32serviceutil.ServiceFramework):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         self.running = False
         win32event.SetEvent(self.stop_event)
+        logger.info("Service arrêté proprement")
 
     def SvcDoRun(self):
-      import servicemanager
-
-      try:
-        servicemanager.LogInfoMsg("NetworkAgent starting")
-
-        # ⚠️ IMPORTANT : répondre immédiatement à Windows
+        servicemanager.LogInfoMsg("NetworkAgent démarré")
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-
-        with open("agent.log", "a") as f:
-            f.write("SERVICE STARTED\n")
+        load_config()  # Chargement unique au démarrage
+        logger.info("Service démarré — URL : %s", get_server_url())
 
         while self.running:
-            try:
-                send_heartbeat()
-            except Exception as e:
-                with open("agent.log", "a") as f:
-                    f.write(f"ERROR LOOP: {e}\n")
-
-            time.sleep(30)
-
-      except Exception as e:
-        with open("agent.log", "a") as f:
-            f.write(f"FATAL START ERROR: {e}\n")
+            send_heartbeat()
+            interval = get_heartbeat_interval()
+            # CORRECTION : WaitForSingleObject réagit immédiatement au stop
+            result = win32event.WaitForSingleObject(self.stop_event, interval)
+            if result == win32event.WAIT_OBJECT_0:
+                break  # Stop demandé
 
 # ================= ENTRY POINT =================
-def main():
-    win32serviceutil.HandleCommandLine(NetworkAgentService)
 if __name__ == "__main__":
-    main()
+    win32serviceutil.HandleCommandLine(NetworkAgent)
