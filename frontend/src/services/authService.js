@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { API_URL } from './api';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 export async function login(username, password) {
   const res = await axios.post(`${API_URL}/api/token/`, {
