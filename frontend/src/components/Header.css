@@ -44,12 +44,11 @@
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
 }
 
-.logo-text h1 {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #f8fafc;
-  margin: 0;
-  line-height: 1.1;
+.logo-img2{
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
 }
 
 .header-nav {

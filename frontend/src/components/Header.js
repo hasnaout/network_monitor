@@ -37,7 +37,11 @@ export default function Header() {
           </div>
 
           <div className="logo-text">
-            <h1>NOVOS</h1>
+            <img
+              src={`${process.env.PUBLIC_URL}/logo2.png`}
+              alt="NetworkMonitor"
+              className="logo-img2"
+            />
           </div>
         </div>
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
