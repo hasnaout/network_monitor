@@ -12,11 +12,19 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host.strip()
-]
+
+# ALLOWED_HOSTS - accepter toutes les adresses du réseau local pour les clients
+ALLOWED_HOSTS_STR = os.getenv("ALLOWED_HOSTS", "*").strip()
+if ALLOWED_HOSTS_STR == "*":
+    # Accepter toutes les adresses
+    ALLOWED_HOSTS = ["*"]
+else:
+    # Sinon, utiliser la liste spécifiée
+    ALLOWED_HOSTS = [
+        host.strip()
+        for host in ALLOWED_HOSTS_STR.split(",")
+        if host.strip()
+    ]
 
 INSTALLED_APPS = [
     "daphne",
@@ -114,12 +122,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://10.229.88.134:3000",
-    "http://10.229.88.134:3001",
-    "http://10.229.88.134:5173",
-    "http://192.168.120.237:3000",
-    "http://192.168.120.237:3001",
-    "http://192.168.120.237:5173",
+    "http://192.168.1.96:3000",
+    "http://192.168.1.96:3001",
+    "http://192.168.1.96:5173",
 ]
 
 REST_FRAMEWORK = {
