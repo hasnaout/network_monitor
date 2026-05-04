@@ -2,7 +2,7 @@ NetworkAgent - Installation client
 
 1. Modifier agent.config.json si necessaire:
    - server_url doit pointer vers le serveur Django.
-   - Exemple: http://192.168.120.237:8000
+   - Exemple: http://192.168.120.237:8001
 
 2. Installer:
    - Clic droit sur install.bat

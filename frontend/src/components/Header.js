@@ -56,15 +56,14 @@ export default function Header() {
             Équipements
           </NavLink>
 
-          <NavLink to="/alerts" className="nav-link" onClick={closeMobileMenu}>
+          <NavLink to="/alerts" className="nav-link alert-link" onClick={closeMobileMenu}>
             <FiBell className="nav-icon" />
             Alertes
             {unreadAlerts > 0 && (
               <span className="alert-badge">
-                {unreadAlerts}
+                {unreadAlerts > 99 ? '99+' : unreadAlerts}
               </span>
             )}
-
           </NavLink>
 
         </nav>

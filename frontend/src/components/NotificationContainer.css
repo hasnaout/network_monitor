@@ -1,0 +1,25 @@
+/* Notification Container Styles */
+.notification-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 1900;
+  pointer-events: none;
+}
+
+.toast-wrapper {
+  pointer-events: auto;
+  margin: 8px;
+}
+
+@media (max-width: 640px) {
+  .notification-container {
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .toast-wrapper {
+    margin: 4px;
+  }
+}

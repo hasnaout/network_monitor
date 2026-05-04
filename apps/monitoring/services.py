@@ -17,13 +17,23 @@ def send_alert_ws(alert):
         if channel_layer is None:
             return
 
+        # Send device data in a structured format
+        device_data = {
+            "id": alert.device.id,
+            "name": alert.device.name,
+            "hostname": alert.device.name,  # Use device name as hostname
+            "ip_address": alert.device.ip_address,
+            "mac_address": alert.device.mac_address,
+            "status": alert.device.status,
+        }
+
         async_to_sync(channel_layer.group_send)(
             "alerts",
             {
                 "type": "send_alert",
                 "data": {
                     "id": alert.id,
-                    "device": alert.device.name,
+                    "device": device_data,
                     "alert_type": alert.alert_type,
                     "message": alert.message,
                     "created_at": str(alert.created_at),
@@ -79,3 +89,4 @@ def handle_reconnection(device):
         alert_type="reconnection",
         message=f"{device.name} s'est reconnecté."
     )
+

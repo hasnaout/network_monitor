@@ -48,7 +48,7 @@ def load_config() -> dict:
     return _config
 
 def get_server_url() -> str:
-    return _config.get("server_url", "http://127.0.0.1:8000").rstrip("/")
+    return _config.get("server_url", "http://127.0.0.1:8001").rstrip("/")
 
 def get_heartbeat_interval() -> int:
     """Intervalle en ms, configurable depuis le JSON."""
