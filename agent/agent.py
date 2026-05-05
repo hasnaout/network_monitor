@@ -52,6 +52,14 @@ def get_heartbeat_interval() -> int:
     """Intervalle en ms, configurable depuis le JSON."""
     return int(_config.get("heartbeat_interval_ms", 30_000))
 
+def get_max_retries() -> int:
+    """Nombre maximum de tentatives, configurable depuis le JSON."""
+    return int(_config.get("max_retries", 3))
+
+def get_retry_delay() -> int:
+    """Délai entre les tentatives en secondes, configurable depuis le JSON."""
+    return int(_config.get("retry_delay_s", 5))
+
 # ================= DEVICE INFO =================
 def get_hostname() -> str:
     return socket.gethostname()
@@ -95,23 +103,24 @@ def build_payload() -> dict:
     }
 
 # ================= HEARTBEAT avec retry =================
-MAX_RETRIES = 3
-RETRY_DELAY_S = 5
 
 def send_heartbeat() -> bool:
     url = get_server_url() + "/api/heartbeat/ping/"
     payload = build_payload()
+    
+    max_retries = get_max_retries()
+    retry_delay = get_retry_delay()
 
-    for attempt in range(1, MAX_RETRIES + 1):
+    for attempt in range(1, max_retries + 1):
         try:
             r = requests.post(url, json=payload, timeout=5)
             r.raise_for_status()
             logger.info("Heartbeat OK → %s", url)
             return True
         except requests.exceptions.ConnectionError:
-            logger.warning("Tentative %d/%d — serveur injoignable", attempt, MAX_RETRIES)
+            logger.warning("Tentative %d/%d — serveur injoignable", attempt, max_retries)
         except requests.exceptions.Timeout:
-            logger.warning("Tentative %d/%d — timeout", attempt, MAX_RETRIES)
+            logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
         except requests.exceptions.HTTPError as e:
             logger.error("Erreur HTTP %s", e)
             return False  # Pas de retry sur 4xx/5xx
@@ -119,10 +128,10 @@ def send_heartbeat() -> bool:
             logger.error("Erreur inattendue : %s", e)
             return False
 
-        if attempt < MAX_RETRIES:
-            time.sleep(RETRY_DELAY_S)
+        if attempt < max_retries:
+            time.sleep(retry_delay)
 
-    logger.error("Heartbeat ÉCHOUÉ après %d tentatives", MAX_RETRIES)
+    logger.error("Heartbeat ÉCHOUÉ après %d tentatives", max_retries)
     return False
 
 # ================= SERVICE =================
@@ -143,17 +152,23 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         logger.info("Service arrêté proprement")
 
     def SvcDoRun(self):
-        servicemanager.LogInfoMsg("NetworkAgent démarré")
-        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-        load_config() 
-        logger.info("Service démarré — URL : %s", get_server_url())
+        try:
+            servicemanager.LogInfoMsg("NetworkAgent démarré")
+            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+            load_config() 
+            server_url = get_server_url()
+            logger.info("Service démarré — URL : %s", server_url)
 
-        while self.running:
-            send_heartbeat()
-            interval = get_heartbeat_interval()
-            result = win32event.WaitForSingleObject(self.stop_event, interval)
-            if result == win32event.WAIT_OBJECT_0:
-                break 
+            while self.running:
+                send_heartbeat()
+                interval = get_heartbeat_interval()
+                result = win32event.WaitForSingleObject(self.stop_event, interval)
+                if result == win32event.WAIT_OBJECT_0:
+                    break
+        except Exception as e:
+            logger.error("Erreur fatale dans SvcDoRun : %s", e)
+            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
+            raise 
 
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
