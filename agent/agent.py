@@ -3,14 +3,23 @@ import os
 import socket
 import time
 import uuid
-import requests
 import sys
 import logging
 
-import win32event
-import win32service
-import win32serviceutil
-import servicemanager
+try:
+    import requests
+except ImportError as e:
+    print(f"ERREUR: requests non installé - {e}")
+    sys.exit(1)
+
+try:
+    import win32event
+    import win32service
+    import win32serviceutil
+    import servicemanager
+except ImportError as e:
+    print(f"ERREUR: modules win32 non disponibles - {e}")
+    sys.exit(1)
 
 # ================= PATH =================
 def get_base_dir():
@@ -21,14 +30,27 @@ def get_base_dir():
 BASE_DIR = get_base_dir()
 CONFIG_FILE = os.path.join(BASE_DIR, "agent.config.json")
 
+# Vérifier que le répertoire existe
+if not os.path.exists(BASE_DIR):
+    print(f"ERREUR: Répertoire introuvable: {BASE_DIR}")
+    sys.exit(1)
+
 # ================= LOGGING =================
-logging.basicConfig(
-    filename=os.path.join(BASE_DIR, "agent.log"),
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger("NetworkAgent")
+try:
+    log_file = os.path.join(BASE_DIR, "agent.log")
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("NetworkAgent")
+    logger.info("========== AGENT DÉMARRAGE ==========")
+    logger.info(f"Répertoire de base: {BASE_DIR}")
+    logger.info(f"Fichier config: {CONFIG_FILE}")
+except Exception as e:
+    print(f"ERREUR lors de la configuration du logging: {e}")
+    sys.exit(1)
 
 # ================= CONFIG =================
 _config: dict = {}
@@ -75,25 +97,48 @@ def get_ip() -> str:
 
 def get_mac() -> str:
     """
-    CORRECTION : uuid.getnode() peut renvoyer une MAC aléatoire.
-    On préfère itérer sur les interfaces réseau via netifaces si disponible,
-    sinon fallback sur uuid.getnode().
+    Récupère la MAC address de l'appareil.
+    Essaie netifaces en priorité, puis uuid.getnode() en fallback.
     """
+    mac = None
+    
+    # Tentative 1 : netifaces
     try:
         import netifaces
         for iface in netifaces.interfaces():
             addrs = netifaces.ifaddresses(iface)
             if netifaces.AF_LINK in addrs:
-                mac = addrs[netifaces.AF_LINK][0].get("addr", "")
-                if mac and mac != "00:00:00:00:00:00":
+                candidate_mac = addrs[netifaces.AF_LINK][0].get("addr", "")
+                if candidate_mac and candidate_mac != "00:00:00:00:00:00":
+                    mac = candidate_mac
+                    logger.debug(f"MAC trouvée via netifaces: {mac}")
                     return mac
     except ImportError:
-        pass  
-
-    node = uuid.getnode()
-    return ":".join(
-        ["{:02x}".format((node >> i) & 0xff) for i in range(0, 48, 8)][::-1]
-    )
+        logger.debug("netifaces non installé, utilisation de uuid.getnode()")
+    except Exception as e:
+        logger.warning(f"Erreur avec netifaces: {e}")
+    
+    # Tentative 2 : uuid.getnode()
+    try:
+        node = uuid.getnode()
+        mac = ":".join(["{:02x}".format((node >> i) & 0xff) for i in range(0, 48, 8)][::-1])
+        
+        # Vérifier que la MAC n'est pas invalide
+        if mac and mac != "00:00:00:00:00:00" and mac.count(":") == 5:
+            logger.debug(f"MAC trouvée via uuid.getnode(): {mac}")
+            return mac
+    except Exception as e:
+        logger.warning(f"Erreur avec uuid.getnode(): {e}")
+    
+    # Fallback : MAC fictive basée sur le hostname
+    try:
+        hostname_hash = str(hash(get_hostname()))[-10:]
+        mac = f"02:{hostname_hash[0:2]}:{hostname_hash[2:4]}:{hostname_hash[4:6]}:{hostname_hash[6:8]}:{hostname_hash[8:10]}"
+        logger.warning(f"MAC générée depuis hostname: {mac}")
+        return mac
+    except Exception as e:
+        logger.error(f"Impossible de générer une MAC: {e}")
+        return "02:00:00:00:00:00"
 
 def build_payload() -> dict:
     return {
@@ -108,6 +153,9 @@ def send_heartbeat() -> bool:
     url = get_server_url() + "/api/heartbeat/ping/"
     payload = build_payload()
     
+    # Log le payload pour diagnostic
+    logger.debug(f"Payload: {payload}")
+    
     max_retries = get_max_retries()
     retry_delay = get_retry_delay()
 
@@ -118,11 +166,11 @@ def send_heartbeat() -> bool:
             logger.info("Heartbeat OK → %s", url)
             return True
         except requests.exceptions.ConnectionError:
-            logger.warning("Tentative %d/%d — serveur injoignable", attempt, max_retries)
+            logger.warning("Tentative %d/%d — serveur injoignable (%s)", attempt, max_retries, url)
         except requests.exceptions.Timeout:
             logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
         except requests.exceptions.HTTPError as e:
-            logger.error("Erreur HTTP %s", e)
+            logger.error("Erreur HTTP %s - Réponse: %s", e, r.text)
             return False  # Pas de retry sur 4xx/5xx
         except Exception as e:
             logger.error("Erreur inattendue : %s", e)
