@@ -15,17 +15,6 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # ALLOWED_HOSTS - accepter toutes les adresses du réseau local pour les clients
 ALLOWED_HOSTS_STR = os.getenv("ALLOWED_HOSTS", "*").strip()
-if ALLOWED_HOSTS_STR == "*":
-    # Accepter toutes les adresses
-    ALLOWED_HOSTS = ["*"]
-else:
-    # Sinon, utiliser la liste spécifiée
-    ALLOWED_HOSTS = [
-        host.strip()
-        for host in ALLOWED_HOSTS_STR.split(",")
-        if host.strip()
-    ]
-
 INSTALLED_APPS = [
     "daphne",
     'django.contrib.admin',
