@@ -5,6 +5,7 @@ import time
 import uuid
 import sys
 import logging
+import subprocess
 
 try:
     import requests
@@ -30,7 +31,6 @@ def get_base_dir():
 BASE_DIR = get_base_dir()
 CONFIG_FILE = os.path.join(BASE_DIR, "agent.config.json")
 
-# Vérifier que le répertoire existe
 if not os.path.exists(BASE_DIR):
     print(f"ERREUR: Répertoire introuvable: {BASE_DIR}")
     sys.exit(1)
@@ -71,15 +71,12 @@ def get_server_url() -> str:
     return _config.get("server_url", "http://127.0.0.1:8001").rstrip("/")
 
 def get_heartbeat_interval() -> int:
-    """Intervalle en ms, configurable depuis le JSON."""
     return int(_config.get("heartbeat_interval_ms", 30_000))
 
 def get_max_retries() -> int:
-    """Nombre maximum de tentatives, configurable depuis le JSON."""
     return int(_config.get("max_retries", 3))
 
 def get_retry_delay() -> int:
-    """Délai entre les tentatives en secondes, configurable depuis le JSON."""
     return int(_config.get("retry_delay_s", 5))
 
 # ================= DEVICE INFO =================
@@ -88,7 +85,6 @@ def get_hostname() -> str:
 
 def get_ip() -> str:
     try:
-        # Connexion UDP fictive — retourne la bonne IP locale sans envoyer de paquet
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             s.connect(("8.8.8.8", 80))
             return s.getsockname()[0]
@@ -96,13 +92,7 @@ def get_ip() -> str:
         return "unknown"
 
 def get_mac() -> str:
-    """
-    Récupère la MAC address de l'appareil.
-    Essaie netifaces en priorité, puis uuid.getnode() en fallback.
-    """
     mac = None
-    
-    # Tentative 1 : netifaces
     try:
         import netifaces
         for iface in netifaces.interfaces():
@@ -118,19 +108,14 @@ def get_mac() -> str:
     except Exception as e:
         logger.warning(f"Erreur avec netifaces: {e}")
     
-    # Tentative 2 : uuid.getnode()
     try:
         node = uuid.getnode()
         mac = ":".join(["{:02x}".format((node >> i) & 0xff) for i in range(0, 48, 8)][::-1])
-        
-        # Vérifier que la MAC n'est pas invalide
         if mac and mac != "00:00:00:00:00:00" and mac.count(":") == 5:
             logger.debug(f"MAC trouvée via uuid.getnode(): {mac}")
             return mac
     except Exception as e:
         logger.warning(f"Erreur avec uuid.getnode(): {e}")
-    
-    # Fallback : MAC fictive basée sur le hostname
     try:
         hostname_hash = str(hash(get_hostname()))[-10:]
         mac = f"02:{hostname_hash[0:2]}:{hostname_hash[2:4]}:{hostname_hash[4:6]}:{hostname_hash[6:8]}:{hostname_hash[8:10]}"
@@ -182,6 +167,123 @@ def send_heartbeat() -> bool:
     logger.error("Heartbeat ÉCHOUÉ après %d tentatives", max_retries)
     return False
 
+# ================= REMOTE COMMAND EXECUTION =================
+
+def fetch_pending_commands() -> list:
+    """
+    Interroge le serveur pour récupérer les commandes en attente pour cet agent.
+    Endpoint : GET /api/commands/pending/?mac_address=<MAC>
+    Réponse  : [{"id": 1, "command": "shutdown /r", "timeout": 30}, ...]
+    """
+    url = get_server_url() + "/api/commands/pending/"
+    params = {"mac_address": get_mac()}
+    try:
+        r = requests.get(url, params=params, timeout=5)
+        r.raise_for_status()
+        commands = r.json()
+        if commands:
+            logger.info("Commandes reçues : %d commande(s)", len(commands))
+        return commands if isinstance(commands, list) else []
+    except requests.exceptions.ConnectionError:
+        logger.debug("Serveur injoignable lors du fetch des commandes")
+        return []
+    except requests.exceptions.Timeout:
+        logger.warning("Timeout lors du fetch des commandes")
+        return []
+    except Exception as e:
+        logger.error("Erreur fetch_pending_commands : %s", e)
+        return []
+
+
+def execute_command(command: str, timeout: int = 30) -> dict:
+    """
+    Exécute une commande shell et retourne stdout, stderr et le code de retour.
+    Le paramètre timeout évite de bloquer l'agent indéfiniment.
+    """
+    logger.info("Execution commande : %s (timeout=%ds)", command, timeout)
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        output = {
+            "stdout": result.stdout.strip(),
+            "stderr": result.stderr.strip(),
+            "returncode": result.returncode,
+            "status": "success" if result.returncode == 0 else "error",
+        }
+        logger.info("Commande terminée — code retour : %d", result.returncode)
+        logger.debug("stdout: %s", output["stdout"][:500])
+        if output["stderr"]:
+            logger.warning("stderr: %s", output["stderr"][:500])
+        return output
+    except subprocess.TimeoutExpired:
+        logger.error("Commande TIMEOUT apres %ds : %s", timeout, command)
+        return {
+            "stdout": "",
+            "stderr": f"Timeout après {timeout} secondes",
+            "returncode": -1,
+            "status": "timeout",
+        }
+    except Exception as e:
+        logger.error("Erreur execution commande '%s' : %s", command, e)
+        return {
+            "stdout": "",
+            "stderr": str(e),
+            "returncode": -1,
+            "status": "exception",
+        }
+
+
+def report_command_result(command_id: int, result: dict) -> bool:
+    """
+    Envoie le résultat d'une commande au serveur.
+    Endpoint : POST /api/commands/<id>/result/
+    """
+    url = get_server_url() + f"/api/commands/{command_id}/result/"
+    payload = {
+        "mac_address": get_mac(),
+        "stdout": result.get("stdout", ""),
+        "stderr": result.get("stderr", ""),
+        "returncode": result.get("returncode", -1),
+        "status": result.get("status", "error"),
+    }
+    try:
+        r = requests.post(url, json=payload, timeout=5)
+        r.raise_for_status()
+        logger.info("Résultat commande #%d envoyé avec succès", command_id)
+        return True
+    except requests.exceptions.ConnectionError:
+        logger.error("Impossible d'envoyer le résultat commande #%d : serveur injoignable", command_id)
+        return False
+    except requests.exceptions.HTTPError as e:
+        logger.error("Erreur HTTP report commande #%d : %s", command_id, e)
+        return False
+    except Exception as e:
+        logger.error("Erreur report_command_result #%d : %s", command_id, e)
+        return False
+
+
+def process_pending_commands():
+    """Cycle complet : fetch → execute → report pour chaque commande en attente."""
+    commands = fetch_pending_commands()
+    for cmd_entry in commands:
+        command_id  = cmd_entry.get("id")
+        command_str = cmd_entry.get("command", "").strip()
+        timeout     = int(cmd_entry.get("timeout", 30))
+
+        if not command_id or not command_str:
+            logger.warning("Commande invalide reçue : %s", cmd_entry)
+            continue
+
+        logger.info("Traitement commande #%d : %s", command_id, command_str)
+        result = execute_command(command_str, timeout=timeout)
+        report_command_result(command_id, result)
+
+
 # ================= SERVICE =================
 class NetworkAgent(win32serviceutil.ServiceFramework):
     _svc_name_ = "NetworkAgent"
@@ -221,3 +323,121 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(NetworkAgent)
+
+# ================= SOFTWARE INVENTORY =================
+
+def collect_installed_software() -> list:
+    """
+    Collecte la liste des logiciels installés via le registre Windows.
+    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
+    Retourne une liste de dicts {name, version, publisher, install_date}.
+    """
+    import winreg
+
+    software_list = []
+    registry_paths = [
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+    ]
+
+    seen = set()  # éviter les doublons entre ruches
+
+    for hive, path in registry_paths:
+        try:
+            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        except FileNotFoundError:
+            continue
+        except Exception as e:
+            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
+            continue
+
+        index = 0
+        while True:
+            try:
+                subkey_name = winreg.EnumKey(root_key, index)
+                index += 1
+            except OSError:
+                break  # plus de sous-clés
+
+            try:
+                subkey = winreg.OpenKey(root_key, subkey_name)
+
+                def get_val(name):
+                    try:
+                        return winreg.QueryValueEx(subkey, name)[0]
+                    except FileNotFoundError:
+                        return ""
+
+                name      = get_val("DisplayName").strip()
+                version   = get_val("DisplayVersion").strip()
+                publisher = get_val("Publisher").strip()
+                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
+
+                winreg.CloseKey(subkey)
+
+                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
+                if not name:
+                    continue
+
+                uid = f"{name}|{version}"
+                if uid in seen:
+                    continue
+                seen.add(uid)
+
+                software_list.append({
+                    "name":         name,
+                    "version":      version,
+                    "publisher":    publisher,
+                    "install_date": inst_date,
+                })
+
+            except Exception as e:
+                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
+
+        winreg.CloseKey(root_key)
+
+    logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
+    return software_list
+
+
+def send_software_inventory() -> bool:
+    """
+    Envoie l'inventaire complet au serveur.
+    Endpoint : POST /api/inventory/software/
+    Body     : { mac_address, hostname, software: [...] }
+    """
+    url     = get_server_url() + "/api/inventory/software/"
+    payload = {
+        "mac_address": get_mac(),
+        "hostname":    get_hostname(),
+        "software":    collect_installed_software(),
+    }
+
+    logger.info("Envoi inventaire logiciels (%d entrées) → %s", len(payload["software"]), url)
+
+    max_retries  = get_max_retries()
+    retry_delay  = get_retry_delay()
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            r = requests.post(url, json=payload, timeout=15)
+            r.raise_for_status()
+            logger.info("Inventaire logiciels envoyé avec succès")
+            return True
+        except requests.exceptions.ConnectionError:
+            logger.warning("Tentative %d/%d — serveur injoignable", attempt, max_retries)
+        except requests.exceptions.Timeout:
+            logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
+        except requests.exceptions.HTTPError as e:
+            logger.error("Erreur HTTP inventaire : %s — %s", e, r.text)
+            return False
+        except Exception as e:
+            logger.error("Erreur inattendue inventaire : %s", e)
+            return False
+
+        if attempt < max_retries:
+            time.sleep(retry_delay)
+
+    logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
+    return False
