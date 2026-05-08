@@ -341,48 +341,77 @@ def collect_installed_software() -> list:
     registry_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     seen = set()
 
+    def collect_from_key(root_key, source_label):
+        index = 0
+        while True:
+            try:
+                subkey_name = winreg.EnumKey(root_key, index)
+                index += 1
+            except OSError:
+                break
+
+            try:
+                subkey = winreg.OpenKey(root_key, subkey_name)
+
+                try:
+                    name = winreg.QueryValueEx(subkey, "DisplayName")[0].strip()
+                except FileNotFoundError:
+                    name = ""
+
+                winreg.CloseKey(subkey)
+
+                if not name or name in seen:
+                    continue
+
+                seen.add(name)
+                software_list.append({"name": name})
+
+            except Exception as e:
+                logger.debug("Erreur lecture sous-clé %s (%s) : %s", subkey_name, source_label, e)
+
     try:
-        root_key = winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER,
-            registry_path,
-            0,
-            winreg.KEY_READ,
-        )
+        root_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path, 0, winreg.KEY_READ)
+        collect_from_key(root_key, "HKEY_CURRENT_USER")
+        winreg.CloseKey(root_key)
     except FileNotFoundError:
         logger.info("Chemin registre introuvable : HKEY_CURRENT_USER\\%s", registry_path)
-        return software_list
     except Exception as e:
         logger.warning("Impossible d'ouvrir HKEY_CURRENT_USER\\%s : %s", registry_path, e)
+
+    if software_list:
+        logger.info("Inventaire logiciels : %d entrées collectées depuis HKEY_CURRENT_USER", len(software_list))
         return software_list
 
-    index = 0
+    logger.info("Aucun logiciel via HKEY_CURRENT_USER, tentative via HKEY_USERS pour le service Windows")
+
+    try:
+        users_key = winreg.OpenKey(winreg.HKEY_USERS, "")
+    except Exception as e:
+        logger.warning("Impossible d'ouvrir HKEY_USERS : %s", e)
+        return software_list
+
+    sid_index = 0
     while True:
         try:
-            subkey_name = winreg.EnumKey(root_key, index)
-            index += 1
+            sid = winreg.EnumKey(users_key, sid_index)
+            sid_index += 1
         except OSError:
             break
 
+        if not sid.startswith("S-1-5-21-") or sid.endswith("_Classes"):
+            continue
+
+        user_registry_path = sid + "\\" + registry_path
         try:
-            subkey = winreg.OpenKey(root_key, subkey_name)
-
-            try:
-                name = winreg.QueryValueEx(subkey, "DisplayName")[0].strip()
-            except FileNotFoundError:
-                name = ""
-
-            winreg.CloseKey(subkey)
-
-            if not name or name in seen:
-                continue
-
-            seen.add(name)
-            software_list.append({"name": name})
-
+            root_key = winreg.OpenKey(winreg.HKEY_USERS, user_registry_path, 0, winreg.KEY_READ)
+            collect_from_key(root_key, f"HKEY_USERS\\{sid}")
+            winreg.CloseKey(root_key)
+        except FileNotFoundError:
+            logger.debug("Chemin registre introuvable : HKEY_USERS\\%s", user_registry_path)
         except Exception as e:
-            logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
+            logger.warning("Impossible d'ouvrir HKEY_USERS\\%s : %s", user_registry_path, e)
 
-    winreg.CloseKey(root_key)
+    winreg.CloseKey(users_key)
 
     logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
     return software_list
@@ -395,10 +424,15 @@ def send_software_inventory() -> bool:
     Body     : { mac_address, hostname, software: [...] }
     """
     url     = get_server_url() + "/api/inventory/software/"
+    software = collect_installed_software()
+    if not software:
+        logger.warning("Inventaire vide : envoi annulé pour éviter d'effacer les logiciels enregistrés")
+        return False
+
     payload = {
         "mac_address": get_mac(),
         "hostname":    get_hostname(),
-        "software":    collect_installed_software(),
+        "software":    software,
     }
 
     logger.info("Envoi inventaire logiciels (%d entrées) → %s", len(payload["software"]), url)
