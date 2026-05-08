@@ -443,6 +443,25 @@ def send_software_inventory() -> bool:
     logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
     return False
 
+
+def run_inventory_once() -> int:
+    load_config()
+    software = collect_installed_software()
+    print(f"Logiciels collectés: {len(software)}")
+    if software[:5]:
+        print("Exemples:")
+        for item in software[:5]:
+            print(f"- {item.get('name')}")
+    return 0 if send_software_inventory() else 1
+
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(NetworkAgent)
+    if len(sys.argv) > 1 and sys.argv[1].lower() in {"inventory", "--inventory", "send-inventory"}:
+        sys.exit(run_inventory_once())
+
+    if len(sys.argv) == 1 and getattr(sys, "frozen", False):
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(NetworkAgent)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(NetworkAgent)
