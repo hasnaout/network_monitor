@@ -40,26 +40,23 @@ class SoftwareInventoryView(APIView):
             )
 
         created_count = 0
-        updated_count = 0
+        deleted_count = InstalledSoftware.objects.filter(device=device).delete()[0]
 
         for item in sw_list:
-            _, created = InstalledSoftware.objects.update_or_create(
-                device       = device,
-                name         = item["name"],
+            InstalledSoftware.objects.create(
+                device=device,
+                name=item["name"],
             )
-            if created:
-                created_count += 1
-            else:
-                updated_count += 1
+            created_count += 1
 
         logger.info(
-            "Inventaire %s (%s) : %d créés, %d mis à jour",
-            mac, hostname, created_count, updated_count,
+            "Inventaire %s (%s) : %d supprimés, %d créés",
+            mac, hostname, deleted_count, created_count,
         )
         return Response({
             "status":  "ok",
+            "deleted": deleted_count,
             "created": created_count,
-            "updated": updated_count,
             "total":   len(sw_list),
         }, status=status.HTTP_200_OK)
 

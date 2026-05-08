@@ -338,63 +338,51 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
 def collect_installed_software() -> list:
     import winreg
     software_list = []
-    registry_paths = [
-        (winreg.HKEY_CURRENT_USER, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
-    ]
-    seen = set()  
-    for hive, path in registry_paths:
+    registry_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+    seen = set()
+
+    try:
+        root_key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            registry_path,
+            0,
+            winreg.KEY_READ,
+        )
+    except FileNotFoundError:
+        logger.info("Chemin registre introuvable : HKEY_CURRENT_USER\\%s", registry_path)
+        return software_list
+    except Exception as e:
+        logger.warning("Impossible d'ouvrir HKEY_CURRENT_USER\\%s : %s", registry_path, e)
+        return software_list
+
+    index = 0
+    while True:
         try:
-            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-        except FileNotFoundError:
-            continue
+            subkey_name = winreg.EnumKey(root_key, index)
+            index += 1
+        except OSError:
+            break
+
+        try:
+            subkey = winreg.OpenKey(root_key, subkey_name)
+
+            try:
+                name = winreg.QueryValueEx(subkey, "DisplayName")[0].strip()
+            except FileNotFoundError:
+                name = ""
+
+            winreg.CloseKey(subkey)
+
+            if not name or name in seen:
+                continue
+
+            seen.add(name)
+            software_list.append({"name": name})
+
         except Exception as e:
-            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
-            continue
+            logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
 
-        index = 0
-        while True:
-            try:
-                subkey_name = winreg.EnumKey(root_key, index)
-                index += 1
-            except OSError:
-                break  # plus de sous-clés
-
-            try:
-                subkey = winreg.OpenKey(root_key, subkey_name)
-
-                def get_val(name):
-                    try:
-                        return winreg.QueryValueEx(subkey, name)[0]
-                    except FileNotFoundError:
-                        return ""
-
-                name      = get_val("DisplayName").strip()
-                version   = get_val("DisplayVersion").strip()
-                publisher = get_val("Publisher").strip()
-                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
-
-                winreg.CloseKey(subkey)
-
-                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
-                if not name:
-                    continue
-
-                uid = f"{name}|{version}"
-                if uid in seen:
-                    continue
-                seen.add(uid)
-
-                software_list.append({
-                    "name":         name,
-                    "version":      version,
-                    "publisher":    publisher,
-                    "install_date": inst_date,
-                })
-
-            except Exception as e:
-                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
-
-        winreg.CloseKey(root_key)
+    winreg.CloseKey(root_key)
 
     logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
     return software_list
