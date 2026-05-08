@@ -79,6 +79,13 @@ def get_max_retries() -> int:
 def get_retry_delay() -> int:
     return int(_config.get("retry_delay_s", 5))
 
+def get_inventory_interval() -> int:
+    return int(_config.get("inventory_interval_ms", 3_600_000))
+
+def get_agent_headers() -> dict:
+    token = _config.get("agent_token")
+    return {"X-Agent-Token": token} if token else {}
+
 # ================= DEVICE INFO =================
 def get_hostname() -> str:
     return socket.gethostname()
@@ -146,7 +153,7 @@ def send_heartbeat() -> bool:
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, timeout=5)
+            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=5)
             r.raise_for_status()
             logger.info("Heartbeat OK → %s", url)
             return True
@@ -307,10 +314,16 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
             self.ReportServiceStatus(win32service.SERVICE_RUNNING)
             load_config() 
             server_url = get_server_url()
+            next_inventory_at = 0
             logger.info("Service démarré — URL : %s", server_url)
 
             while self.running:
                 send_heartbeat()
+                now = time.time()
+                if now >= next_inventory_at:
+                    send_software_inventory()
+                    next_inventory_at = now + (get_inventory_interval() / 1000)
+
                 interval = get_heartbeat_interval()
                 result = win32event.WaitForSingleObject(self.stop_event, interval)
                 if result == win32event.WAIT_OBJECT_0:
@@ -320,29 +333,17 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
             servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
             raise 
 
-# ================= ENTRY POINT =================
-if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(NetworkAgent)
-
 # ================= SOFTWARE INVENTORY =================
 
 def collect_installed_software() -> list:
-    """
-    Collecte la liste des logiciels installés via le registre Windows.
-    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
-    Retourne une liste de dicts {name, version, publisher, install_date}.
-    """
     import winreg
-
     software_list = []
     registry_paths = [
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
         (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
         (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
     ]
-
-    seen = set()  # éviter les doublons entre ruches
-
+    seen = set()  
     for hive, path in registry_paths:
         try:
             root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
@@ -421,7 +422,7 @@ def send_software_inventory() -> bool:
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, timeout=15)
+            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=15)
             r.raise_for_status()
             logger.info("Inventaire logiciels envoyé avec succès")
             return True
@@ -441,3 +442,7 @@ def send_software_inventory() -> bool:
 
     logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
     return False
+
+# ================= ENTRY POINT =================
+if __name__ == "__main__":
+    win32serviceutil.HandleCommandLine(NetworkAgent)

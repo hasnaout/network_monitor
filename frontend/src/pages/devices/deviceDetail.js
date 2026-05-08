@@ -3,7 +3,7 @@ import "../dashboard/home.css";
 import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
-import { getDeviceById } from "../../services/deviceService";
+import { getDeviceById, getDeviceSoftware } from "../../services/deviceService";
 import { getAlerts } from "../../services/alertService";
 import { useSocket } from "../../context/SocketContext";
 
@@ -21,6 +21,9 @@ export default function DeviceDetail() {
 
   const [device, setDevice] = useState(null);
   const [apiAlerts, setApiAlerts] = useState([]);
+  const [software, setSoftware] = useState([]);
+  const [softwareLoading, setSoftwareLoading] = useState(false);
+  const [softwareError, setSoftwareError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -39,6 +42,22 @@ export default function DeviceDetail() {
         ]);
         setDevice(deviceRes.data);
         setApiAlerts(alertsRes.data);
+
+        if (deviceRes.data?.mac_address) {
+          try {
+            setSoftwareLoading(true);
+            setSoftwareError('');
+            const softwareRes = await getDeviceSoftware(deviceRes.data.mac_address);
+            setSoftware(softwareRes.data.software || []);
+          } catch (softwareErr) {
+            setSoftware([]);
+            setSoftwareError("Erreur chargement logiciels");
+          } finally {
+            setSoftwareLoading(false);
+          }
+        } else {
+          setSoftware([]);
+        }
 
       } catch (err) {
         setError("Erreur chargement device");
@@ -94,6 +113,42 @@ export default function DeviceDetail() {
             </div>
 
           </section>
+
+          <section className="table-panel detail-panel">
+            <div className="panel-heading">
+              <h3>Logiciels installés</h3>
+              <span className="panel-count">{software.length}</span>
+            </div>
+
+            {softwareError && <p className="error-feedback detail-feedback">{softwareError}</p>}
+
+            {softwareLoading ? (
+              <div className="empty-state">Chargement des logiciels...</div>
+            ) : software.length === 0 ? (
+              <div className="empty-state">
+                Aucun logiciel inventorié
+              </div>
+            ) : (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {software.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
           <section className="table-panel">
 
             <div className="panel-heading">

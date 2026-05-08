@@ -16,7 +16,7 @@ urlpatterns = [
     # AUTH
     path('api/token/', TokenObtainPairView.as_view()),
     path('api/token/refresh/', TokenRefreshView.as_view()),
-
+    path('api/inventory/', include('apps.server_inventory.urls')),
     # API
     path('api/', include(router.urls)),
 ]

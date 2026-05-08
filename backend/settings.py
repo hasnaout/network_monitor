@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "corsheaders",
     'apps.devices',
     'apps.monitoring',
+    'apps.server_inventory',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',

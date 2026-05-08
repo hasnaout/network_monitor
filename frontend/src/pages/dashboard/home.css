@@ -178,6 +178,25 @@
   color: #e7f6ec;
 }
 
+.panel-count {
+  min-width: 2rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.detail-panel {
+  margin-bottom: 2rem;
+}
+
+.detail-feedback {
+  margin: 1rem 1.5rem 0;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;

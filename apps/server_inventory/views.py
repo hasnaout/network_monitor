@@ -1,10 +1,11 @@
 import logging
-from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.conf import settings
 
-from heartbeat.models import Device           # ton modèle Device existant
+from apps.devices.models import Device
 from .models import InstalledSoftware
 from .serializers import SoftwareInventorySerializer, InstalledSoftwareSerializer
 
@@ -12,17 +13,13 @@ logger = logging.getLogger(__name__)
 
 
 class SoftwareInventoryView(APIView):
-    """
-    POST /api/inventory/software/
-    Reçoit l'inventaire complet d'un agent et met à jour la base.
-
-    Stratégie : upsert (update_or_create) pour chaque logiciel.
-    Les logiciels absents du dernier envoi ne sont PAS supprimés —
-    ils gardent leur last_seen ancienne, ce qui permet de détecter
-    les désinstallations côté dashboard.
-    """
-
+    permission_classes = [AllowAny]
+ 
     def post(self, request):
+        agent_token = getattr(settings, "AGENT_TOKEN", None)
+        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+            return Response({"error": "Token agent invalide"}, status=status.HTTP_401_UNAUTHORIZED)
+
         serializer = SoftwareInventorySerializer(data=request.data)
         if not serializer.is_valid():
             logger.warning("Inventaire invalide : %s", serializer.errors)
@@ -33,7 +30,6 @@ class SoftwareInventoryView(APIView):
         hostname   = data["hostname"]
         sw_list    = data["software"]
 
-        # Récupérer (ou créer) le Device
         try:
             device = Device.objects.get(mac_address=mac)
         except Device.DoesNotExist:
@@ -43,7 +39,6 @@ class SoftwareInventoryView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        now = timezone.now()
         created_count = 0
         updated_count = 0
 
@@ -51,12 +46,6 @@ class SoftwareInventoryView(APIView):
             _, created = InstalledSoftware.objects.update_or_create(
                 device       = device,
                 name         = item["name"],
-                version      = item["version"],
-                defaults={
-                    "publisher":    item["publisher"],
-                    "install_date": item["install_date"],
-                    "last_seen":    now,
-                },
             )
             if created:
                 created_count += 1
@@ -76,11 +65,6 @@ class SoftwareInventoryView(APIView):
 
 
 class DeviceSoftwareListView(APIView):
-    """
-    GET /api/inventory/software/?mac_address=XX:XX:XX:XX:XX:XX
-    Retourne la liste des logiciels connus pour un device (pour le dashboard).
-    """
-
     def get(self, request):
         mac = request.query_params.get("mac_address")
         if not mac:
