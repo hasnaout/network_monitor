@@ -31,6 +31,43 @@ function formatDuration(seconds) {
   return `${minutes}min`;
 }
 
+function getRelativeDate(dateString) {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
+  if (dateOnly.getTime() === todayOnly.getTime()) {
+    return "Aujourd'hui";
+  } else if (dateOnly.getTime() === yesterdayOnly.getTime()) {
+    return "Hier";
+  } else {
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  }
+}
+
+function groupAlertsByDay(alerts) {
+  const grouped = {};
+  alerts.forEach((alert) => {
+    const date = new Date(alert.created_at);
+    const dateKey = date.toISOString().slice(0, 10);
+    const label = getRelativeDate(alert.created_at);
+    if (!grouped[dateKey]) {
+      grouped[dateKey] = { label, alerts: [] };
+    }
+    grouped[dateKey].alerts.push(alert);
+  });
+
+  // Trier par date décroissante (plus récent en premier)
+  return Object.entries(grouped)
+    .sort(([keyA], [keyB]) => new Date(keyB) - new Date(keyA))
+    .map(([, { label, alerts }]) => ({ label, alerts }));
+}
+
 export default function DeviceDetail() {
 
   const { auth } = useAuth();
@@ -48,6 +85,10 @@ export default function DeviceDetail() {
   const [appUsageError, setAppUsageError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // États pour la pagination
+  const [softwarePage, setSoftwarePage] = useState(1);
+  const [alertsPage, setAlertsPage] = useState(1);
 
   useEffect(() => {
 
@@ -181,23 +222,36 @@ export default function DeviceDetail() {
                 Aucun logiciel inventorié
               </div>
             ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nom</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {software.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.name}</td>
+              <>
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Nom</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+
+                    <tbody>
+                      {software.slice(0, softwarePage * 10).map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.name}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {softwarePage * 10 < software.length && (
+                  <div className="pagination-footer">
+                    <button
+                      className="btn-load-more"
+                      onClick={() => setSoftwarePage(softwarePage + 1)}
+                    >
+                      Voir plus ({softwarePage * 10}/{software.length})
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </section>
 
@@ -288,31 +342,50 @@ export default function DeviceDetail() {
                 Aucune alerte récente
               </div>
             ) : (
-              <table>
+              <>
+                {groupAlertsByDay(deviceAlerts).slice(0, alertsPage).map((group) => (
+                  <div key={group.label} className="alerts-group">
+                    <div className="alerts-group-header">{group.label}</div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Type</th>
+                          <th>Message</th>
+                          <th>Heure</th>
+                        </tr>
+                      </thead>
 
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
+                      <tbody>
+                        {group.alerts.map((a) => (
+                          <tr key={a.id}>
+                            <td><span className="alert-badge">{a.alert_type}</span></td>
+                            <td>{a.message}</td>
+                            <td>
+                              {a.created_at
+                                ? new Date(a.created_at).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
 
-                <tbody>
-                  {deviceAlerts.map((a) => (
-                    <tr key={a.id}>
-                      <td>{a.alert_type}</td>
-                      <td>{a.message}</td>
-                      <td>
-                        {a.created_at
-                          ? new Date(a.created_at).toLocaleString('fr-FR')
-                          : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-
-              </table>
+                {alertsPage < groupAlertsByDay(deviceAlerts).length && (
+                  <div className="pagination-footer">
+                    <button
+                      className="btn-load-more"
+                      onClick={() => setAlertsPage(alertsPage + 1)}
+                    >
+                      Voir plus ({alertsPage}/{groupAlertsByDay(deviceAlerts).length})
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
           </section>

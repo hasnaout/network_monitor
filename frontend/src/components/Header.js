@@ -29,7 +29,7 @@ export default function Header() {
         {/* LOGO */}
         <div className="header-logo">
           <div className='logo-icon'>
-            <img
+            <img 
               src={`${process.env.PUBLIC_URL}/logo.png`}
               alt="NetworkMonitor"
               className="logo-img"
