@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX, FiBarChart2 } from 'react-icons/fi';
+import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 import './Header.css';
 
@@ -49,11 +49,6 @@ export default function Header() {
           <NavLink to="/devices" className="nav-link" onClick={closeMobileMenu}>
             <FiServer className="nav-icon" />
             Équipements
-          </NavLink>
-
-          <NavLink to="/app-usage" className="nav-link" onClick={closeMobileMenu}>
-            <FiBarChart2 className="nav-icon" />
-            Applications
           </NavLink>
 
           <NavLink to="/alerts" className="nav-link alert-link" onClick={closeMobileMenu}>

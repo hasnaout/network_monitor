@@ -10,7 +10,6 @@ import Home from "./pages/dashboard/home.js";
 import Devices from "./pages/devices/devices.js";
 import DeviceDetail from "./pages/devices/deviceDetail.js";
 import Alerts from "./pages/alerts/alerts.js";
-import AppUsage from "./pages/appUsage/appUsage.js";
 import NotificationContainer from './components/NotificationContainer';
 
 function App() {
@@ -26,7 +25,6 @@ function App() {
                 <Route path="/" element={  <ProtectedRoute>  <Home />  </ProtectedRoute>} />
                 <Route path="/devices" element={  <ProtectedRoute>  <Devices /></ProtectedRoute>} />
                 <Route path="/devices/:id" element={<ProtectedRoute>  <DeviceDetail /></ProtectedRoute>  } />
-                <Route path="/app-usage" element={  <ProtectedRoute>  <AppUsage />  </ProtectedRoute>} />
                 <Route path="/alerts" element={  <ProtectedRoute>    <Alerts />    </ProtectedRoute>  } />
                 <Route path="*" element={<Navigate to="/connexion" />} />
               </Routes>
