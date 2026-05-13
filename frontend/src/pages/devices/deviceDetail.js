@@ -232,25 +232,39 @@ export default function DeviceDetail() {
                     </thead>
 
                     <tbody>
-                      {software.slice(0, softwarePage * 10).map((item) => (
-                        <tr key={item.id}>
-                          <td>{item.name}</td>
-                        </tr>
-                      ))}
+                      {software
+                        .slice((softwarePage - 1) * 10, softwarePage * 10)
+                        .map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.name}</td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
 
-                {softwarePage * 10 < software.length && (
-                  <div className="pagination-footer">
-                    <button
-                      className="btn-load-more"
-                      onClick={() => setSoftwarePage(softwarePage + 1)}
-                    >
-                      Voir plus ({softwarePage * 10}/{software.length})
-                    </button>
-                  </div>
-                )}
+                {/* Pagination Controls */}
+                <div className="pagination-controls">
+                  <button
+                    className="btn-pagination"
+                    onClick={() => setSoftwarePage(softwarePage - 1)}
+                    disabled={softwarePage === 1}
+                  >
+                    ← Précédent
+                  </button>
+
+                  <span className="pagination-info">
+                    Page {softwarePage} sur {Math.ceil(software.length / 10)}
+                  </span>
+
+                  <button
+                    className="btn-pagination"
+                    onClick={() => setSoftwarePage(softwarePage + 1)}
+                    disabled={softwarePage >= Math.ceil(software.length / 10)}
+                  >
+                    Suivant →
+                  </button>
+                </div>
               </>
             )}
           </section>
@@ -343,48 +357,89 @@ export default function DeviceDetail() {
               </div>
             ) : (
               <>
-                {groupAlertsByDay(deviceAlerts).slice(0, alertsPage).map((group) => (
-                  <div key={group.label} className="alerts-group">
-                    <div className="alerts-group-header">{group.label}</div>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Message</th>
-                          <th>Heure</th>
-                        </tr>
-                      </thead>
+                {/* Pagination par alertes (10 à la fois) */}
+                {(() => {
+                  const itemsPerPage = 10;
+                  const totalPages = Math.ceil(deviceAlerts.length / itemsPerPage);
+                  const startIdx = (alertsPage - 1) * itemsPerPage;
+                  const endIdx = startIdx + itemsPerPage;
+                  const paginatedAlerts = deviceAlerts.slice(startIdx, endIdx);
+                  
+                  // Regrouper les alertes paginées par jour
+                  const grouped = {};
+                  paginatedAlerts.forEach((alert) => {
+                    const date = new Date(alert.created_at);
+                    const dateKey = date.toISOString().slice(0, 10);
+                    const label = getRelativeDate(alert.created_at);
+                    if (!grouped[dateKey]) {
+                      grouped[dateKey] = { label, alerts: [] };
+                    }
+                    grouped[dateKey].alerts.push(alert);
+                  });
 
-                      <tbody>
-                        {group.alerts.map((a) => (
-                          <tr key={a.id}>
-                            <td><span className="alert-badge">{a.alert_type}</span></td>
-                            <td>{a.message}</td>
-                            <td>
-                              {a.created_at
-                                ? new Date(a.created_at).toLocaleTimeString('fr-FR', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  })
-                                : "—"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ))}
+                  const groupedArray = Object.entries(grouped)
+                    .sort(([keyA], [keyB]) => new Date(keyB) - new Date(keyA))
+                    .map(([, { label, alerts }]) => ({ label, alerts }));
 
-                {alertsPage < groupAlertsByDay(deviceAlerts).length && (
-                  <div className="pagination-footer">
-                    <button
-                      className="btn-load-more"
-                      onClick={() => setAlertsPage(alertsPage + 1)}
-                    >
-                      Voir plus ({alertsPage}/{groupAlertsByDay(deviceAlerts).length})
-                    </button>
-                  </div>
-                )}
+                  return (
+                    <>
+                      {groupedArray.map((group) => (
+                        <div key={group.label} className="alerts-group">
+                          <div className="alerts-group-header">{group.label}</div>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Type</th>
+                                <th>Message</th>
+                                <th>Heure</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {group.alerts.map((a) => (
+                                <tr key={a.id}>
+                                  <td><span className="alert-badge">{a.alert_type}</span></td>
+                                  <td>{a.message}</td>
+                                  <td>
+                                    {a.created_at
+                                      ? new Date(a.created_at).toLocaleTimeString('fr-FR', {
+                                          hour: '2-digit',
+                                          minute: '2-digit',
+                                        })
+                                      : "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+
+                      {/* Pagination Controls */}
+                      <div className="pagination-controls">
+                        <button
+                          className="btn-pagination"
+                          onClick={() => setAlertsPage(alertsPage - 1)}
+                          disabled={alertsPage === 1}
+                        >
+                          ← Précédent
+                        </button>
+
+                        <span className="pagination-info">
+                          Page {alertsPage} sur {totalPages}
+                        </span>
+
+                        <button
+                          className="btn-pagination"
+                          onClick={() => setAlertsPage(alertsPage + 1)}
+                          disabled={alertsPage >= totalPages}
+                        >
+                          Suivant →
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </>
             )}
 
