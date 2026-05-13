@@ -12,6 +12,23 @@ from .serializers import SoftwareInventorySerializer, InstalledSoftwareSerialize
 logger = logging.getLogger(__name__)
 
 
+def _normalize_software_names(sw_list):
+    seen = set()
+    unique_names = []
+
+    for item in sw_list:
+        name = item["name"].strip()
+        if not name:
+            continue
+        key = name.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_names.append(name)
+
+    return unique_names
+
+
 class SoftwareInventoryView(APIView):
     permission_classes = [AllowAny]
  
@@ -39,13 +56,14 @@ class SoftwareInventoryView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        normalized_names = _normalize_software_names(sw_list)
         created_count = 0
         deleted_count = InstalledSoftware.objects.filter(device=device).delete()[0]
 
-        for item in sw_list:
+        for name in normalized_names:
             InstalledSoftware.objects.create(
-                device=device,
-                name=item["name"],
+              device=device,
+              name=name,
             )
             created_count += 1
 
@@ -57,7 +75,7 @@ class SoftwareInventoryView(APIView):
             "status":  "ok",
             "deleted": deleted_count,
             "created": created_count,
-            "total":   len(sw_list),
+            "total":   len(normalized_names),
         }, status=status.HTTP_200_OK)
 
 

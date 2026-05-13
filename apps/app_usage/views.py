@@ -3,6 +3,8 @@ from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.conf import settings
 
 from apps.devices.models import Device
 from .models import AppUsage
@@ -12,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class AppUsageIngestView(APIView):
+    permission_classes = [AllowAny]
     """
     POST /api/usage/apps/
     Reçoit les données d'utilisation accumulées par l'agent.
@@ -21,6 +24,10 @@ class AppUsageIngestView(APIView):
     """
 
     def post(self, request):
+        agent_token = getattr(settings, "AGENT_TOKEN", None)
+        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+            return Response({"error": "Token agent invalide"}, status=status.HTTP_401_UNAUTHORIZED)
+
         serializer = AppUsagePayloadSerializer(data=request.data)
         if not serializer.is_valid():
             logger.warning("Payload AppUsage invalide : %s", serializer.errors)

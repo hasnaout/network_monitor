@@ -70,6 +70,13 @@ def load_config() -> dict:
 def get_server_url() -> str:
     return _config.get("server_url", "http://127.0.0.1:8001").rstrip("/")
 
+
+def get_agent_headers() -> dict:
+    token = _config.get("agent_token", "")
+    if token:
+        return {"X-Agent-Token": token}
+    return {}
+
 def get_heartbeat_interval() -> int:
     return int(_config.get("heartbeat_interval_ms", 30_000))
 
@@ -151,7 +158,7 @@ def send_heartbeat() -> bool:
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, timeout=5)
+            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=5)
             r.raise_for_status()
             logger.info("Heartbeat OK -> %s", url)
             return True
@@ -182,12 +189,19 @@ def fetch_pending_commands() -> list:
     url = get_server_url() + "/api/commands/pending/"
     params = {"mac_address": get_mac()}
     try:
-        r = requests.get(url, params=params, timeout=5)
+        r = requests.get(url, params=params, headers=get_agent_headers(), timeout=5)
         r.raise_for_status()
         commands = r.json()
         if commands:
             logger.info("Commandes reçues : %d commande(s)", len(commands))
         return commands if isinstance(commands, list) else []
+    except requests.exceptions.HTTPError as e:
+        status_code = e.response.status_code if e.response is not None else None
+        if status_code == 404:
+            logger.debug("Endpoint commandes indisponible : %s", url)
+            return []
+        logger.error("Erreur HTTP fetch_pending_commands : %s", e)
+        return []
     except requests.exceptions.ConnectionError:
         logger.debug("Serveur injoignable lors du fetch des commandes")
         return []
@@ -256,7 +270,7 @@ def report_command_result(command_id: int, result: dict) -> bool:
         "status": result.get("status", "error"),
     }
     try:
-        r = requests.post(url, json=payload, timeout=5)
+        r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=5)
         r.raise_for_status()
         logger.info("Résultat commande #%d envoyé avec succès", command_id)
         return True
@@ -386,7 +400,7 @@ def send_software_inventory() -> bool:
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, timeout=15)
+            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=15)
             r.raise_for_status()
             logger.info("Inventaire logiciels envoyé avec succès")
             return True
@@ -422,16 +436,21 @@ def _get_foreground_process_name() -> str:
     try:
         import win32gui
         import win32process
+        import win32con
         import win32api
+        import win32event
 
         hwnd = win32gui.GetForegroundWindow()
         if not hwnd:
             return "Unknown"
 
         _, pid = win32process.GetWindowThreadProcessId(hwnd)
-        handle = win32api.OpenProcess(0x0410, False, pid)
-        exe_path = win32api.QueryFullProcessImageName(handle)
-        win32api.CloseHandle(handle)
+        access = win32con.PROCESS_QUERY_LIMITED_INFORMATION | win32con.PROCESS_VM_READ
+        handle = win32api.OpenProcess(access, False, pid)
+        try:
+            exe_path = win32process.GetModuleFileNameEx(handle, 0)
+        finally:
+            win32api.CloseHandle(handle)
         return os.path.basename(exe_path)
 
     except Exception as e:
