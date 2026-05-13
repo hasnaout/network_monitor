@@ -288,81 +288,125 @@ def process_pending_commands():
         report_command_result(command_id, result)
 
 
-# ================= SERVICE =================
-class NetworkAgent(win32serviceutil.ServiceFramework):
-    _svc_name_         = "NetworkAgent"
-    _svc_display_name_ = "Network Monitoring Agent"
-    _svc_description_  = "Agent léger de supervision réseau avec exécution de commandes à distance"
 
-    def __init__(self, args):
-        super().__init__(args)
-        self.stop_event = win32event.CreateEvent(None, 0, 0, None)
-        self.running    = True
-        self._heartbeat_accumulator  = 0  # ms depuis le dernier heartbeat
-        self._inventory_accumulator  = 0  # ms depuis le dernier inventaire
-        self._usage_accumulator      = 0  # ms depuis le dernier envoi usage
-        self._tracker = AppUsageTracker()  # accumulateur app usage
+# ================= SOFTWARE INVENTORY =================
 
-    def SvcStop(self):
-        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        self.running = False
-        win32event.SetEvent(self.stop_event)
-        logger.info("Service arrêté proprement")
+def collect_installed_software() -> list:
+    """
+    Collecte la liste des logiciels installés via le registre Windows.
+    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
+    Retourne une liste de dicts {name, version, publisher, install_date}.
+    """
+    import winreg
 
-    def SvcDoRun(self):
+    software_list = []
+    registry_paths = [
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+    ]
+
+    seen = set()  # éviter les doublons entre ruches
+
+    for hive, path in registry_paths:
         try:
-            servicemanager.LogInfoMsg("NetworkAgent démarré")
-            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-            load_config()
-            logger.info("Service démarré — URL : %s", get_server_url())
-
-            # Actions immédiates au démarrage
-            send_heartbeat()
-            send_software_inventory()
-            self._heartbeat_accumulator = 0
-            self._inventory_accumulator = 0
-            self._usage_accumulator     = 0
-
-            while self.running:
-                poll_interval      = get_command_poll_interval()    # ex : 5 000 ms
-                heartbeat_interval = get_heartbeat_interval()        # ex : 30 000 ms
-                inventory_interval = get_inventory_interval()        # ex : 3 600 000 ms (1h)
-
-                # Attente du signal d'arrêt pendant poll_interval ms
-                result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
-                if result == win32event.WAIT_OBJECT_0:
-                    break
-
-                # Polling commandes à chaque poll_interval
-                process_pending_commands()
-
-                self._heartbeat_accumulator += poll_interval
-                self._inventory_accumulator += poll_interval
-
-                # Heartbeat
-                if self._heartbeat_accumulator >= heartbeat_interval:
-                    send_heartbeat()
-                    self._heartbeat_accumulator = 0
-
-                # Inventaire logiciels (peu fréquent)
-                if self._inventory_accumulator >= inventory_interval:
-                    send_software_inventory()
-                    self._inventory_accumulator = 0
-
-                # App usage : tick à chaque poll_interval
-                self._tracker.tick(poll_interval // 1000)
-                self._usage_accumulator += poll_interval
-                usage_interval = get_usage_send_interval()   # ex : 300 000 ms (5 min)
-                if self._usage_accumulator >= usage_interval:
-                    send_app_usage(self._tracker)
-                    self._usage_accumulator = 0
-
+            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        except FileNotFoundError:
+            continue
         except Exception as e:
-            logger.error("Erreur fatale dans SvcDoRun : %s", e)
-            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
-            raise
+            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
+            continue
+
+        index = 0
+        while True:
+            try:
+                subkey_name = winreg.EnumKey(root_key, index)
+                index += 1
+            except OSError:
+                break  # plus de sous-clés
+
+            try:
+                subkey = winreg.OpenKey(root_key, subkey_name)
+
+                def get_val(name):
+                    try:
+                        return winreg.QueryValueEx(subkey, name)[0]
+                    except FileNotFoundError:
+                        return ""
+
+                name      = get_val("DisplayName").strip()
+                version   = get_val("DisplayVersion").strip()
+                publisher = get_val("Publisher").strip()
+                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
+
+                winreg.CloseKey(subkey)
+
+                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
+                if not name:
+                    continue
+
+                uid = f"{name}|{version}"
+                if uid in seen:
+                    continue
+                seen.add(uid)
+
+                software_list.append({
+                    "name":         name,
+                    "version":      version,
+                    "publisher":    publisher,
+                    "install_date": inst_date,
+                })
+
+            except Exception as e:
+                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
+
+        winreg.CloseKey(root_key)
+
+    logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
+    return software_list
 
 
+def send_software_inventory() -> bool:
+    """
+    Envoie l'inventaire complet au serveur.
+    Endpoint : POST /api/inventory/software/
+    Body     : { mac_address, hostname, software: [...] }
+    """
+    url     = get_server_url() + "/api/inventory/software/"
+    payload = {
+        "mac_address": get_mac(),
+        "hostname":    get_hostname(),
+        "software":    collect_installed_software(),
+    }
+
+    logger.info("Envoi inventaire logiciels (%d entrées) → %s", len(payload["software"]), url)
+
+    max_retries  = get_max_retries()
+    retry_delay  = get_retry_delay()
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            r = requests.post(url, json=payload, timeout=15)
+            r.raise_for_status()
+            logger.info("Inventaire logiciels envoyé avec succès")
+            return True
+        except requests.exceptions.ConnectionError:
+            logger.warning("Tentative %d/%d — serveur injoignable", attempt, max_retries)
+        except requests.exceptions.Timeout:
+            logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
+        except requests.exceptions.HTTPError as e:
+            logger.error("Erreur HTTP inventaire : %s — %s", e, r.text)
+            return False
+        except Exception as e:
+            logger.error("Erreur inattendue inventaire : %s", e)
+            return False
+
+        if attempt < max_retries:
+            time.sleep(retry_delay)
+
+    logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
+    return False
+    
 # ================= APPLICATION USAGE TRACKING =================
 
 from collections import defaultdict
@@ -488,124 +532,82 @@ def get_usage_send_interval() -> int:
     return int(_config.get("usage_send_interval_ms", 300_000))
 
 
+
+
+# ================= SERVICE =================
+class NetworkAgent(win32serviceutil.ServiceFramework):
+    _svc_name_         = "NetworkAgent"
+    _svc_display_name_ = "Network Monitoring Agent"
+    _svc_description_  = "Agent léger de supervision réseau avec exécution de commandes à distance"
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.stop_event = win32event.CreateEvent(None, 0, 0, None)
+        self.running    = True
+        self._heartbeat_accumulator  = 0  # ms depuis le dernier heartbeat
+        self._inventory_accumulator  = 0  # ms depuis le dernier inventaire
+        self._usage_accumulator      = 0  # ms depuis le dernier envoi usage
+        self._tracker = AppUsageTracker()  # accumulateur app usage
+
+    def SvcStop(self):
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        self.running = False
+        win32event.SetEvent(self.stop_event)
+        logger.info("Service arrêté proprement")
+
+    def SvcDoRun(self):
+        try:
+            servicemanager.LogInfoMsg("NetworkAgent démarré")
+            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+            load_config()
+            logger.info("Service démarré — URL : %s", get_server_url())
+
+            # Actions immédiates au démarrage
+            send_heartbeat()
+            send_software_inventory()
+            self._heartbeat_accumulator = 0
+            self._inventory_accumulator = 0
+            self._usage_accumulator     = 0
+
+            while self.running:
+                poll_interval      = get_command_poll_interval()    # ex : 5 000 ms
+                heartbeat_interval = get_heartbeat_interval()        # ex : 30 000 ms
+                inventory_interval = get_inventory_interval()        # ex : 3 600 000 ms (1h)
+
+                # Attente du signal d'arrêt pendant poll_interval ms
+                result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
+                if result == win32event.WAIT_OBJECT_0:
+                    break
+
+                # Polling commandes à chaque poll_interval
+                process_pending_commands()
+
+                self._heartbeat_accumulator += poll_interval
+                self._inventory_accumulator += poll_interval
+
+                # Heartbeat
+                if self._heartbeat_accumulator >= heartbeat_interval:
+                    send_heartbeat()
+                    self._heartbeat_accumulator = 0
+
+                # Inventaire logiciels (peu fréquent)
+                if self._inventory_accumulator >= inventory_interval:
+                    send_software_inventory()
+                    self._inventory_accumulator = 0
+
+                # App usage : tick à chaque poll_interval
+                self._tracker.tick(poll_interval // 1000)
+                self._usage_accumulator += poll_interval
+                usage_interval = get_usage_send_interval()   # ex : 300 000 ms (5 min)
+                if self._usage_accumulator >= usage_interval:
+                    send_app_usage(self._tracker)
+                    self._usage_accumulator = 0
+
+        except Exception as e:
+            logger.error("Erreur fatale dans SvcDoRun : %s", e)
+            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
+            raise
+
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(NetworkAgent)
-
-# ================= SOFTWARE INVENTORY =================
-
-def collect_installed_software() -> list:
-    """
-    Collecte la liste des logiciels installés via le registre Windows.
-    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
-    Retourne une liste de dicts {name, version, publisher, install_date}.
-    """
-    import winreg
-
-    software_list = []
-    registry_paths = [
-        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
-        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
-        (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
-    ]
-
-    seen = set()  # éviter les doublons entre ruches
-
-    for hive, path in registry_paths:
-        try:
-            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
-        except FileNotFoundError:
-            continue
-        except Exception as e:
-            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
-            continue
-
-        index = 0
-        while True:
-            try:
-                subkey_name = winreg.EnumKey(root_key, index)
-                index += 1
-            except OSError:
-                break  # plus de sous-clés
-
-            try:
-                subkey = winreg.OpenKey(root_key, subkey_name)
-
-                def get_val(name):
-                    try:
-                        return winreg.QueryValueEx(subkey, name)[0]
-                    except FileNotFoundError:
-                        return ""
-
-                name      = get_val("DisplayName").strip()
-                version   = get_val("DisplayVersion").strip()
-                publisher = get_val("Publisher").strip()
-                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
-
-                winreg.CloseKey(subkey)
-
-                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
-                if not name:
-                    continue
-
-                uid = f"{name}|{version}"
-                if uid in seen:
-                    continue
-                seen.add(uid)
-
-                software_list.append({
-                    "name":         name,
-                    "version":      version,
-                    "publisher":    publisher,
-                    "install_date": inst_date,
-                })
-
-            except Exception as e:
-                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
-
-        winreg.CloseKey(root_key)
-
-    logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
-    return software_list
-
-
-def send_software_inventory() -> bool:
-    """
-    Envoie l'inventaire complet au serveur.
-    Endpoint : POST /api/inventory/software/
-    Body     : { mac_address, hostname, software: [...] }
-    """
-    url     = get_server_url() + "/api/inventory/software/"
-    payload = {
-        "mac_address": get_mac(),
-        "hostname":    get_hostname(),
-        "software":    collect_installed_software(),
-    }
-
-    logger.info("Envoi inventaire logiciels (%d entrées) → %s", len(payload["software"]), url)
-
-    max_retries  = get_max_retries()
-    retry_delay  = get_retry_delay()
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            r = requests.post(url, json=payload, timeout=15)
-            r.raise_for_status()
-            logger.info("Inventaire logiciels envoyé avec succès")
-            return True
-        except requests.exceptions.ConnectionError:
-            logger.warning("Tentative %d/%d — serveur injoignable", attempt, max_retries)
-        except requests.exceptions.Timeout:
-            logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
-        except requests.exceptions.HTTPError as e:
-            logger.error("Erreur HTTP inventaire : %s — %s", e, r.text)
-            return False
-        except Exception as e:
-            logger.error("Erreur inattendue inventaire : %s", e)
-            return False
-
-        if attempt < max_retries:
-            time.sleep(retry_delay)
-
-    logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
-    return False
