@@ -110,7 +110,7 @@ export default function AppUsageChart({ appUsages, usageDate }) {
       {/* Total Usage Summary */}
       <div className="usage-summary">
         <div className="summary-card">
-          <h4>📊 Temps total d'utilisation</h4>
+          <h4> Temps total d'utilisation</h4>
           <p className="total-time">{formatDuration(totalSeconds)}</p>
           <p className="summary-subtitle">le {usageDate}</p>
         </div>
@@ -118,7 +118,7 @@ export default function AppUsageChart({ appUsages, usageDate }) {
 
       {/* Bar Chart */}
       <div className="chart-container">
-        <h4 className="chart-title">📈 Utilisation par heure</h4>
+        <h4 className="chart-title">Utilisation par heure</h4>
         {appUsages.length === 0 ? (
           <div className="empty-chart">
             <p>Aucune donnée disponible pour cette date</p>
