@@ -133,6 +133,12 @@
   ('win32\\win32evtlog.pyd',
    'C:\\Users\\admin\\Desktop\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\win32evtlog.pyd',
    'EXTENSION'),
+  ('win32\\win32gui.pyd',
+   'C:\\Users\\admin\\Desktop\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\win32gui.pyd',
+   'EXTENSION'),
+  ('win32\\win32process.pyd',
+   'C:\\Users\\admin\\Desktop\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\win32process.pyd',
+   'EXTENSION'),
   ('win32\\win32service.pyd',
    'C:\\Users\\admin\\Desktop\\network_monitor\\network_monitor\\venv\\Lib\\site-packages\\win32\\win32service.pyd',
    'EXTENSION')],)
