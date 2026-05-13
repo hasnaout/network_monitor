@@ -79,12 +79,13 @@ def get_max_retries() -> int:
 def get_retry_delay() -> int:
     return int(_config.get("retry_delay_s", 5))
 
-def get_inventory_interval() -> int:
-    return int(_config.get("inventory_interval_ms", 3_600_000))
+def get_command_poll_interval() -> int:
+    """Intervalle de polling des commandes en ms (défaut: 5s)."""
+    return int(_config.get("command_poll_interval_ms", 5_000))
 
-def get_agent_headers() -> dict:
-    token = _config.get("agent_token")
-    return {"X-Agent-Token": token} if token else {}
+def get_inventory_interval() -> int:
+    """Intervalle d'envoi de l'inventaire logiciels en ms (defaut: 1h)."""
+    return int(_config.get("inventory_interval_ms", 3_600_000))
 
 # ================= DEVICE INFO =================
 def get_hostname() -> str:
@@ -123,6 +124,7 @@ def get_mac() -> str:
             return mac
     except Exception as e:
         logger.warning(f"Erreur avec uuid.getnode(): {e}")
+    
     try:
         hostname_hash = str(hash(get_hostname()))[-10:]
         mac = f"02:{hostname_hash[0:2]}:{hostname_hash[2:4]}:{hostname_hash[4:6]}:{hostname_hash[6:8]}:{hostname_hash[8:10]}"
@@ -139,23 +141,19 @@ def build_payload() -> dict:
         "ip_address": get_ip(),
     }
 
-# ================= HEARTBEAT avec retry =================
-
+# ================= HEARTBEAT =================
 def send_heartbeat() -> bool:
     url = get_server_url() + "/api/heartbeat/ping/"
     payload = build_payload()
-    
-    # Log le payload pour diagnostic
     logger.debug(f"Payload: {payload}")
-    
     max_retries = get_max_retries()
     retry_delay = get_retry_delay()
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=5)
+            r = requests.post(url, json=payload, timeout=5)
             r.raise_for_status()
-            logger.info("Heartbeat OK → %s", url)
+            logger.info("Heartbeat OK -> %s", url)
             return True
         except requests.exceptions.ConnectionError:
             logger.warning("Tentative %d/%d — serveur injoignable (%s)", attempt, max_retries, url)
@@ -163,15 +161,14 @@ def send_heartbeat() -> bool:
             logger.warning("Tentative %d/%d — timeout", attempt, max_retries)
         except requests.exceptions.HTTPError as e:
             logger.error("Erreur HTTP %s - Réponse: %s", e, r.text)
-            return False  # Pas de retry sur 4xx/5xx
+            return False
         except Exception as e:
             logger.error("Erreur inattendue : %s", e)
             return False
-
         if attempt < max_retries:
             time.sleep(retry_delay)
 
-    logger.error("Heartbeat ÉCHOUÉ après %d tentatives", max_retries)
+    logger.error("Heartbeat ECHOUE apres %d tentatives", max_retries)
     return False
 
 # ================= REMOTE COMMAND EXECUTION =================
@@ -293,14 +290,18 @@ def process_pending_commands():
 
 # ================= SERVICE =================
 class NetworkAgent(win32serviceutil.ServiceFramework):
-    _svc_name_ = "NetworkAgent"
+    _svc_name_         = "NetworkAgent"
     _svc_display_name_ = "Network Monitoring Agent"
-    _svc_description_ = "Agent léger de supervision réseau"
+    _svc_description_  = "Agent léger de supervision réseau avec exécution de commandes à distance"
 
     def __init__(self, args):
         super().__init__(args)
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
-        self.running = True
+        self.running    = True
+        self._heartbeat_accumulator  = 0  # ms depuis le dernier heartbeat
+        self._inventory_accumulator  = 0  # ms depuis le dernier inventaire
+        self._usage_accumulator      = 0  # ms depuis le dernier envoi usage
+        self._tracker = AppUsageTracker()  # accumulateur app usage
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
@@ -312,106 +313,257 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         try:
             servicemanager.LogInfoMsg("NetworkAgent démarré")
             self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-            load_config() 
-            server_url = get_server_url()
-            next_inventory_at = 0
-            logger.info("Service démarré — URL : %s", server_url)
+            load_config()
+            logger.info("Service démarré — URL : %s", get_server_url())
+
+            # Actions immédiates au démarrage
+            send_heartbeat()
+            send_software_inventory()
+            self._heartbeat_accumulator = 0
+            self._inventory_accumulator = 0
+            self._usage_accumulator     = 0
 
             while self.running:
-                send_heartbeat()
-                now = time.time()
-                if now >= next_inventory_at:
-                    send_software_inventory()
-                    next_inventory_at = now + (get_inventory_interval() / 1000)
+                poll_interval      = get_command_poll_interval()    # ex : 5 000 ms
+                heartbeat_interval = get_heartbeat_interval()        # ex : 30 000 ms
+                inventory_interval = get_inventory_interval()        # ex : 3 600 000 ms (1h)
 
-                interval = get_heartbeat_interval()
-                result = win32event.WaitForSingleObject(self.stop_event, interval)
+                # Attente du signal d'arrêt pendant poll_interval ms
+                result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
                 if result == win32event.WAIT_OBJECT_0:
                     break
+
+                # Polling commandes à chaque poll_interval
+                process_pending_commands()
+
+                self._heartbeat_accumulator += poll_interval
+                self._inventory_accumulator += poll_interval
+
+                # Heartbeat
+                if self._heartbeat_accumulator >= heartbeat_interval:
+                    send_heartbeat()
+                    self._heartbeat_accumulator = 0
+
+                # Inventaire logiciels (peu fréquent)
+                if self._inventory_accumulator >= inventory_interval:
+                    send_software_inventory()
+                    self._inventory_accumulator = 0
+
+                # App usage : tick à chaque poll_interval
+                self._tracker.tick(poll_interval // 1000)
+                self._usage_accumulator += poll_interval
+                usage_interval = get_usage_send_interval()   # ex : 300 000 ms (5 min)
+                if self._usage_accumulator >= usage_interval:
+                    send_app_usage(self._tracker)
+                    self._usage_accumulator = 0
+
         except Exception as e:
             logger.error("Erreur fatale dans SvcDoRun : %s", e)
             servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
-            raise 
+            raise
+
+
+# ================= APPLICATION USAGE TRACKING =================
+
+from collections import defaultdict
+from datetime import date as _date
+
+
+def _get_foreground_process_name() -> str:
+    """
+    Retourne le nom de l'exécutable de la fenêtre au premier plan.
+    Ex : 'chrome.exe', 'Code.exe', 'explorer.exe'
+    Retourne 'Unknown' en cas d'échec.
+    """
+    try:
+        import win32gui
+        import win32process
+        import win32api
+
+        hwnd = win32gui.GetForegroundWindow()
+        if not hwnd:
+            return "Unknown"
+
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        handle = win32api.OpenProcess(0x0410, False, pid)
+        exe_path = win32api.QueryFullProcessImageName(handle)
+        win32api.CloseHandle(handle)
+        return os.path.basename(exe_path)
+
+    except Exception as e:
+        logger.debug("Erreur détection fenêtre active : %s", e)
+        return "Unknown"
+
+
+class AppUsageTracker:
+    """
+    Accumule le temps d'utilisation par application en mémoire.
+    tick() à chaque poll, flush() à chaque envoi.
+    Si l'envoi échoue, les données sont remises dans l'accumulateur.
+    """
+
+    def __init__(self):
+        self._data: dict = defaultdict(lambda: defaultdict(int))
+
+    def tick(self, seconds: int):
+        """Identifie l'app active et ajoute seconds à son compteur."""
+        if seconds <= 0:
+            return
+        app   = _get_foreground_process_name()
+        today = str(_date.today())
+        self._data[today][app] += seconds
+
+    def flush(self) -> list:
+        """Vide l'accumulateur et retourne la liste des usages."""
+        if not self._data:
+            return []
+        result = []
+        for date_str, apps in self._data.items():
+            for app_name, secs in apps.items():
+                if secs > 0:
+                    result.append({
+                        "app_name":         app_name,
+                        "date":             date_str,
+                        "duration_seconds": secs,
+                    })
+        self._data.clear()
+        return result
+
+    def restore(self, usages: list):
+        """Remet des données dans l'accumulateur après un échec d'envoi."""
+        for item in usages:
+            self._data[item["date"]][item["app_name"]] += item["duration_seconds"]
+
+
+def send_app_usage(tracker: "AppUsageTracker") -> bool:
+    """
+    Vide le tracker et envoie les usages au serveur.
+    Endpoint : POST /api/usage/apps/
+    Body     : { mac_address, hostname, usages: [...] }
+    En cas d'échec total, les données sont restaurées dans le tracker.
+    """
+    usages = tracker.flush()
+    if not usages:
+        logger.debug("AppUsage : aucune donnée à envoyer")
+        return True
+
+    url     = get_server_url() + "/api/usage/apps/"
+    payload = {
+        "mac_address": get_mac(),
+        "hostname":    get_hostname(),
+        "usages":      usages,
+    }
+
+    logger.info("Envoi AppUsage (%d entrées) → %s", len(usages), url)
+
+    for attempt in range(1, get_max_retries() + 1):
+        try:
+            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=10)
+            r.raise_for_status()
+            logger.info("AppUsage envoyé avec succès")
+            return True
+        except requests.exceptions.ConnectionError:
+            logger.warning("AppUsage tentative %d/%d — serveur injoignable", attempt, get_max_retries())
+        except requests.exceptions.Timeout:
+            logger.warning("AppUsage tentative %d/%d — timeout", attempt, get_max_retries())
+        except requests.exceptions.HTTPError as e:
+            logger.error("AppUsage erreur HTTP : %s", e)
+            tracker.restore(usages)
+            return False
+        except Exception as e:
+            logger.error("AppUsage erreur inattendue : %s", e)
+            tracker.restore(usages)
+            return False
+
+        if attempt < get_max_retries():
+            time.sleep(get_retry_delay())
+
+    logger.error("AppUsage ECHOUE après %d tentatives — données conservées", get_max_retries())
+    tracker.restore(usages)
+    return False
+
+
+def get_usage_send_interval() -> int:
+    """Intervalle d'envoi des usages en ms (défaut : 5 min)."""
+    return int(_config.get("usage_send_interval_ms", 300_000))
+
+
+# ================= ENTRY POINT =================
+if __name__ == "__main__":
+    win32serviceutil.HandleCommandLine(NetworkAgent)
 
 # ================= SOFTWARE INVENTORY =================
 
 def collect_installed_software() -> list:
+    """
+    Collecte la liste des logiciels installés via le registre Windows.
+    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
+    Retourne une liste de dicts {name, version, publisher, install_date}.
+    """
     import winreg
-    software_list = []
-    registry_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
-    seen = set()
 
-    def collect_from_key(root_key, source_label):
+    software_list = []
+    registry_paths = [
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
+        (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+    ]
+
+    seen = set()  # éviter les doublons entre ruches
+
+    for hive, path in registry_paths:
+        try:
+            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+        except FileNotFoundError:
+            continue
+        except Exception as e:
+            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
+            continue
+
         index = 0
         while True:
             try:
                 subkey_name = winreg.EnumKey(root_key, index)
                 index += 1
             except OSError:
-                break
+                break  # plus de sous-clés
 
             try:
                 subkey = winreg.OpenKey(root_key, subkey_name)
 
-                try:
-                    name = winreg.QueryValueEx(subkey, "DisplayName")[0].strip()
-                except FileNotFoundError:
-                    name = ""
+                def get_val(name):
+                    try:
+                        return winreg.QueryValueEx(subkey, name)[0]
+                    except FileNotFoundError:
+                        return ""
+
+                name      = get_val("DisplayName").strip()
+                version   = get_val("DisplayVersion").strip()
+                publisher = get_val("Publisher").strip()
+                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
 
                 winreg.CloseKey(subkey)
 
-                if not name or name in seen:
+                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
+                if not name:
                     continue
 
-                seen.add(name)
-                software_list.append({"name": name})
+                uid = f"{name}|{version}"
+                if uid in seen:
+                    continue
+                seen.add(uid)
+
+                software_list.append({
+                    "name":         name,
+                    "version":      version,
+                    "publisher":    publisher,
+                    "install_date": inst_date,
+                })
 
             except Exception as e:
-                logger.debug("Erreur lecture sous-clé %s (%s) : %s", subkey_name, source_label, e)
+                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
 
-    try:
-        root_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, registry_path, 0, winreg.KEY_READ)
-        collect_from_key(root_key, "HKEY_CURRENT_USER")
         winreg.CloseKey(root_key)
-    except FileNotFoundError:
-        logger.info("Chemin registre introuvable : HKEY_CURRENT_USER\\%s", registry_path)
-    except Exception as e:
-        logger.warning("Impossible d'ouvrir HKEY_CURRENT_USER\\%s : %s", registry_path, e)
-
-    if software_list:
-        logger.info("Inventaire logiciels : %d entrées collectées depuis HKEY_CURRENT_USER", len(software_list))
-        return software_list
-
-    logger.info("Aucun logiciel via HKEY_CURRENT_USER, tentative via HKEY_USERS pour le service Windows")
-
-    try:
-        users_key = winreg.OpenKey(winreg.HKEY_USERS, "")
-    except Exception as e:
-        logger.warning("Impossible d'ouvrir HKEY_USERS : %s", e)
-        return software_list
-
-    sid_index = 0
-    while True:
-        try:
-            sid = winreg.EnumKey(users_key, sid_index)
-            sid_index += 1
-        except OSError:
-            break
-
-        if not sid.startswith("S-1-5-21-") or sid.endswith("_Classes"):
-            continue
-
-        user_registry_path = sid + "\\" + registry_path
-        try:
-            root_key = winreg.OpenKey(winreg.HKEY_USERS, user_registry_path, 0, winreg.KEY_READ)
-            collect_from_key(root_key, f"HKEY_USERS\\{sid}")
-            winreg.CloseKey(root_key)
-        except FileNotFoundError:
-            logger.debug("Chemin registre introuvable : HKEY_USERS\\%s", user_registry_path)
-        except Exception as e:
-            logger.warning("Impossible d'ouvrir HKEY_USERS\\%s : %s", user_registry_path, e)
-
-    winreg.CloseKey(users_key)
 
     logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
     return software_list
@@ -424,15 +576,10 @@ def send_software_inventory() -> bool:
     Body     : { mac_address, hostname, software: [...] }
     """
     url     = get_server_url() + "/api/inventory/software/"
-    software = collect_installed_software()
-    if not software:
-        logger.warning("Inventaire vide : envoi annulé pour éviter d'effacer les logiciels enregistrés")
-        return False
-
     payload = {
         "mac_address": get_mac(),
         "hostname":    get_hostname(),
-        "software":    software,
+        "software":    collect_installed_software(),
     }
 
     logger.info("Envoi inventaire logiciels (%d entrées) → %s", len(payload["software"]), url)
@@ -442,7 +589,7 @@ def send_software_inventory() -> bool:
 
     for attempt in range(1, max_retries + 1):
         try:
-            r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=15)
+            r = requests.post(url, json=payload, timeout=15)
             r.raise_for_status()
             logger.info("Inventaire logiciels envoyé avec succès")
             return True
@@ -462,27 +609,3 @@ def send_software_inventory() -> bool:
 
     logger.error("Envoi inventaire ECHOUE après %d tentatives", max_retries)
     return False
-
-
-def run_inventory_once() -> int:
-    load_config()
-    software = collect_installed_software()
-    print(f"Logiciels collectés: {len(software)}")
-    if software[:5]:
-        print("Exemples:")
-        for item in software[:5]:
-            print(f"- {item.get('name')}")
-    return 0 if send_software_inventory() else 1
-
-# ================= ENTRY POINT =================
-if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1].lower() in {"inventory", "--inventory", "send-inventory"}:
-        sys.exit(run_inventory_once())
-
-    if len(sys.argv) == 1 and getattr(sys, "frozen", False):
-        servicemanager.Initialize()
-        servicemanager.PrepareToHostSingle(NetworkAgent)
-        servicemanager.StartServiceCtrlDispatcher()
-    else:
-        win32serviceutil.HandleCommandLine(NetworkAgent)
-        

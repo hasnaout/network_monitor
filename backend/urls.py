@@ -19,4 +19,6 @@ urlpatterns = [
     path('api/inventory/', include('apps.server_inventory.urls')),
     # API
     path('api/', include(router.urls)),
+    path("api/usage/", include("apps.app_usage.urls")),
 ]
+
