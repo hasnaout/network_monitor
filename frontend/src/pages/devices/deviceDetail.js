@@ -7,6 +7,7 @@ import { getDeviceById, getDeviceSoftware } from "../../services/deviceService";
 import { getAppUsage } from "../../services/appUsageService";
 import { getAlerts } from "../../services/alertService";
 import { useSocket } from "../../context/SocketContext";
+import AppUsageChart from "../../components/AppUsageChart";
 
 function getStatusClass(status) {
   const s = String(status || '').toLowerCase();
@@ -221,49 +222,58 @@ export default function DeviceDetail() {
 
             {appUsageLoading ? (
               <div className="empty-state">Chargement de l'utilisation...</div>
-            ) : appUsages.length === 0 ? (
-              <div className="empty-state">
-                Aucune utilisation trouvée pour cette date
-              </div>
             ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Application</th>
-                      <th>Durée</th>
-                      <th>Visualisation</th>
-                      <th>Dernière mise à jour</th>
-                    </tr>
-                  </thead>
+              <>
+                {/* Dashboard avec graphique */}
+                <AppUsageChart appUsages={appUsages} usageDate={usageDate} />
 
-                  <tbody>
-                    {appUsages.map((item) => {
-                      const width = Math.max(
-                        6,
-                        Math.round((Number(item.duration_seconds || 0) / maxUsageSeconds) * 100)
-                      );
-
-                      return (
-                        <tr key={item.id}>
-                          <td><strong>{item.app_name}</strong></td>
-                          <td>{formatDuration(item.duration_seconds)}</td>
-                          <td>
-                            <div className="usage-bar" aria-label={`${item.app_name}: ${formatDuration(item.duration_seconds)}`}>
-                              <span style={{ width: `${width}%` }} />
-                            </div>
-                          </td>
-                          <td>
-                            {item.last_updated
-                              ? new Date(item.last_updated).toLocaleString('fr-FR')
-                              : "—"}
-                          </td>
+                {/* Tableau détaillé */}
+                {appUsages.length === 0 ? (
+                  <div className="empty-state">
+                    Aucune utilisation trouvée pour cette date
+                  </div>
+                ) : (
+                  <div className="table-wrap">
+                    <div className="table-section-title">Détail des applications</div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Application</th>
+                          <th>Durée</th>
+                          <th>Visualisation</th>
+                          <th>Dernière mise à jour</th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+
+                      <tbody>
+                        {appUsages.map((item) => {
+                          const width = Math.max(
+                            6,
+                            Math.round((Number(item.duration_seconds || 0) / maxUsageSeconds) * 100)
+                          );
+
+                          return (
+                            <tr key={item.id}>
+                              <td><strong>{item.app_name}</strong></td>
+                              <td>{formatDuration(item.duration_seconds)}</td>
+                              <td>
+                                <div className="usage-bar" aria-label={`${item.app_name}: ${formatDuration(item.duration_seconds)}`}>
+                                  <span style={{ width: `${width}%` }} />
+                                </div>
+                              </td>
+                              <td>
+                                {item.last_updated
+                                  ? new Date(item.last_updated).toLocaleString('fr-FR')
+                                  : "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </section>
 

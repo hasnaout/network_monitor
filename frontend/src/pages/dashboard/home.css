@@ -367,6 +367,99 @@ tbody tr:hover {
   border: 1px solid #fecaca;
 }
 
+/* Dark Theme Tables (within table-panel) */
+.table-panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-panel thead {
+  background: rgba(34, 197, 94, 0.08);
+  border-bottom: 1px solid rgba(56, 189, 97, 0.15);
+}
+
+.table-panel th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: #bbf7d0;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-panel td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(56, 189, 97, 0.1);
+  color: #d1fae5;
+}
+
+.table-panel tbody tr {
+  transition: background 0.2s ease;
+}
+
+.table-panel tbody tr:hover {
+  background: rgba(34, 197, 94, 0.06);
+}
+
+/* Usage Bar in Tables */
+.usage-bar {
+  background: rgba(56, 189, 97, 0.15);
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.usage-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Usage Filters */
+.usage-filters {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(56, 189, 97, 0.12);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.usage-filters label {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: #e7f6ec;
+}
+
+.usage-filters span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #bbf7d0;
+}
+
+.usage-filters input[type="date"] {
+  background: rgba(5, 15, 12, 0.8);
+  border: 1px solid rgba(56, 189, 97, 0.2);
+  color: #e7f6ec;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.usage-filters input[type="date"]:hover,
+.usage-filters input[type="date"]:focus {
+  border-color: rgba(56, 189, 97, 0.4);
+  background: rgba(5, 15, 12, 0.95);
+  outline: none;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
