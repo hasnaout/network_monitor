@@ -244,6 +244,281 @@
   text-align: center;
 }
 
+.remote-command-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(8, 24, 18, 0.95);
+  border: 1px solid rgba(56, 189, 97, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.remote-command-panel h3 {
+  margin: 0.35rem 0 0.25rem;
+  color: #f8fff7;
+  font-size: 1.25rem;
+}
+
+.remote-command-panel p {
+  color: #9ca3a3;
+  margin: 0;
+}
+
+.remote-command-trigger,
+.command-submit {
+  min-height: 44px;
+  border: 1px solid rgba(74, 222, 128, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.32), rgba(5, 150, 105, 0.22));
+  color: #f8fff7;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.remote-command-trigger:hover,
+.command-submit:hover:not(:disabled) {
+  border-color: rgba(134, 239, 172, 0.75);
+  box-shadow: 0 10px 28px rgba(34, 197, 94, 0.18);
+  transform: translateY(-1px);
+}
+
+.command-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 8, 6, 0.78);
+  backdrop-filter: blur(12px);
+}
+
+.command-modal {
+  width: min(780px, 100%);
+  max-height: min(860px, 92vh);
+  overflow-y: auto;
+  background: rgba(5, 20, 14, 0.98);
+  border: 1px solid rgba(74, 222, 128, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  color: #e7f6ec;
+}
+
+.command-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(56, 189, 97, 0.12);
+}
+
+.command-modal__header h3 {
+  margin: 0.35rem 0 0;
+  color: #f8fff7;
+  font-size: 1.4rem;
+}
+
+.modal-close {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(56, 189, 97, 0.18);
+  border-radius: 8px;
+  background: rgba(5, 15, 12, 0.85);
+  color: #bbf7d0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.command-form {
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.5rem;
+}
+
+.target-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.target-toggle label {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(56, 189, 97, 0.2);
+  border-radius: 8px;
+  background: rgba(3, 12, 9, 0.58);
+  color: #d1fae5;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.target-toggle label.is-active {
+  border-color: rgba(74, 222, 128, 0.65);
+  background: rgba(34, 197, 94, 0.14);
+  color: #f8fff7;
+}
+
+.target-toggle input {
+  accent-color: #22c55e;
+}
+
+.command-field {
+  display: grid;
+  gap: 0.55rem;
+  color: #bbf7d0;
+  font-weight: 800;
+}
+
+.command-field select,
+.console-textarea {
+  width: 100%;
+  border: 1px solid rgba(56, 189, 97, 0.24);
+  border-radius: 8px;
+  background: rgba(3, 12, 9, 0.88);
+  color: #f8fff7;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+}
+
+.command-field select:focus,
+.console-textarea:focus {
+  outline: 2px solid rgba(74, 222, 128, 0.45);
+  outline-offset: 2px;
+}
+
+.console-textarea {
+  resize: vertical;
+  min-height: 150px;
+  font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+  line-height: 1.6;
+  color: #d1fae5;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.command-feedback {
+  margin: 0;
+}
+
+.command-results {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.command-results__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.command-results__heading h4 {
+  margin: 0;
+  color: #f8fff7;
+}
+
+.command-results__heading span {
+  color: #86efac;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.command-result-item {
+  border: 1px solid rgba(56, 189, 97, 0.16);
+  border-radius: 8px;
+  background: rgba(3, 12, 9, 0.7);
+  overflow: hidden;
+}
+
+.command-result-item__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(56, 189, 97, 0.1);
+}
+
+.command-result-item pre,
+.command-history-detail-row pre {
+  margin: 0;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #d1fae5;
+  font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  background: rgba(1, 8, 5, 0.82);
+}
+
+.command-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.command-badge.is-success {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+  border: 1px solid rgba(134, 239, 172, 0.28);
+}
+
+.command-badge.is-error {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+  border: 1px solid rgba(252, 165, 165, 0.28);
+}
+
+.command-badge.is-pending {
+  background: rgba(234, 179, 8, 0.14);
+  color: #fde68a;
+  border: 1px solid rgba(253, 230, 138, 0.24);
+}
+
+.empty-state.compact {
+  padding: 1.5rem;
+}
+
+.command-history-row {
+  cursor: pointer;
+}
+
+.command-history-table code {
+  color: #d1fae5;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.command-history-detail-row td {
+  padding: 0;
+  background: rgba(3, 12, 9, 0.62);
+}
+
 .detail-panel {
   margin-bottom: 2rem;
 }
@@ -294,6 +569,16 @@
   }
 
   .usage-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .remote-command-panel,
+  .command-results__heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .target-toggle {
     grid-template-columns: 1fr;
   }
 }
@@ -655,6 +940,15 @@ tbody tr:hover {
   }
 
   .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .remote-command-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .target-toggle {
     grid-template-columns: 1fr;
   }
 }

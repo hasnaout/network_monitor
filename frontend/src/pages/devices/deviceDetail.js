@@ -1,4 +1,4 @@
- import { useEffect, useState } from 'react';
+ import { Fragment, useEffect, useState } from 'react';
 import "../dashboard/home.css";
 import Header from "../../components/Header";
 import { useAuth } from "../../context/AuthContext";
@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { getDeviceById, getDeviceSoftware } from "../../services/deviceService";
 import { getAppUsage } from "../../services/appUsageService";
 import { getAlerts } from "../../services/alertService";
+import { getCommandHistory } from "../../services/commandService";
 import { useSocket } from "../../context/SocketContext";
 import AppUsageChart from "../../components/AppUsageChart";
 
@@ -13,6 +14,28 @@ function getStatusClass(status) {
   const s = String(status || '').toLowerCase();
   if (s === 'online') return 'status-pill is-online';
   return 'status-pill is-offline';
+}
+
+function getCommandStatusClass(status) {
+  const s = String(status || '').toLowerCase();
+  if (s === 'success') return 'command-badge is-success';
+  if (['error', 'timeout', 'exception'].includes(s)) return 'command-badge is-error';
+  return 'command-badge is-pending';
+}
+
+function getCommandStatusLabel(status) {
+  const s = String(status || '').toLowerCase();
+  if (s === 'success') return 'Success';
+  if (s === 'error') return 'Error';
+  if (s === 'timeout') return 'Timeout';
+  if (s === 'exception') return 'Exception';
+  if (s === 'running') return 'Running';
+  return 'Pending';
+}
+
+function getCommandResult(command) {
+  if (!command) return '';
+  return command.stderr || command.stdout || 'Aucun résultat disponible.';
 }
 
 function todayISO() {
@@ -81,6 +104,10 @@ export default function DeviceDetail() {
   const [appUsages, setAppUsages] = useState([]);
   const [softwareLoading, setSoftwareLoading] = useState(false);
   const [appUsageLoading, setAppUsageLoading] = useState(false);
+  const [commandHistory, setCommandHistory] = useState([]);
+  const [commandHistoryLoading, setCommandHistoryLoading] = useState(false);
+  const [commandHistoryError, setCommandHistoryError] = useState('');
+  const [expandedCommandId, setExpandedCommandId] = useState(null);
   const [softwareError, setSoftwareError] = useState('');
   const [appUsageError, setAppUsageError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -152,6 +179,26 @@ export default function DeviceDetail() {
 
     loadAppUsage();
   }, [auth?.accessToken, device?.mac_address, usageDate]);
+
+  useEffect(() => {
+    if (!auth?.accessToken || !device?.id) return;
+
+    async function loadCommandHistory() {
+      try {
+        setCommandHistoryLoading(true);
+        setCommandHistoryError('');
+        const res = await getCommandHistory({ deviceId: device.id, limit: 50 });
+        setCommandHistory(res.data.results || []);
+      } catch (historyErr) {
+        setCommandHistory([]);
+        setCommandHistoryError("Erreur chargement historique des commandes");
+      } finally {
+        setCommandHistoryLoading(false);
+      }
+    }
+
+    loadCommandHistory();
+  }, [auth?.accessToken, device?.id]);
 
   const mergedAlerts = [...alerts, ...apiAlerts].filter(
     (item, index, self) =>
@@ -345,6 +392,65 @@ export default function DeviceDetail() {
             )}
           </section>
 
+          <section className="table-panel detail-panel">
+            <div className="panel-heading">
+              <h3>Historique des Commandes Distantes</h3>
+              <span className="panel-count">{commandHistory.length}</span>
+            </div>
+
+            {commandHistoryError && <p className="error-feedback detail-feedback">{commandHistoryError}</p>}
+
+            {commandHistoryLoading ? (
+              <div className="empty-state">Chargement des commandes...</div>
+            ) : commandHistory.length === 0 ? (
+              <div className="empty-state">Aucune commande distante exécutée</div>
+            ) : (
+              <div className="table-wrap">
+                <table className="command-history-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Commande</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {commandHistory.map((item) => (
+                      <Fragment key={item.id}>
+                        <tr
+                          className="command-history-row"
+                          onClick={() => setExpandedCommandId(
+                            expandedCommandId === item.id ? null : item.id
+                          )}
+                        >
+                          <td>
+                            {item.created_at
+                              ? new Date(item.created_at).toLocaleString('fr-FR')
+                              : "—"}
+                          </td>
+                          <td><code>{item.command}</code></td>
+                          <td>
+                            <span className={getCommandStatusClass(item.status)}>
+                              {getCommandStatusLabel(item.status)}
+                            </span>
+                          </td>
+                        </tr>
+                        {expandedCommandId === item.id && (
+                          <tr className="command-history-detail-row">
+                            <td colSpan="3">
+                              <pre>{getCommandResult(item)}</pre>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
           <section className="table-panel">
 
             <div className="panel-heading">
@@ -366,20 +472,7 @@ export default function DeviceDetail() {
                   const paginatedAlerts = deviceAlerts.slice(startIdx, endIdx);
                   
                   // Regrouper les alertes paginées par jour
-                  const grouped = {};
-                  paginatedAlerts.forEach((alert) => {
-                    const date = new Date(alert.created_at);
-                    const dateKey = date.toISOString().slice(0, 10);
-                    const label = getRelativeDate(alert.created_at);
-                    if (!grouped[dateKey]) {
-                      grouped[dateKey] = { label, alerts: [] };
-                    }
-                    grouped[dateKey].alerts.push(alert);
-                  });
-
-                  const groupedArray = Object.entries(grouped)
-                    .sort(([keyA], [keyB]) => new Date(keyB) - new Date(keyA))
-                    .map(([, { label, alerts }]) => ({ label, alerts }));
+                  const groupedArray = groupAlertsByDay(paginatedAlerts);
 
                   return (
                     <>

@@ -194,17 +194,23 @@ class CommandHistoryView(APIView):
     """
     permission_classes = [IsAuthenticated, IsAdminUser]
 
-    def get(self, request):
+    def get(self, request, device_id=None):
         qs = RemoteCommand.objects.select_related("device", "created_by").all()
 
         mac    = request.query_params.get("mac_address")
         status_filter = request.query_params.get("status")
+        command_ids = request.query_params.get("command_ids", "")
         limit  = int(request.query_params.get("limit", 50))
 
+        if device_id:
+            qs = qs.filter(device_id=device_id)
         if mac:
             qs = qs.filter(device__mac_address=mac)
         if status_filter:
             qs = qs.filter(status=status_filter)
+        if command_ids:
+            ids = [value for value in command_ids.split(",") if value.strip().isdigit()]
+            qs = qs.filter(id__in=ids)
 
         qs = qs[:limit]
         serializer = RemoteCommandSerializer(qs, many=True)
