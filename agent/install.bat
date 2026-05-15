@@ -12,19 +12,90 @@ set SERVICE_NAME=NetworkAgent
 set SOURCE_DIR=%~dp0
 set INSTALL_DIR=%ProgramFiles%\NetworkAgent
 set EXE_PATH=%INSTALL_DIR%\NetworkAgent.exe
+set SOURCE_EXE=%SOURCE_DIR%NetworkAgent.exe
 
 echo [1/6] Preparation du dossier d'installation...
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de creer le dossier "%INSTALL_DIR%".
+    pause
+    exit /b 1
+)
 
 echo [2/6] Copie des fichiers...
-copy /Y "%SOURCE_DIR%NetworkAgent.exe" "%INSTALL_DIR%\" >nul
+if not exist "%SOURCE_EXE%" (
+    echo [ERREUR] Fichier introuvable: "%SOURCE_EXE%"
+    echo.
+    echo Ce script doit etre lance depuis le dossier du paquet client.
+    echo Ce dossier doit contenir NetworkAgent.exe.
+    echo.
+    echo Solution:
+    echo 1. Lancez agent\build_agent.bat sur le poste de build.
+    echo 2. Ouvrez agent\dist\NetworkAgent.
+    echo 3. Lancez install.bat en tant qu'Administrateur.
+    pause
+    exit /b 1
+)
+
+copy /Y "%SOURCE_EXE%" "%INSTALL_DIR%\" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier NetworkAgent.exe.
+    pause
+    exit /b 1
+)
+
 if exist "%SOURCE_DIR%_internal" (
+    dir /B "%SOURCE_DIR%_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Paquet incomplet: python*.dll est absent de "%SOURCE_DIR%_internal".
+        echo Reconstruisez le paquet avec agent\build_agent.bat puis relancez l'installation.
+        pause
+        exit /b 1
+    )
+    if exist "%INSTALL_DIR%\_internal" rmdir /S /Q "%INSTALL_DIR%\_internal"
     xcopy "%SOURCE_DIR%_internal" "%INSTALL_DIR%\_internal\" /E /I /Y >nul
+    if %ERRORLEVEL% GTR 1 (
+        echo [ERREUR] Impossible de copier le dossier _internal.
+        pause
+        exit /b 1
+    )
+    dir /B "%INSTALL_DIR%\_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Copie incomplete: python*.dll est absent de "%INSTALL_DIR%\_internal".
+        pause
+        exit /b 1
+    )
 )
+
+if not exist "%SOURCE_DIR%_internal" (
+    echo [ERREUR] Dossier introuvable: "%SOURCE_DIR%_internal"
+    echo Ce dossier est obligatoire pour un paquet PyInstaller onedir.
+    pause
+    exit /b 1
+)
+
 if not exist "%INSTALL_DIR%\agent.config.json" (
+    if not exist "%SOURCE_DIR%agent.config.json" (
+        echo [ERREUR] Fichier introuvable: "%SOURCE_DIR%agent.config.json"
+        pause
+        exit /b 1
+    )
     copy /Y "%SOURCE_DIR%agent.config.json" "%INSTALL_DIR%\" >nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Impossible de copier agent.config.json.
+        pause
+        exit /b 1
+    )
 )
-copy /Y "%SOURCE_DIR%uninstall.bat" "%INSTALL_DIR%\" >nul
+
+if exist "%SOURCE_DIR%uninstall.bat" (
+    copy /Y "%SOURCE_DIR%uninstall.bat" "%INSTALL_DIR%\" >nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Impossible de copier uninstall.bat.
+        pause
+        exit /b 1
+    )
+)
 
 echo [3/6] Arret d'une ancienne instance si elle existe...
 sc query %SERVICE_NAME% >nul 2>&1
@@ -32,21 +103,58 @@ if %ERRORLEVEL% EQU 0 (
     sc stop %SERVICE_NAME% >nul 2>&1
     timeout /t 2 /nobreak >nul
     sc delete %SERVICE_NAME% >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Impossible de supprimer l'ancien service.
+        pause
+        exit /b 1
+    )
     timeout /t 2 /nobreak >nul
 )
 
 echo [4/6] Installation du service Windows...
 "%EXE_PATH%" install
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] L'installation du service Windows a echoue.
+    echo Verifiez que ce script est lance en Administrateur.
+    echo Verifiez aussi le fichier: "%EXE_PATH%"
+    pause
+    exit /b 1
+)
+
+sc query %SERVICE_NAME% >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Le service "%SERVICE_NAME%" n'existe toujours pas apres l'installation.
+    echo La commande "%EXE_PATH% install" n'a pas cree le service.
+    pause
+    exit /b 1
+)
 
 echo [5/6] Configuration du demarrage automatique...
 sc config %SERVICE_NAME% start= auto
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de configurer le demarrage automatique.
+    pause
+    exit /b 1
+)
+
 sc description %SERVICE_NAME% "Agent leger de supervision reseau" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de configurer la description du service.
+    pause
+    exit /b 1
+)
 
 echo [6/6] Demarrage du service...
 sc start %SERVICE_NAME%
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de demarrer le service.
+    echo Consultez les logs Windows et "%INSTALL_DIR%\agent.log".
+    pause
+    exit /b 1
+)
 
 echo.
-echo [OK] Service "%SERVICE_NAME%" installé et démarré.
+echo [OK] Service "%SERVICE_NAME%" installe et demarre.
 echo      Il se lancera automatiquement a chaque demarrage Windows.
 echo      Dossier: "%INSTALL_DIR%"
 echo      Configuration: "%INSTALL_DIR%\agent.config.json"
