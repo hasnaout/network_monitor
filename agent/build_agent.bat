@@ -29,6 +29,14 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+dir /B dist\NetworkAgent\_internal\python*.dll >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Paquet incomplet: python*.dll est absent de dist\NetworkAgent\_internal.
+    echo Le service ne pourra pas demarrer sans cette DLL.
+    pause
+    exit /b 1
+)
+
 copy /Y install.bat dist\NetworkAgent\ >nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de copier install.bat dans le paquet client.

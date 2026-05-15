@@ -45,12 +45,33 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 if exist "%SOURCE_DIR%_internal" (
+    dir /B "%SOURCE_DIR%_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Paquet incomplet: python*.dll est absent de "%SOURCE_DIR%_internal".
+        echo Reconstruisez le paquet avec agent\build_agent.bat puis relancez l'installation.
+        pause
+        exit /b 1
+    )
+    if exist "%INSTALL_DIR%\_internal" rmdir /S /Q "%INSTALL_DIR%\_internal"
     xcopy "%SOURCE_DIR%_internal" "%INSTALL_DIR%\_internal\" /E /I /Y >nul
     if %ERRORLEVEL% GTR 1 (
         echo [ERREUR] Impossible de copier le dossier _internal.
         pause
         exit /b 1
     )
+    dir /B "%INSTALL_DIR%\_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Copie incomplete: python*.dll est absent de "%INSTALL_DIR%\_internal".
+        pause
+        exit /b 1
+    )
+)
+
+if not exist "%SOURCE_DIR%_internal" (
+    echo [ERREUR] Dossier introuvable: "%SOURCE_DIR%_internal"
+    echo Ce dossier est obligatoire pour un paquet PyInstaller onedir.
+    pause
+    exit /b 1
 )
 
 if not exist "%INSTALL_DIR%\agent.config.json" (

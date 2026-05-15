@@ -1,6 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import sys
+from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
@@ -17,11 +18,21 @@ hidden_imports = [
 ]
 hidden_imports += collect_submodules("requests")
 
+python_binaries = []
+python_dir = Path(sys.base_prefix)
+for dll_name in (
+    f"python{sys.version_info.major}{sys.version_info.minor}.dll",
+    "python3.dll",
+):
+    dll_path = python_dir / dll_name
+    if dll_path.exists():
+        python_binaries.append((str(dll_path), "."))
+
 
 a = Analysis(
     ['agent.py'],
     pathex=[],
-    binaries=[],
+    binaries=python_binaries,
 datas=[
         ('agent.config.json', '.'),
         ('install.bat', '.'),
