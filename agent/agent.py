@@ -72,7 +72,7 @@ def get_server_url() -> str:
 
 
 def get_agent_headers() -> dict:
-    token = _config.get("agent_token", "")
+    token = _config.get("agent_token") or _config.get("AGENT_TOKEN", "")
     if token:
         return {"X-Agent-Token": token}
     return {}

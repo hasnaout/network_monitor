@@ -2,9 +2,9 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 
 
@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     "channels",
 ]
-AGENT_TOKEN = "a3f8c2e1d9b4f7a2e5c8d1b6f3a9e2c5d8b1f4a7e0c3d6b9f2a5e8c1d4b7f0"
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
 ]
@@ -143,7 +142,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-AGENT_TOKEN = os.getenv("AGENT_TOKEN")
+AGENT_TOKEN = os.getenv("AGENT_TOKEN", "").strip()
 
 CORS_ALLOW_CREDENTIALS = True
 
