@@ -30,9 +30,29 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 copy /Y install.bat dist\NetworkAgent\ >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier install.bat dans le paquet client.
+    pause
+    exit /b 1
+)
 copy /Y uninstall.bat dist\NetworkAgent\ >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier uninstall.bat dans le paquet client.
+    pause
+    exit /b 1
+)
 copy /Y agent.config.json dist\NetworkAgent\ >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier agent.config.json dans le paquet client.
+    pause
+    exit /b 1
+)
 copy /Y README_CLIENT.txt dist\NetworkAgent\ >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier README_CLIENT.txt dans le paquet client.
+    pause
+    exit /b 1
+)
 
 echo [3/3] Paquet pret.
 echo Dossier client: %CD%\dist\NetworkAgent
