@@ -1,5 +1,5 @@
 {
-  "server_url": "http://192.168.1.96:8001",
+  "server_url": "http://192.168.120.237:8001",
   "heartbeat_interval_ms": 30000,
   "command_poll_interval_ms": 5000,
   "inventory_interval_ms": 3600000,
