@@ -297,29 +297,6 @@ export default function DeviceDetail() {
                     </tbody>
                   </table>
                 </div>
-
-                {/* Pagination Controls */}
-                <div className="pagination-controls">
-                  <button
-                    className="btn-pagination"
-                    onClick={() => setSoftwarePage(softwarePage - 1)}
-                    disabled={softwarePage === 1}
-                  >
-                    ← Précédent
-                  </button>
-
-                  <span className="pagination-info">
-                    Page {softwarePage} sur {Math.ceil(software.length / 10)}
-                  </span>
-
-                  <button
-                    className="btn-pagination"
-                    onClick={() => setSoftwarePage(softwarePage + 1)}
-                    disabled={softwarePage >= Math.ceil(software.length / 10)}
-                  >
-                    Suivant →
-                  </button>
-                </div>
               </>
             )}
           </section>
@@ -490,7 +467,6 @@ export default function DeviceDetail() {
                           <table>
                             <thead>
                               <tr>
-                                <th>Type</th>
                                 <th>Message</th>
                                 <th>Heure</th>
                               </tr>
@@ -499,7 +475,6 @@ export default function DeviceDetail() {
                             <tbody>
                               {group.alerts.map((a) => (
                                 <tr key={a.id}>
-                                  <td><span className="alert-badge">{a.alert_type}</span></td>
                                   <td>{a.message}</td>
                                   <td>
                                     {a.created_at
@@ -523,11 +498,11 @@ export default function DeviceDetail() {
                           onClick={() => setAlertsPage(alertsPage - 1)}
                           disabled={alertsPage === 1}
                         >
-                          ← Précédent
+                          &lt;
                         </button>
 
                         <span className="pagination-info">
-                          Page {alertsPage} sur {totalPages}
+                           {alertsPage} / {totalPages}
                         </span>
 
                         <button
@@ -535,7 +510,7 @@ export default function DeviceDetail() {
                           onClick={() => setAlertsPage(alertsPage + 1)}
                           disabled={alertsPage >= totalPages}
                         >
-                          Suivant →
+                          &gt;
                         </button>
                       </div>
                     </>
