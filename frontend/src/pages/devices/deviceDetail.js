@@ -206,11 +206,19 @@ export default function DeviceDetail() {
   );
 
   const deviceAlerts = mergedAlerts
-    .filter(a =>
-      String(a.device) === String(device?.id) ||
-      a.device === device?.name ||
-      a.device_name === device?.name
-    )
+    .filter(a => {
+      const alertDevice = typeof a.device === 'object' && a.device !== null
+        ? a.device
+        : null;
+
+      return (
+        String(alertDevice?.id || a.device) === String(device?.id) ||
+        alertDevice?.name === device?.name ||
+        alertDevice?.mac_address === device?.mac_address ||
+        a.device === device?.name ||
+        a.device_name === device?.name
+      );
+    })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const totalUsageSeconds = appUsages.reduce(

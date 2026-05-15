@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
+from secrets import compare_digest
 from apps.devices.models import Device
 from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
@@ -18,8 +19,11 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
     def ping(self, request):
 
         mark_stale_devices_offline()
-        agent_token = getattr(settings, "AGENT_TOKEN", None)
-        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+        agent_token = getattr(settings, "AGENT_TOKEN", "").strip()
+        received_token = request.headers.get("X-Agent-Token", "")
+        if not agent_token:
+            return Response({"error": "Token agent non configure cote serveur"}, status=500)
+        if not compare_digest(received_token, agent_token):
             return Response({"error": "Token agent invalide"}, status=401)
 
         mac = (request.data.get('mac_address') or '').strip().lower()

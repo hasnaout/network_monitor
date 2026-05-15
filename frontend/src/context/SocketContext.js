@@ -10,12 +10,18 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [connected, setConnected] = useState(false);
+  const [reconnectAttempt, setReconnectAttempt] = useState(0);
 
 useEffect(() => {
   if (!auth.accessToken) return;
 
-  const wsUrl = process.env.REACT_APP_WS_URL
+  let reconnectTimer;
+  let closedByCleanup = false;
+
+  const baseWsUrl = process.env.REACT_APP_WS_URL
     || API_URL.replace(/^http/, 'ws').replace(/\/$/, '') + '/ws/alerts/';
+  const separator = baseWsUrl.includes('?') ? '&' : '?';
+  const wsUrl = `${baseWsUrl}${separator}token=${encodeURIComponent(auth.accessToken)}`;
   const ws = new WebSocket(wsUrl);
   
   ws.onopen = () => {
@@ -40,23 +46,27 @@ useEffect(() => {
   ws.onclose = () => {
     console.log("WebSocket disconnected");
     setConnected(false);
-    // Attempt to reconnect after 3 seconds
-    setTimeout(() => {
-      if (auth.accessToken) {
-        console.log("Attempting to reconnect WebSocket...");
-        // The useEffect will run again when auth changes
-      }
-    }, 3000);
+    setSocket(null);
+
+    if (!closedByCleanup && auth.accessToken) {
+      reconnectTimer = setTimeout(() => {
+        setReconnectAttempt((attempt) => attempt + 1);
+      }, 3000);
+    }
   };
 
   setSocket(ws);
   return () => {
-    if (ws.readyState === WebSocket.OPEN) {
+    closedByCleanup = true;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+    }
+    if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
       ws.close();
     }
   };
 
-}, [auth.accessToken]);
+}, [auth.accessToken, reconnectAttempt]);
 
   return (
     <SocketContext.Provider value={{ socket, alerts, connected }}>

@@ -1,4 +1,5 @@
 import logging
+from secrets import compare_digest
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -33,8 +34,14 @@ class SoftwareInventoryView(APIView):
     permission_classes = [AllowAny]
  
     def post(self, request):
-        agent_token = getattr(settings, "AGENT_TOKEN", None)
-        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+        agent_token = getattr(settings, "AGENT_TOKEN", "").strip()
+        received_token = request.headers.get("X-Agent-Token", "")
+        if not agent_token:
+            return Response(
+                {"error": "Token agent non configure cote serveur"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        if not compare_digest(received_token, agent_token):
             return Response({"error": "Token agent invalide"}, status=status.HTTP_401_UNAUTHORIZED)
 
         serializer = SoftwareInventorySerializer(data=request.data)

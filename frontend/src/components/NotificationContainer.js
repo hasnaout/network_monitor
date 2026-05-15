@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
 import NotificationToast from './NotificationToast';
@@ -8,22 +8,19 @@ export default function NotificationContainer() {
   const { alerts = [] } = useSocket();
   const { addNotification } = useNotification();
   const [toastNotifications, setToastNotifications] = React.useState([]);
-  const [lastAlertId, setLastAlertId] = React.useState(null);
+  const lastAlertIdRef = useRef(null);
 
   useEffect(() => {
-    if (alerts.length > 0) {
-      const latestAlert = alerts[0];
-      
-      // Only add if it's a new alert
-      if (lastAlertId !== latestAlert.id) {
-        const notif = addNotification(latestAlert);
-        if (notif) {
-          setToastNotifications((prev) => [...prev, notif]);
-        }
-        setLastAlertId(latestAlert.id);
+    const latestAlert = alerts[0];
+
+    if (latestAlert && lastAlertIdRef.current !== latestAlert.id) {
+      const notif = addNotification(latestAlert);
+      if (notif) {
+        setToastNotifications((prev) => [...prev, notif]);
       }
+      lastAlertIdRef.current = latestAlert.id;
     }
-  }, [alerts.length > 0 ? alerts[0]?.id : null, addNotification]);
+  }, [alerts, addNotification]);
 
   const removeToast = (id) => {
     setToastNotifications((prev) => prev.filter((n) => n.id !== id));

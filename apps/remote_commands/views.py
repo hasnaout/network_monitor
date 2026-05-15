@@ -1,4 +1,5 @@
 import logging
+from secrets import compare_digest
 from django.utils import timezone
 from django.conf import settings
 from rest_framework.views import APIView
@@ -27,7 +28,7 @@ def _verify_agent_token(request) -> bool:
         logger.error("AGENT_TOKEN non configuré dans settings.py")
         return False
     received = request.headers.get("X-Agent-Token", "")
-    return received == expected
+    return compare_digest(received, expected)
 
 
 # ─────────────────────────────────────────────
@@ -49,7 +50,7 @@ class CreateCommandView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        mac     = serializer.validated_data.get("mac_address", "").strip()
+        mac     = serializer.validated_data.get("mac_address", "").strip().lower()
         command = serializer.validated_data["command"]
         timeout = serializer.validated_data.get("timeout", 30)
 
@@ -75,7 +76,7 @@ class CreateCommandView(APIView):
             created_ids = [cmd.id]
         else:
             # Broadcast — une commande par agent actif
-            devices = Device.objects.filter(is_active=True)
+            devices = Device.objects.filter(status="online")
             if not devices.exists():
                 return Response(
                     {"detail": "Aucun agent actif trouvé pour le broadcast."},
@@ -169,6 +170,13 @@ class CommandResultView(APIView):
             cmd = RemoteCommand.objects.get(id=command_id)
         except RemoteCommand.DoesNotExist:
             return Response({"detail": "Commande introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
+        mac = data.get("mac_address", "").strip().lower()
+        if cmd.device and mac != cmd.device.mac_address.lower():
+            return Response(
+                {"detail": "Cette commande n'appartient pas a cet agent."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         cmd.stdout      = data.get("stdout", "")
         cmd.stderr      = data.get("stderr", "")

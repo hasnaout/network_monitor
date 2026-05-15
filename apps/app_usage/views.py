@@ -1,5 +1,7 @@
 import logging
+from secrets import compare_digest
 from django.utils import timezone
+from django.db.models import F
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -24,8 +26,14 @@ class AppUsageIngestView(APIView):
     """
 
     def post(self, request):
-        agent_token = getattr(settings, "AGENT_TOKEN", None)
-        if agent_token and request.headers.get("X-Agent-Token") != agent_token:
+        agent_token = getattr(settings, "AGENT_TOKEN", "").strip()
+        received_token = request.headers.get("X-Agent-Token", "")
+        if not agent_token:
+            return Response(
+                {"error": "Token agent non configure cote serveur"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        if not compare_digest(received_token, agent_token):
             return Response({"error": "Token agent invalide"}, status=status.HTTP_401_UNAUTHORIZED)
 
         serializer = AppUsagePayloadSerializer(data=request.data)
@@ -62,7 +70,7 @@ class AppUsageIngestView(APIView):
 
             if not created:
                 # Incrémenter la durée existante
-                obj.duration_seconds += item["duration_seconds"]
+                obj.duration_seconds = F("duration_seconds") + item["duration_seconds"]
                 obj.save(update_fields=["duration_seconds", "last_updated"])
                 updated_count += 1
             else:

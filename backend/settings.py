@@ -14,13 +14,16 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-# ALLOWED_HOSTS - accepter uniquement le sous-réseau local
+
+# Override the static defaults with a valid, comma-separated host list.
 ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "192.168.1.96",
-    "192.168.1.*",  # Accepte toutes les machines du sous-réseau 192.168.1.0/24
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.96").split(",")
+    if host.strip()
 ]
+
+if DEBUG and "*" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("*")
 
 INSTALLED_APPS = [
     "daphne",
