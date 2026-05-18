@@ -1,0 +1,499 @@
+/* ═══════════════════════════════════════════════
+   USB Control — styles complémentaires
+   Hérite de home.css (dashboard-shell, table-panel,
+   hero-panel, pagination-controls, btn-pagination…)
+═══════════════════════════════════════════════ */
+
+/* ── Variables USB ───────────────────────────── */
+:root {
+  --usb-green:   #22c55e;
+  --usb-red:     #ef4444;
+  --usb-blue:    #3b82f6;
+  --usb-yellow:  #f59e0b;
+  --usb-muted:   #6b7280;
+  --usb-accent:  #8b5cf6;
+  --usb-surface: rgba(255,255,255,0.04);
+  --usb-border:  rgba(255,255,255,0.08);
+  --usb-radius:  6px;
+}
+
+/* ── Sélecteur de machine ────────────────────── */
+.usb-selector-panel .panel-heading {
+  margin-bottom: 0.75rem;
+}
+
+.usb-device-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.usb-select {
+  background: var(--usb-surface);
+  border: 1px solid var(--usb-border);
+  border-radius: var(--usb-radius);
+  color: inherit;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.9rem;
+  min-width: 280px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.usb-select:focus {
+  border-color: var(--usb-blue);
+}
+
+.usb-select-sm {
+  min-width: 180px;
+}
+
+/* ── Stats bar ───────────────────────────────── */
+.usb-stats-panel {
+  padding: 1rem 1.25rem;
+}
+
+.usb-stats-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.usb-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--usb-surface);
+  border: 1px solid var(--usb-border);
+  border-radius: var(--usb-radius);
+  padding: 0.75rem 1.25rem;
+  min-width: 90px;
+  gap: 0.2rem;
+}
+
+.usb-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.usb-stat-label {
+  font-size: 0.72rem;
+  color: var(--usb-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Onglets ─────────────────────────────────── */
+.usb-tabs-panel {
+  padding-top: 0;
+}
+
+.usb-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--usb-border);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.usb-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.88rem;
+  color: var(--usb-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.usb-tab:hover {
+  color: inherit;
+}
+
+.usb-tab.active {
+  color: var(--usb-blue);
+  border-bottom-color: var(--usb-blue);
+}
+
+.tab-count {
+  background: var(--usb-surface);
+  border: 1px solid var(--usb-border);
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.tab-count-alert {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.35);
+  color: var(--usb-red);
+}
+
+/* ── Badges USB status ───────────────────────── */
+.usb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.usb-badge.is-connected {
+  background: rgba(34,197,94,0.15);
+  color: var(--usb-green);
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+.usb-badge.is-disconnected {
+  background: rgba(107,114,128,0.15);
+  color: var(--usb-muted);
+  border: 1px solid rgba(107,114,128,0.3);
+}
+
+.usb-badge.is-blocked {
+  background: rgba(239,68,68,0.15);
+  color: var(--usb-red);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+/* ── Trust badge ─────────────────────────────── */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  gap: 0.2rem;
+}
+
+.trust-badge.is-trusted {
+  color: var(--usb-green);
+}
+
+.trust-badge.is-untrusted {
+  color: var(--usb-muted);
+}
+
+/* ── Numéro de série ─────────────────────────── */
+.usb-serial {
+  font-size: 0.78rem;
+  background: var(--usb-surface);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* ── Boutons actions ─────────────────────────── */
+.usb-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-action {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--usb-radius);
+  border: 1px solid transparent;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-action:active {
+  transform: scale(0.97);
+}
+
+.btn-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-block-sm {
+  background: rgba(239,68,68,0.12);
+  border-color: rgba(239,68,68,0.3);
+  color: var(--usb-red);
+}
+
+.btn-block-sm:hover:not(:disabled) {
+  background: rgba(239,68,68,0.22);
+}
+
+.btn-allow-sm {
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(34,197,94,0.3);
+  color: var(--usb-green);
+}
+
+.btn-allow-sm:hover:not(:disabled) {
+  background: rgba(34,197,94,0.22);
+}
+
+.btn-refresh {
+  background: var(--usb-surface);
+  border-color: var(--usb-border);
+  color: inherit;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+}
+
+.btn-save {
+  background: rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.35);
+  color: var(--usb-blue);
+}
+
+.btn-save:hover:not(:disabled) {
+  background: rgba(59,130,246,0.25);
+}
+
+.btn-mark-read {
+  background: var(--usb-surface);
+  border-color: var(--usb-border);
+  color: inherit;
+  margin-bottom: 1rem;
+}
+
+/* ── Alertes severity ────────────────────────── */
+.alert-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.alert-badge.is-critical {
+  background: rgba(239,68,68,0.15);
+  color: var(--usb-red);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.alert-badge.is-high {
+  background: rgba(245,158,11,0.15);
+  color: var(--usb-yellow);
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+.alert-badge.is-medium {
+  background: rgba(59,130,246,0.12);
+  color: var(--usb-blue);
+  border: 1px solid rgba(59,130,246,0.3);
+}
+
+.alert-badge.is-low {
+  background: rgba(107,114,128,0.12);
+  color: var(--usb-muted);
+  border: 1px solid rgba(107,114,128,0.25);
+}
+
+/* ── Ligne non lue ───────────────────────────── */
+.usb-alert-unread td {
+  font-weight: 600;
+}
+
+.unread-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--usb-blue);
+  vertical-align: middle;
+}
+
+/* ── Historique filtre ───────────────────────── */
+.usb-history-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.usb-filter-count {
+  font-size: 0.82rem;
+  color: var(--usb-muted);
+}
+
+/* ── Événement type ──────────────────────────── */
+.usb-event-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.usb-event-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── Alertes header ──────────────────────────── */
+.usb-alerts-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Politique ───────────────────────────────── */
+.usb-policy-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+  max-width: 560px;
+}
+
+.usb-policy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.usb-policy-field > label {
+  font-size: 0.82rem;
+  color: var(--usb-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.usb-policy-toggle {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.usb-toggle-btn {
+  padding: 0.4rem 1rem;
+  border-radius: var(--usb-radius);
+  border: 1px solid var(--usb-border);
+  background: var(--usb-surface);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  opacity: 0.6;
+}
+
+.usb-toggle-btn:hover {
+  opacity: 0.85;
+}
+
+.usb-toggle-btn.active.policy-allow {
+  background: rgba(34,197,94,0.15);
+  border-color: rgba(34,197,94,0.4);
+  color: var(--usb-green);
+  opacity: 1;
+}
+
+.usb-toggle-btn.active.policy-block {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.4);
+  color: var(--usb-red);
+  opacity: 1;
+}
+
+.usb-toggle-btn.active.policy-monitor {
+  background: rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.4);
+  color: var(--usb-blue);
+  opacity: 1;
+}
+
+.usb-input {
+  background: var(--usb-surface);
+  border: 1px solid var(--usb-border);
+  border-radius: var(--usb-radius);
+  color: inherit;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  width: 160px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.usb-input:focus {
+  border-color: var(--usb-blue);
+}
+
+.usb-policy-checks {
+  gap: 0.6rem;
+}
+
+.usb-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.usb-check-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--usb-blue);
+}
+
+.usb-policy-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Messages feedback ───────────────────────── */
+.usb-msg {
+  font-size: 0.84rem;
+}
+
+.usb-msg.is-ok    { color: var(--usb-green); }
+.usb-msg.is-error { color: var(--usb-red); }
+
+/* ── Empty hint ──────────────────────────────── */
+.usb-empty-hint {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 640px) {
+  .usb-stats-bar {
+    gap: 0.6rem;
+  }
+
+  .usb-stat-card {
+    min-width: 72px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .usb-stat-value {
+    font-size: 1.3rem;
+  }
+
+  .usb-select {
+    min-width: 100%;
+  }
+
+  .usb-policy-grid {
+    max-width: 100%;
+  }
+}

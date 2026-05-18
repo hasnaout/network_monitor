@@ -10,6 +10,7 @@ import Home from "./pages/dashboard/home.js";
 import Devices from "./pages/devices/devices.js";
 import DeviceDetail from "./pages/devices/deviceDetail.js";
 import Alerts from "./pages/alerts/alerts.js";
+import USBControl from "./pages/usb/usb.js";           // ← AJOUT
 import NotificationContainer from './components/NotificationContainer';
 
 function App() {
@@ -22,10 +23,11 @@ function App() {
               <NotificationContainer />
               <Routes>
                 <Route path="/connexion" element={<Connexion />} />
-                <Route path="/" element={  <ProtectedRoute>  <Home />  </ProtectedRoute>} />
-                <Route path="/devices" element={  <ProtectedRoute>  <Devices /></ProtectedRoute>} />
-                <Route path="/devices/:id" element={<ProtectedRoute>  <DeviceDetail /></ProtectedRoute>  } />
-                <Route path="/alerts" element={  <ProtectedRoute>    <Alerts />    </ProtectedRoute>  } />
+                <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                <Route path="/devices" element={<ProtectedRoute><Devices /></ProtectedRoute>} />
+                <Route path="/devices/:id" element={<ProtectedRoute><DeviceDetail /></ProtectedRoute>} />
+                <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+                <Route path="/usb" element={<ProtectedRoute><USBControl /></ProtectedRoute>} />  {/* ← AJOUT */}
                 <Route path="*" element={<Navigate to="/connexion" />} />
               </Routes>
             </BrowserRouter>

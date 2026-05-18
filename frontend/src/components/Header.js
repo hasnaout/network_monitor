@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiServer, FiBell, FiLogOut, FiMenu, FiX, FiHardDrive } from 'react-icons/fi';
 import { NavLink } from 'react-router-dom';
 import './Header.css';
 
@@ -35,10 +35,10 @@ export default function Header() {
               className="logo-img"
             />
           </div>
-
           <div className="logo-text">
           </div>
         </div>
+
         <nav className={`header-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
 
           <NavLink to="/" className="nav-link" onClick={closeMobileMenu}>
@@ -61,7 +61,13 @@ export default function Header() {
             )}
           </NavLink>
 
+          <NavLink to="/usb" className="nav-link" onClick={closeMobileMenu}>
+            <FiHardDrive className="nav-icon" />
+            USB
+          </NavLink>
+
         </nav>
+
         <div className="header-actions">
 
           <button className="logout-btn" onClick={logout}>
