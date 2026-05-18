@@ -21,5 +21,6 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path("api/usage/", include("apps.app_usage.urls")),
     path("api/commands/", include("apps.remote_commands.urls")),
+    path("api/usb/", include("apps.usb_control.urls")),
 ]
 

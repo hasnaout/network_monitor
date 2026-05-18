@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.server_inventory',
     'apps.remote_commands',
     'apps.app_usage',
+    'apps.usb_control',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',

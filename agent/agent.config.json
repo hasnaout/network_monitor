@@ -1,9 +1,10 @@
 {
-  "server_url": "http://192.168.120.237:8001",
+  "server_url": "http://10.123.203.134:8001",
   "heartbeat_interval_ms": 30000,
   "command_poll_interval_ms": 5000,
   "inventory_interval_ms": 3600000,
   "usage_send_interval_ms": 300000,
+  "usb_poll_interval_ms": 30000,
   "max_retries": 3,
   "retry_delay_s": 5,
   "AGENT_TOKEN": "a3f8c2e1d9b4f7a2e5c8d1b6f3a9e2c5d8b1f4a7e0c3d6b9f2a5e8c1d4b7f0"

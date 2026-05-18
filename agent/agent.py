@@ -94,6 +94,10 @@ def get_inventory_interval() -> int:
     """Intervalle d'envoi de l'inventaire logiciels en ms (defaut: 1h)."""
     return int(_config.get("inventory_interval_ms", 3_600_000))
 
+def get_usb_poll_interval() -> int:
+    """Intervalle de synchronisation USB en ms (défaut: 30s)."""
+    return int(_config.get("usb_poll_interval_ms", 30_000))
+
 # ================= DEVICE INFO =================
 def get_hostname() -> str:
     return socket.gethostname()
@@ -549,6 +553,97 @@ def get_usage_send_interval() -> int:
     return int(_config.get("usage_send_interval_ms", 300_000))
 
 
+# ================= USB CONTROL =================
+def _safe_int(value):
+    try:
+        return int(value) if value not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _run_powershell_json(command: str):
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", command],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if result.returncode != 0:
+            logger.warning("USB PowerShell failed: %s", result.stderr.strip())
+            return []
+        output = result.stdout.strip()
+        if not output:
+            return []
+        data = json.loads(output)
+        return data if isinstance(data, list) else [data]
+    except json.JSONDecodeError as e:
+        logger.warning("USB PowerShell JSON invalide: %s", e)
+    except subprocess.TimeoutExpired:
+        logger.warning("USB PowerShell timeout")
+    except Exception as e:
+        logger.warning("USB PowerShell erreur: %s", e)
+    return []
+
+
+def detect_usb_devices() -> list:
+    """Détecte les lecteurs amovibles connectés et retourne le format API serveur."""
+    if os.name != "nt":
+        logger.debug("USB detection skipped: unsupported OS")
+        return []
+
+    command = (
+        "Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=2\" | "
+        "Select-Object DeviceID,VolumeName,VolumeSerialNumber,Size,Description | "
+        "ConvertTo-Json -Compress"
+    )
+    rows = _run_powershell_json(command)
+    devices = []
+
+    for row in rows:
+        mount_point = str(row.get("DeviceID") or "").strip()
+        serial = str(row.get("VolumeSerialNumber") or mount_point or "").strip()
+        if not serial:
+            continue
+        name = str(row.get("VolumeName") or row.get("Description") or "USB Device").strip()
+        devices.append({
+            "device_id": serial,
+            "name": name,
+            "vendor": "Unknown",
+            "product": str(row.get("Description") or "").strip(),
+            "size_bytes": _safe_int(row.get("Size")),
+            "mount_point": mount_point,
+        })
+
+    logger.info("USB détectés: %d périphérique(s)", len(devices))
+    return devices
+
+
+def report_usb_snapshot() -> bool:
+    """Envoie au serveur la liste complète des lecteurs USB actuellement connectés."""
+    url = get_server_url() + "/api/usb/devices/report_detection/"
+    payload = {
+        "mac_address": get_mac(),
+        "usb_devices": detect_usb_devices(),
+    }
+    try:
+        response = requests.post(url, json=payload, headers=get_agent_headers(), timeout=10)
+        response.raise_for_status()
+        logger.info("Snapshot USB envoyé -> %s (%d périphérique(s))", url, len(payload["usb_devices"]))
+        return True
+    except requests.exceptions.HTTPError as e:
+        status_code = e.response.status_code if e.response is not None else None
+        body = e.response.text[:300] if e.response is not None else ""
+        logger.warning("Snapshot USB refusé HTTP %s: %s", status_code, body)
+    except requests.exceptions.ConnectionError:
+        logger.warning("Snapshot USB non envoyé: serveur injoignable")
+    except requests.exceptions.Timeout:
+        logger.warning("Snapshot USB non envoyé: timeout")
+    except Exception as e:
+        logger.warning("Snapshot USB erreur: %s", e)
+    return False
+
+
 
 
 # ================= SERVICE =================
@@ -564,6 +659,7 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         self._heartbeat_accumulator  = 0  # ms depuis le dernier heartbeat
         self._inventory_accumulator  = 0  # ms depuis le dernier inventaire
         self._usage_accumulator      = 0  # ms depuis le dernier envoi usage
+        self._usb_accumulator        = 0  # ms depuis le dernier snapshot USB
         self._tracker = AppUsageTracker()  # accumulateur app usage
 
     def SvcStop(self):
@@ -582,14 +678,17 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
             # Actions immédiates au démarrage
             send_heartbeat()
             send_software_inventory()
+            report_usb_snapshot()
             self._heartbeat_accumulator = 0
             self._inventory_accumulator = 0
             self._usage_accumulator     = 0
+            self._usb_accumulator       = 0
 
             while self.running:
                 poll_interval      = get_command_poll_interval()    # ex : 5 000 ms
                 heartbeat_interval = get_heartbeat_interval()        # ex : 30 000 ms
                 inventory_interval = get_inventory_interval()        # ex : 3 600 000 ms (1h)
+                usb_interval       = get_usb_poll_interval()         # ex : 30 000 ms
 
                 # Attente du signal d'arrêt pendant poll_interval ms
                 result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
@@ -601,6 +700,7 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
 
                 self._heartbeat_accumulator += poll_interval
                 self._inventory_accumulator += poll_interval
+                self._usb_accumulator       += poll_interval
 
                 # Heartbeat
                 if self._heartbeat_accumulator >= heartbeat_interval:
@@ -611,6 +711,11 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
                 if self._inventory_accumulator >= inventory_interval:
                     send_software_inventory()
                     self._inventory_accumulator = 0
+
+                # USB snapshot
+                if self._usb_accumulator >= usb_interval:
+                    report_usb_snapshot()
+                    self._usb_accumulator = 0
 
                 # App usage : tick à chaque poll_interval
                 self._tracker.tick(poll_interval // 1000)
@@ -625,6 +730,59 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
             servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
             raise
 
+
+def run_foreground():
+    """Mode debug console: même logique que le service, sans Service Control Manager."""
+    load_config()
+    logger.info("Mode debug démarré — URL : %s", get_server_url())
+    tracker = AppUsageTracker()
+    heartbeat_acc = 0
+    inventory_acc = 0
+    usage_acc = 0
+    usb_acc = 0
+
+    send_heartbeat()
+    send_software_inventory()
+    report_usb_snapshot()
+
+    while True:
+        poll_interval = get_command_poll_interval()
+        time.sleep(poll_interval / 1000.0)
+        process_pending_commands()
+
+        heartbeat_acc += poll_interval
+        inventory_acc += poll_interval
+        usage_acc += poll_interval
+        usb_acc += poll_interval
+
+        if heartbeat_acc >= get_heartbeat_interval():
+            send_heartbeat()
+            heartbeat_acc = 0
+        if inventory_acc >= get_inventory_interval():
+            send_software_inventory()
+            inventory_acc = 0
+        if usage_acc >= get_usage_send_interval():
+            send_app_usage(tracker)
+            usage_acc = 0
+        if usb_acc >= get_usb_poll_interval():
+            report_usb_snapshot()
+            usb_acc = 0
+
+
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(NetworkAgent)
+    if len(sys.argv) > 1 and sys.argv[1].lower() in {"debug", "standalone"}:
+        try:
+            run_foreground()
+        except KeyboardInterrupt:
+            logger.info("Mode debug arrêté")
+    elif len(sys.argv) == 1:
+        try:
+            servicemanager.Initialize()
+            servicemanager.PrepareToHostSingle(NetworkAgent)
+            servicemanager.StartServiceCtrlDispatcher()
+        except Exception as e:
+            logger.exception("Impossible de démarrer comme service Windows: %s", e)
+            raise
+    else:
+        win32serviceutil.HandleCommandLine(NetworkAgent)
