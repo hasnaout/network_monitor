@@ -46,6 +46,7 @@ class USBPolicy(models.Model):
     default_policy = models.CharField(max_length=20, choices=POLICY_CHOICES, default=POLICY_MONITOR)
     allow_unknown_devices = models.BooleanField(default=True)
     max_device_size_gb = models.PositiveIntegerField(null=True, blank=True)
+    block_auto_run = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

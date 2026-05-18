@@ -26,7 +26,7 @@ class USBPolicySerializer(serializers.ModelSerializer):
         model = USBPolicy
         fields = [
             "id", "device", "device_name", "default_policy", "allow_unknown_devices",
-            "max_device_size_gb", "created_at", "updated_at",
+            "max_device_size_gb", "block_auto_run", "created_at", "updated_at",
         ]
 
 

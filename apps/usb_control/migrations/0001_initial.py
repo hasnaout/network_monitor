@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
                 ("default_policy", models.CharField(choices=[("monitor", "Monitor only"), ("block", "Block unknown"), ("allow", "Allow")], default="monitor", max_length=20)),
                 ("allow_unknown_devices", models.BooleanField(default=True)),
                 ("max_device_size_gb", models.PositiveIntegerField(blank=True, null=True)),
+                ("block_auto_run", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("device", models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name="usb_policy", to="devices.device")),
