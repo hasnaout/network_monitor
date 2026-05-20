@@ -6,6 +6,8 @@ import uuid
 import sys
 import logging
 import subprocess
+import tempfile
+import traceback
 
 try:
     import requests
@@ -30,24 +32,62 @@ def get_base_dir():
 
 BASE_DIR = get_base_dir()
 CONFIG_FILE = os.path.join(BASE_DIR, "agent.config.json")
+DEFAULT_LOG_FILE = os.path.join(BASE_DIR, "agent.log")
+FALLBACK_LOG_DIR = os.path.join(os.getenv("ProgramData") or tempfile.gettempdir(), "NetworkAgent")
+FALLBACK_LOG_FILE = os.path.join(FALLBACK_LOG_DIR, "agent.log")
 
 if not os.path.exists(BASE_DIR):
     print(f"ERREUR: Répertoire introuvable: {BASE_DIR}")
     sys.exit(1)
 
 # ================= LOGGING =================
-try:
-    log_file = os.path.join(BASE_DIR, "agent.log")
+logger = None
+
+def setup_logger():
+    log_file = DEFAULT_LOG_FILE
+    try:
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        with open(log_file, "a", encoding="utf-8"):
+            pass
+    except Exception:
+        try:
+            os.makedirs(FALLBACK_LOG_DIR, exist_ok=True)
+            log_file = FALLBACK_LOG_FILE
+            with open(log_file, "a", encoding="utf-8"):
+                pass
+        except Exception:
+            log_file = None
+
+    handlers = []
+    if log_file:
+        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
+    else:
+        handlers.append(logging.StreamHandler(sys.stderr))
+
     logging.basicConfig(
-        filename=log_file,
+        handlers=handlers,
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
-    logger = logging.getLogger("NetworkAgent")
-    logger.info("========== AGENT DÉMARRAGE ==========")
-    logger.info(f"Répertoire de base: {BASE_DIR}")
-    logger.info(f"Fichier config: {CONFIG_FILE}")
+
+    log = logging.getLogger("NetworkAgent")
+    log.info("========== AGENT DÉMARRAGE ===========")
+    if log_file:
+        log.info(f"Répertoire de base: {BASE_DIR}")
+        log.info(f"Fichier config: {CONFIG_FILE}")
+        if log_file != DEFAULT_LOG_FILE:
+            log.warning(
+                "Impossible d'écrire dans %s, fallback vers %s",
+                DEFAULT_LOG_FILE,
+                log_file,
+            )
+    else:
+        log.error("Impossible de configurer un fichier de log. Les messages seront envoyés sur stderr.")
+    return log
+
+try:
+    logger = setup_logger()
 except Exception as e:
     print(f"ERREUR lors de la configuration du logging: {e}")
     sys.exit(1)
@@ -273,16 +313,22 @@ def execute_command(command: str, timeout: int = 30) -> dict:
 
     creationflags = 0
     startupinfo = None
+    shell = True
+    exec_command = command
+
     if os.name == "nt":
+        exec_command = ["cmd.exe", "/c", command]
+        shell = False
         creationflags = subprocess.CREATE_NEW_CONSOLE
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
 
     try:
+        logger.debug("Execution de la commande Windows via cmd.exe : %s", command)
         result = subprocess.run(
-            command,
-            shell=True,
+            exec_command,
+            shell=shell,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -683,8 +729,8 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
                     self._usage_accumulator = 0
 
         except Exception as e:
-            logger.error("Erreur fatale dans SvcDoRun : %s", e)
-            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + str(e))
+            logger.exception("Erreur fatale dans SvcDoRun")
+            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + traceback.format_exc())
             raise
 
 # ================= ENTRY POINT =================

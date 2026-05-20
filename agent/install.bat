@@ -148,6 +148,8 @@ echo [6/6] Demarrage du service...
 sc start %SERVICE_NAME%
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de demarrer le service.
+    echo Cette operation requiert des privileges administrateur.
+    echo Si vous avez lance ce script avec un compte standard, relancez-le dans une console Administrateur.
     echo Consultez les logs Windows et "%INSTALL_DIR%\agent.log".
     pause
     exit /b 1
