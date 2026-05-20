@@ -544,7 +544,6 @@ def _get_foreground_process_name() -> str:
         import win32process
         import win32con
         import win32api
-        import win32event
 
         hwnd = win32gui.GetForegroundWindow()
         if not hwnd:
@@ -681,58 +680,52 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         logger.info("Service arrêté proprement")
 
     def SvcDoRun(self):
-        try:
-            servicemanager.LogInfoMsg("NetworkAgent démarré")
-            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-            load_config()
-            logger.info("Service démarré — URL : %s", get_server_url())
+     try:
+        servicemanager.LogInfoMsg("NetworkAgent: SvcDoRun démarré")
+        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+        servicemanager.LogInfoMsg("NetworkAgent: SERVICE_RUNNING signalé")
 
-            # Actions immédiates au démarrage
-            send_heartbeat()
-            send_software_inventory()
-            self._heartbeat_accumulator = 0
-            self._inventory_accumulator = 0
-            self._usage_accumulator     = 0
+        load_config()
+        logger.info("Service démarré — URL : %s", get_server_url())
 
-            while self.running:
-                poll_interval      = get_command_poll_interval()    # ex : 5 000 ms
-                heartbeat_interval = get_heartbeat_interval()        # ex : 30 000 ms
-                inventory_interval = get_inventory_interval()        # ex : 3 600 000 ms (1h)
+        send_heartbeat()
+        self._heartbeat_accumulator = 0
+        self._inventory_accumulator = get_inventory_interval()  # déclenche au 1er cycle
+        self._usage_accumulator     = 0
 
-                # Attente du signal d'arrêt pendant poll_interval ms
-                result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
-                if result == win32event.WAIT_OBJECT_0:
-                    break
+        while self.running:
+            poll_interval      = get_command_poll_interval()
+            heartbeat_interval = get_heartbeat_interval()
+            inventory_interval = get_inventory_interval()
 
-                # Polling commandes à chaque poll_interval
-                process_pending_commands()
+            result = win32event.WaitForSingleObject(self.stop_event, poll_interval)
+            if result == win32event.WAIT_OBJECT_0:
+                break
 
-                self._heartbeat_accumulator += poll_interval
-                self._inventory_accumulator += poll_interval
+            process_pending_commands()
 
-                # Heartbeat
-                if self._heartbeat_accumulator >= heartbeat_interval:
-                    send_heartbeat()
-                    self._heartbeat_accumulator = 0
+            self._heartbeat_accumulator += poll_interval
+            self._inventory_accumulator += poll_interval
 
-                # Inventaire logiciels (peu fréquent)
-                if self._inventory_accumulator >= inventory_interval:
-                    send_software_inventory()
-                    self._inventory_accumulator = 0
+            if self._heartbeat_accumulator >= heartbeat_interval:
+                send_heartbeat()
+                self._heartbeat_accumulator = 0
 
-                # App usage : tick à chaque poll_interval
-                self._tracker.tick(poll_interval // 1000)
-                self._usage_accumulator += poll_interval
-                usage_interval = get_usage_send_interval()   # ex : 300 000 ms (5 min)
-                if self._usage_accumulator >= usage_interval:
-                    send_app_usage(self._tracker)
-                    self._usage_accumulator = 0
+            if self._inventory_accumulator >= inventory_interval:
+                send_software_inventory()
+                self._inventory_accumulator = 0
 
-        except Exception as e:
-            logger.exception("Erreur fatale dans SvcDoRun")
-            servicemanager.LogErrorMsg("Erreur dans NetworkAgent : " + traceback.format_exc())
-            raise
+            self._tracker.tick(poll_interval // 1000)
+            self._usage_accumulator += poll_interval
+            usage_interval = get_usage_send_interval()
+            if self._usage_accumulator >= usage_interval:
+                send_app_usage(self._tracker)
+                self._usage_accumulator = 0
 
+     except Exception as e:
+        logger.exception("Erreur fatale dans SvcDoRun")
+        servicemanager.LogErrorMsg("NetworkAgent FATAL: " + traceback.format_exc())
+        raise
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
     win32serviceutil.HandleCommandLine(NetworkAgent)

@@ -14,7 +14,12 @@ hidden_imports = [
     "win32event",
     "servicemanager",
     "win32api",
+    "win32con",
+    "win32gui",
+    "win32process",
+    "win32ts",
     "pywintypes",
+    "netifaces",
 ]
 hidden_imports += collect_submodules("requests")
 
@@ -28,6 +33,12 @@ for dll_name in (
     if dll_path.exists():
         python_binaries.append((str(dll_path), "."))
 
+import site
+for site_dir in site.getsitepackages():
+    svc_exe = Path(site_dir) / "win32" / "pythonservice.exe"
+    if svc_exe.exists():
+        python_binaries.append((str(svc_exe), "."))
+        break
 
 a = Analysis(
     ['agent.py'],
