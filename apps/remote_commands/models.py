@@ -12,7 +12,10 @@ class RemoteCommand(models.Model):
         TIMEOUT   = "timeout",   "Timeout"
         EXCEPTION = "exception", "Exception"
 
-    # NULL = broadcast à tous les agents
+    class Shell(models.TextChoices):
+        CMD         = "cmd",         "Command Prompt (cmd.exe)"
+        POWERSHELL  = "powershell",  "PowerShell (pwsh.exe)"
+
     device = models.ForeignKey(
         "devices.Device",
         on_delete=models.CASCADE,
@@ -23,6 +26,7 @@ class RemoteCommand(models.Model):
     )
 
     command     = models.TextField(verbose_name="Commande shell")
+    shell       = models.CharField(max_length=16, choices=Shell.choices, default=Shell.CMD, verbose_name="Shell utilisé")
     timeout     = models.PositiveIntegerField(default=30, verbose_name="Timeout (s)")
     created_by  = models.ForeignKey(
         "auth.User",
@@ -33,7 +37,6 @@ class RemoteCommand(models.Model):
     )
     created_at  = models.DateTimeField(default=timezone.now)
 
-    # Résultat rempli par l'agent
     status      = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING)
     stdout      = models.TextField(blank=True, default="")
     stderr      = models.TextField(blank=True, default="")
