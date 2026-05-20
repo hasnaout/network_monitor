@@ -37,19 +37,31 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
 
         existing = Device.objects.filter(mac_address=mac).first()
         was_offline = existing and existing.status == "offline"
+        device_name = session_user or name or mac
 
         device, created = Device.objects.update_or_create(
             mac_address=mac,
             defaults={
-                "name": name or mac,
+                "name": device_name,
                 "ip_address": ip,
                 "status": "online",
                 "current_user": session_user,
             }
         )
-        if not created and session_user:
-            device.current_user = session_user
-            device.save(update_fields=['current_user'])
+
+        if not created:
+            updated_fields = []
+            if session_user and device.name != session_user:
+                device.name = session_user
+                updated_fields.append('name')
+            if session_user and device.current_user != session_user:
+                device.current_user = session_user
+                updated_fields.append('current_user')
+            elif not session_user and name and device.name != name:
+                device.name = name
+                updated_fields.append('name')
+            if updated_fields:
+                device.save(update_fields=updated_fields)
 
         if created:
             handle_first_connection(device)
