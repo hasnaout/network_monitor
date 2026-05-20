@@ -251,6 +251,7 @@ export default function DeviceDetail() {
               <p><strong>IP :</strong> {device.ip_address || "—"}</p>
               <p><strong>MAC :</strong> {device.mac_address || "—"}</p>
               <p><strong>Type :</strong> {device.device_type || "—"}</p>
+              <p><strong>Utilisateur :</strong> {device.current_user || "—"}</p>
 
               <p>
                 <strong>Status :</strong>{" "}

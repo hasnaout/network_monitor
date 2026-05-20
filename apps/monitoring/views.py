@@ -28,6 +28,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
 
         mac = (request.data.get('mac_address') or '').strip().lower()
         name = (request.data.get('name') or '').strip()
+        session_user = (request.data.get('session_user') or '').strip()
         ip = request.data.get('ip_address')
         if ip in ("", "unknown"):
             ip = None
@@ -43,8 +44,12 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
                 "name": name or mac,
                 "ip_address": ip,
                 "status": "online",
+                "current_user": session_user,
             }
         )
+        if not created and session_user:
+            device.current_user = session_user
+            device.save(update_fields=['current_user'])
 
         if created:
             handle_first_connection(device)

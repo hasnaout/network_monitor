@@ -141,11 +141,45 @@ def get_mac() -> str:
         logger.error(f"Impossible de générer une MAC: {e}")
         return "02:00:00:00:00:00"
 
+
+def _get_session_username() -> str:
+    """Retourne l'utilisateur de session actif sur Windows."""
+    try:
+        import win32ts
+        server = win32ts.WTS_CURRENT_SERVER_HANDLE
+        sessions = win32ts.WTSEnumerateSessions(server)
+        for session in sessions:
+            if isinstance(session, (tuple, list)) and len(session) >= 3:
+                session_id, _, state = session[0], session[1], session[2]
+            else:
+                session_id = getattr(session, 'SessionId', None)
+                state = getattr(session, 'State', None)
+
+            if state == win32ts.WTSActive and session_id not in (None, 0):
+                username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
+                domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
+                if username:
+                    return f"{domain}\\{username}" if domain else username
+    except Exception as e:
+        logger.debug("Erreur détection utilisateur session Windows: %s", e)
+
+    try:
+        import getpass
+        user = getpass.getuser()
+        if user:
+            return user
+    except Exception:
+        pass
+
+    return os.environ.get('USERNAME') or os.environ.get('USER') or "Unknown"
+
+
 def build_payload() -> dict:
     return {
         "name": get_hostname(),
         "mac_address": get_mac(),
         "ip_address": get_ip(),
+        "session_user": _get_session_username(),
     }
 
 # ================= HEARTBEAT =================

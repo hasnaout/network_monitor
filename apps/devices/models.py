@@ -16,6 +16,7 @@ class Device(models.Model):
         )
     ])
     device_type = models.CharField(  max_length=50,  default="PC")
+    current_user = models.CharField(max_length=100, blank=True, default="")
     status = models.CharField(  max_length=20,  choices=STATUS_CHOICES,  default="offline")
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(auto_now=True)
