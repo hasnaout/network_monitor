@@ -1,4 +1,5 @@
 import logging
+import re
 from secrets import compare_digest
 from django.utils import timezone
 from django.conf import settings
@@ -13,9 +14,14 @@ from .serializers import (
     CreateCommandSerializer,
     CommandResultSerializer,
     RemoteCommandSerializer,
+    SoftwareInstallSerializer,
 )
 
 logger = logging.getLogger(__name__)
+
+SAFE_PACKAGE_RE = re.compile(r"^[A-Za-z0-9_.@+\-\/]+$")
+SAFE_VERSION_RE = re.compile(r"^[A-Za-z0-9_.+\-]+$")
+UNSAFE_PATH_CHARS = set("&|<>^")
 
 
 def _verify_agent_token(request) -> bool:
@@ -29,6 +35,63 @@ def _verify_agent_token(request) -> bool:
         return False
     received = request.headers.get("X-Agent-Token", "")
     return compare_digest(received, expected)
+
+
+def _quote_cmd(value: str) -> str:
+    return '"' + value.replace('"', '""') + '"'
+
+
+def _validate_safe_package(value: str, field_name: str):
+    if value and not SAFE_PACKAGE_RE.match(value):
+        raise ValueError(f"{field_name} contient des caractères non autorisés.")
+
+
+def _validate_safe_version(value: str):
+    if value and not SAFE_VERSION_RE.match(value):
+        raise ValueError("La version contient des caractères non autorisés.")
+
+
+def _validate_safe_path(value: str):
+    if any(char in value for char in UNSAFE_PATH_CHARS) or '"' in value:
+        raise ValueError("Le chemin installateur contient des caractères non autorisés.")
+
+
+def build_install_command(data: dict) -> tuple[str, str, str]:
+    manager = data["package_manager"]
+    package_name = (data.get("package_name") or "").strip()
+    package_version = (data.get("package_version") or "").strip()
+    installer_path = (data.get("installer_path") or "").strip()
+
+    _validate_safe_package(package_name, "Le nom du paquet")
+    _validate_safe_version(package_version)
+    _validate_safe_path(installer_path)
+
+    if manager == "winget":
+        command = (
+            f"winget install --id {_quote_cmd(package_name)} --silent "
+            "--accept-package-agreements --accept-source-agreements"
+        )
+        if package_version:
+            command += f" --version {_quote_cmd(package_version)}"
+        return command, "cmd", package_name
+
+    if manager == "pip":
+        package_ref = f"{package_name}=={package_version}" if package_version else package_name
+        return f"python -m pip install {_quote_cmd(package_ref)}", "cmd", package_name
+
+    if manager == "npm":
+        package_ref = f"{package_name}@{package_version}" if package_version else package_name
+        return f"npm install -g {_quote_cmd(package_ref)}", "cmd", package_name
+
+    if manager == "msi":
+        display_name = package_name or installer_path
+        return f"msiexec /i {_quote_cmd(installer_path)} /qn /norestart", "cmd", display_name
+
+    if manager == "exe":
+        display_name = package_name or installer_path
+        return f"{_quote_cmd(installer_path)} /S", "cmd", display_name
+
+    raise ValueError("Gestionnaire d'installation invalide.")
 
 
 class CreateCommandView(APIView):
@@ -94,6 +157,78 @@ class CreateCommandView(APIView):
         )
 
 
+class SoftwareInstallView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request):
+        serializer = SoftwareInstallSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+        mac = (data.get("mac_address") or "").strip().lower()
+
+        try:
+            command, shell, display_package = build_install_command(data)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        device = None
+        if mac:
+            try:
+                device = Device.objects.get(mac_address=mac)
+            except Device.DoesNotExist:
+                return Response(
+                    {"detail": f"Aucun agent trouvé avec la MAC {mac}."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        command_defaults = {
+            "command": command,
+            "category": RemoteCommand.Category.SOFTWARE_INSTALL,
+            "package_manager": data["package_manager"],
+            "package_name": display_package,
+            "package_version": data.get("package_version", ""),
+            "shell": shell,
+            "timeout": data["timeout"],
+            "created_by": request.user,
+            "status": RemoteCommand.Status.PENDING,
+        }
+
+        if device:
+            cmd = RemoteCommand.objects.create(device=device, **command_defaults)
+            created_ids = [cmd.id]
+        else:
+            devices = Device.objects.filter(status="online")
+            if not devices.exists():
+                return Response(
+                    {"detail": "Aucun agent actif trouvé pour le broadcast."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            cmds = RemoteCommand.objects.bulk_create([
+                RemoteCommand(device=d, **command_defaults)
+                for d in devices
+            ])
+            created_ids = [c.id for c in cmds]
+
+        logger.info(
+            "Admin %s a créé %d installation(s) %s via %s",
+            request.user.username,
+            len(created_ids),
+            display_package,
+            data["package_manager"],
+        )
+        return Response(
+            {
+                "status": "created",
+                "command_ids": created_ids,
+                "count": len(created_ids),
+                "command": command,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 class PendingCommandsView(APIView):
     permission_classes = [AllowAny]
 
@@ -154,14 +289,87 @@ class CommandResultView(APIView):
         cmd.stderr      = data.get("stderr", "")
         cmd.returncode  = data.get("returncode")
         cmd.status      = data.get("status", RemoteCommand.Status.ERROR)
+        cmd.working_directory = data.get("working_directory", "")
         cmd.executed_at = timezone.now()
-        cmd.save(update_fields=["stdout", "stderr", "returncode", "status", "executed_at"])
+        cmd.save(update_fields=[
+            "stdout",
+            "stderr",
+            "returncode",
+            "status",
+            "working_directory",
+            "executed_at",
+        ])
 
         logger.info(
             "Résultat commande #%d reçu — status=%s returncode=%s",
             command_id, cmd.status, cmd.returncode,
         )
         return Response({"status": "ok"})
+
+
+class CancelCommandView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request, command_id):
+        try:
+            cmd = RemoteCommand.objects.get(id=command_id)
+        except RemoteCommand.DoesNotExist:
+            return Response({"detail": "Commande introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
+        if cmd.status in [
+            RemoteCommand.Status.SUCCESS,
+            RemoteCommand.Status.ERROR,
+            RemoteCommand.Status.TIMEOUT,
+            RemoteCommand.Status.EXCEPTION,
+            RemoteCommand.Status.CANCELLED,
+        ]:
+            return Response(
+                {"detail": "Cette commande est déjà terminée.", "status": cmd.status},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cmd.cancel_requested = True
+        update_fields = ["cancel_requested"]
+
+        if cmd.status == RemoteCommand.Status.PENDING:
+            cmd.status = RemoteCommand.Status.CANCELLED
+            cmd.stderr = "Commande annulée avant exécution."
+            cmd.returncode = -1
+            cmd.executed_at = timezone.now()
+            update_fields += ["status", "stderr", "returncode", "executed_at"]
+
+        cmd.save(update_fields=update_fields)
+        logger.warning(
+            "Admin %s a demandé l'annulation de la commande #%d",
+            request.user.username,
+            command_id,
+        )
+        return Response({"status": cmd.status, "cancel_requested": True})
+
+
+class CommandCancelStatusView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, command_id):
+        if not _verify_agent_token(request):
+            return Response({"detail": "Token invalide."}, status=status.HTTP_403_FORBIDDEN)
+
+        mac = request.query_params.get("mac_address", "").strip().lower()
+        if not mac:
+            return Response({"detail": "mac_address requis."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cmd = RemoteCommand.objects.select_related("device").get(id=command_id)
+        except RemoteCommand.DoesNotExist:
+            return Response({"cancel_requested": False}, status=status.HTTP_404_NOT_FOUND)
+
+        if cmd.device and mac != cmd.device.mac_address.lower():
+            return Response(
+                {"detail": "Cette commande n'appartient pas a cet agent."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        return Response({"cancel_requested": cmd.cancel_requested})
 
 
 # ─────────────────────────────────────────────
@@ -179,6 +387,7 @@ class CommandHistoryView(APIView):
 
         mac    = request.query_params.get("mac_address")
         status_filter = request.query_params.get("status")
+        category = request.query_params.get("category")
         command_ids = request.query_params.get("command_ids", "")
         limit  = int(request.query_params.get("limit", 50))
 
@@ -188,6 +397,8 @@ class CommandHistoryView(APIView):
             qs = qs.filter(device__mac_address=mac)
         if status_filter:
             qs = qs.filter(status=status_filter)
+        if category:
+            qs = qs.filter(category=category)
         if command_ids:
             ids = [value for value in command_ids.split(",") if value.strip().isdigit()]
             qs = qs.filter(id__in=ids)

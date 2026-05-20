@@ -8,6 +8,7 @@ import logging
 import subprocess
 import tempfile
 import traceback
+import signal
 
 try:
     import requests
@@ -251,6 +252,122 @@ def send_heartbeat() -> bool:
 
 # ================= REMOTE COMMAND EXECUTION =================
 
+COMMAND_CWD_MARKER = "__NETWORK_AGENT_CWD__="
+_command_session_cwd = None
+
+
+def get_default_command_cwd() -> str:
+    configured_cwd = (
+        _config.get("remote_command_initial_cwd")
+        or _config.get("command_initial_cwd")
+    )
+    if configured_cwd:
+        candidate = os.path.abspath(os.path.expandvars(os.path.expanduser(configured_cwd)))
+        if os.path.isdir(candidate):
+            return candidate
+        logger.warning("remote_command_initial_cwd invalide ignore: %s", configured_cwd)
+
+    if os.name == "nt":
+        system_drive = os.environ.get("SystemDrive") or "C:"
+        candidate = system_drive + "\\"
+        if os.path.isdir(candidate):
+            return candidate
+
+    home = os.path.expanduser("~")
+    return home if os.path.isdir(home) else os.getcwd()
+
+
+def get_command_session_cwd() -> str:
+    global _command_session_cwd
+    if not _command_session_cwd or not os.path.isdir(_command_session_cwd):
+        _command_session_cwd = get_default_command_cwd()
+        logger.info("Remote command cwd initialise: %s", _command_session_cwd)
+    return _command_session_cwd
+
+
+def build_shell_command(command: str, shell_type: str):
+    shell_name = shell_type.lower()
+    if os.name == "nt":
+        if shell_name == "powershell":
+            wrapped = (
+                "$__networkAgentRc = 0; "
+                "try { "
+                f"& {{ {command} }} | Out-String -Stream; "
+                "if ($global:LASTEXITCODE -ne $null) { $__networkAgentRc = $global:LASTEXITCODE } "
+                "} catch { Write-Error $_; $__networkAgentRc = 1 }; "
+                f"Write-Output ('{COMMAND_CWD_MARKER}' + (Get-Location).ProviderPath); "
+                "exit $__networkAgentRc"
+            )
+            return ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", wrapped], False
+
+        wrapped = (
+            f"{command} "
+            '& set "__NETWORK_AGENT_RC=!ERRORLEVEL!" '
+            f"& echo {COMMAND_CWD_MARKER}!CD! "
+            '& exit /b !__NETWORK_AGENT_RC!'
+        )
+        return ["cmd.exe", "/d", "/v:on", "/s", "/c", wrapped], False
+
+    wrapped = (
+        f"{command}\n"
+        "__network_agent_rc=$?\n"
+        f'printf "\\n{COMMAND_CWD_MARKER}%s\\n" "$PWD"\n'
+        "exit $__network_agent_rc"
+    )
+    return wrapped, True
+
+
+def split_command_output(stdout: str) -> tuple[str, str | None]:
+    cwd = None
+    cleaned_lines = []
+    for line in stdout.splitlines():
+        if line.startswith(COMMAND_CWD_MARKER):
+            cwd_candidate = line[len(COMMAND_CWD_MARKER):].strip()
+            if cwd_candidate:
+                cwd = cwd_candidate
+        else:
+            cleaned_lines.append(line)
+    return "\n".join(cleaned_lines).strip(), cwd
+
+
+def is_command_cancel_requested(command_id: int | None) -> bool:
+    if not command_id:
+        return False
+
+    url = get_server_url() + f"/api/commands/{command_id}/cancel-status/"
+    params = {"mac_address": get_mac()}
+    try:
+        r = requests.get(url, params=params, headers=get_agent_headers(), timeout=3)
+        r.raise_for_status()
+        return bool(r.json().get("cancel_requested"))
+    except Exception as e:
+        logger.debug("Impossible de vérifier l'annulation commande #%s: %s", command_id, e)
+        return False
+
+
+def terminate_process_tree(process: subprocess.Popen):
+    if process.poll() is not None:
+        return
+
+    try:
+        if os.name == "nt":
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+        else:
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+    except Exception as e:
+        logger.warning("Erreur arrêt arbre processus PID %s: %s", process.pid, e)
+        try:
+            process.kill()
+        except Exception:
+            pass
+
+
 def fetch_pending_commands() -> list:
     """
     Interroge le serveur pour récupérer les commandes en attente pour cet agent.
@@ -295,7 +412,7 @@ def is_process_admin() -> bool:
         return False
 
 
-def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd") -> dict:
+def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd", command_id: int | None = None) -> dict:
     """
     Exécute une commande shell et retourne stdout, stderr et le code de retour.
     Le paramètre timeout évite de bloquer l'agent indéfiniment.
@@ -311,40 +428,81 @@ def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd") ->
 
     creationflags = 0
     startupinfo = None
-    shell = True
-    exec_command = command
+    cwd = get_command_session_cwd()
+    shell_name = shell_type.lower()
+    exec_command, shell = build_shell_command(command, shell_name)
 
     if os.name == "nt":
-        if shell_type.lower() == "powershell":
-            # PowerShell : -Command pour exécuter la commande, -NoProfile pour aller vite
-            exec_command = ["powershell.exe", "-NoProfile", "-Command", command]
-        else:
-            # CMD classique
-            exec_command = ["cmd.exe", "/c", command]
-        shell = False
-        creationflags = subprocess.CREATE_NEW_CONSOLE
+        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
+    else:
+        creationflags = 0
 
     try:
-        logger.debug("Execution de la commande Windows via %s : %s", shell_type, command)
-        result = subprocess.run(
+        logger.debug("Execution de la commande via %s depuis %s : %s", shell_type, cwd, command)
+        process = subprocess.Popen(
             exec_command,
             shell=shell,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout,
+            cwd=cwd,
             creationflags=creationflags,
             startupinfo=startupinfo,
+            start_new_session=(os.name != "nt"),
         )
+
+        started_at = time.monotonic()
+        was_cancelled = False
+        while process.poll() is None:
+            if time.monotonic() - started_at > timeout:
+                terminate_process_tree(process)
+                stdout, stderr = process.communicate(timeout=5)
+                logger.error("Commande TIMEOUT apres %ds : %s", timeout, command)
+                return {
+                    "stdout": split_command_output(stdout or "")[0],
+                    "stderr": (stderr or "").strip() or f"Timeout après {timeout} secondes",
+                    "returncode": -1,
+                    "status": "timeout",
+                    "working_directory": get_command_session_cwd(),
+                }
+
+            if is_command_cancel_requested(command_id):
+                was_cancelled = True
+                terminate_process_tree(process)
+                break
+
+            time.sleep(1)
+
+        stdout_data, stderr_data = process.communicate(timeout=10)
+        if was_cancelled:
+            logger.warning("Commande #%s annulée par l'admin : %s", command_id, command)
+            return {
+                "stdout": split_command_output(stdout_data or "")[0],
+                "stderr": (stderr_data or "").strip() or "Commande annulée par l'administrateur.",
+                "returncode": -1,
+                "status": "cancelled",
+                "working_directory": get_command_session_cwd(),
+            }
+
+        result_stdout = stdout_data or ""
+        result_stderr = stderr_data or ""
+        stdout, next_cwd = split_command_output(result_stdout)
+        if next_cwd and os.path.isdir(next_cwd):
+            global _command_session_cwd
+            _command_session_cwd = os.path.abspath(next_cwd)
+            logger.info("Remote command cwd mis a jour: %s", _command_session_cwd)
+
         output = {
-            "stdout": result.stdout.strip(),
-            "stderr": result.stderr.strip(),
-            "returncode": result.returncode,
-            "status": "success" if result.returncode == 0 else "error",
+            "stdout": stdout,
+            "stderr": result_stderr.strip(),
+            "returncode": process.returncode,
+            "status": "success" if process.returncode == 0 else "error",
+            "working_directory": _command_session_cwd,
         }
-        logger.info("Commande terminée — code retour : %d", result.returncode)
+        logger.info("Commande terminée — code retour : %d", process.returncode)
         logger.debug("stdout: %s", output["stdout"][:500])
         if output["stderr"]:
             logger.warning("stderr: %s", output["stderr"][:500])
@@ -356,6 +514,7 @@ def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd") ->
             "stderr": f"Timeout après {timeout} secondes",
             "returncode": -1,
             "status": "timeout",
+            "working_directory": get_command_session_cwd(),
         }
     except Exception as e:
         logger.error("Erreur execution commande '%s' : %s", command, e)
@@ -364,6 +523,7 @@ def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd") ->
             "stderr": str(e),
             "returncode": -1,
             "status": "exception",
+            "working_directory": get_command_session_cwd(),
         }
 
 
@@ -379,6 +539,7 @@ def report_command_result(command_id: int, result: dict) -> bool:
         "stderr": result.get("stderr", ""),
         "returncode": result.get("returncode", -1),
         "status": result.get("status", "error"),
+        "working_directory": result.get("working_directory", ""),
     }
     try:
         r = requests.post(url, json=payload, headers=get_agent_headers(), timeout=5)
@@ -410,7 +571,7 @@ def process_pending_commands():
             continue
 
         logger.info("Traitement commande #%d : %s (shell=%s)", command_id, command_str, shell_type)
-        result = execute_command(command_str, timeout=timeout, shell_type=shell_type)
+        result = execute_command(command_str, timeout=timeout, shell_type=shell_type, command_id=command_id)
         report_command_result(command_id, result)
 
 

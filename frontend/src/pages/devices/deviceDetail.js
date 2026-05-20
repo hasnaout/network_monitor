@@ -20,6 +20,7 @@ function getCommandStatusClass(status) {
   const s = String(status || '').toLowerCase();
   if (s === 'success') return 'command-badge is-success';
   if (['error', 'timeout', 'exception'].includes(s)) return 'command-badge is-error';
+  if (s === 'cancelled') return 'command-badge is-error';
   return 'command-badge is-pending';
 }
 
@@ -29,13 +30,16 @@ function getCommandStatusLabel(status) {
   if (s === 'error') return 'Error';
   if (s === 'timeout') return 'Timeout';
   if (s === 'exception') return 'Exception';
+  if (s === 'cancelled') return 'Annulée';
   if (s === 'running') return 'Running';
   return 'Pending';
 }
 
 function getCommandResult(command) {
   if (!command) return '';
-  return command.stderr || command.stdout || 'Aucun résultat disponible.';
+  const output = command.stderr || command.stdout || 'Aucun résultat disponible.';
+  if (!command.working_directory) return output;
+  return `Dossier courant: ${command.working_directory}\n\n${output}`;
 }
 
 function todayISO() {

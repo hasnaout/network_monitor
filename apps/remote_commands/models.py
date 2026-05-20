@@ -11,10 +11,15 @@ class RemoteCommand(models.Model):
         ERROR     = "error",     "Erreur"
         TIMEOUT   = "timeout",   "Timeout"
         EXCEPTION = "exception", "Exception"
+        CANCELLED = "cancelled", "Annulée"
 
     class Shell(models.TextChoices):
         CMD         = "cmd",         "Command Prompt (cmd.exe)"
         POWERSHELL  = "powershell",  "PowerShell (pwsh.exe)"
+
+    class Category(models.TextChoices):
+        REMOTE_COMMAND = "remote_command", "Remote Command"
+        SOFTWARE_INSTALL = "software_install", "Software Install"
 
     device = models.ForeignKey(
         "devices.Device",
@@ -26,6 +31,10 @@ class RemoteCommand(models.Model):
     )
 
     command     = models.TextField(verbose_name="Commande shell")
+    category    = models.CharField(max_length=32, choices=Category.choices, default=Category.REMOTE_COMMAND)
+    package_manager = models.CharField(max_length=32, blank=True, default="")
+    package_name = models.CharField(max_length=255, blank=True, default="")
+    package_version = models.CharField(max_length=128, blank=True, default="")
     shell       = models.CharField(max_length=16, choices=Shell.choices, default=Shell.CMD, verbose_name="Shell utilisé")
     timeout     = models.PositiveIntegerField(default=30, verbose_name="Timeout (s)")
     created_by  = models.ForeignKey(
@@ -41,6 +50,8 @@ class RemoteCommand(models.Model):
     stdout      = models.TextField(blank=True, default="")
     stderr      = models.TextField(blank=True, default="")
     returncode  = models.IntegerField(null=True, blank=True)
+    working_directory = models.CharField(max_length=1024, blank=True, default="")
+    cancel_requested = models.BooleanField(default=False)
     executed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:

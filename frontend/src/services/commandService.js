@@ -8,7 +8,27 @@ export const executeCommand = ({ command, macAddress = '', timeout = 30, shell =
     shell,
   });
 
-export const getCommandHistory = ({ macAddress, deviceId, commandIds, limit = 50 } = {}) => {
+export const cancelCommand = (commandId) =>
+  api.post(`/api/commands/${commandId}/cancel/`);
+
+export const installSoftware = ({
+  packageManager,
+  packageName = '',
+  packageVersion = '',
+  installerPath = '',
+  macAddress = '',
+  timeout = 600,
+}) =>
+  api.post('/api/commands/software-install/', {
+    package_manager: packageManager,
+    package_name: packageName,
+    package_version: packageVersion,
+    installer_path: installerPath,
+    mac_address: macAddress,
+    timeout,
+  });
+
+export const getCommandHistory = ({ macAddress, deviceId, commandIds, category, limit = 50 } = {}) => {
   const url = deviceId ? `/api/commands/history/${deviceId}/` : '/api/commands/history/';
   const params = { limit };
 
@@ -18,6 +38,10 @@ export const getCommandHistory = ({ macAddress, deviceId, commandIds, limit = 50
 
   if (commandIds?.length) {
     params.command_ids = commandIds.join(',');
+  }
+
+  if (category) {
+    params.category = category;
   }
 
   return api.get(url, { params });
