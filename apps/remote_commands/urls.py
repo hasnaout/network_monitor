@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (
     CreateCommandView,
-    SoftwareInstallView,
     PendingCommandsView,
     CommandResultView,
     CancelCommandView,
@@ -13,7 +12,6 @@ urlpatterns = [
     # Admin → créer une commande (ciblée ou broadcast)
     path("",                        CreateCommandView.as_view(),   name="command-create"),
     path("execute/",                 CreateCommandView.as_view(),   name="command-execute"),
-    path("software-install/",        SoftwareInstallView.as_view(), name="software-install"),
 
     # Agent → récupérer ses commandes en attente
     path("pending/",                PendingCommandsView.as_view(), name="command-pending"),

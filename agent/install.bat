@@ -3,9 +3,9 @@ setlocal
 
 NET SESSION >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Lancez ce script en tant qu'Administrateur.
-    pause
-    exit /b 1
+    echo [INFO] Elevation des privileges administrateur via UAC...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -WorkingDirectory '%~dp0' -Verb RunAs"
+    exit /b 0
 )
 
 set SERVICE_NAME=NetworkAgent

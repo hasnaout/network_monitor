@@ -3,7 +3,7 @@ import "./home.css";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../../components/Header";
 import { getDevices } from "../../services/deviceService";
-import { cancelCommand, executeCommand, getCommandHistory, installSoftware } from "../../services/commandService";
+import { cancelCommand, executeCommand, getCommandHistory } from "../../services/commandService";
 
 function formatDate(value) {
   if (!value) return '—';
@@ -17,14 +17,6 @@ function getStatusClass(status) {
   const s = String(status || '').toLowerCase();
   if (s === 'online') return 'status-pill is-online';
   return 'status-pill is-offline';
-}
-
-function getCommandStatusClass(status) {
-  const s = String(status || '').toLowerCase();
-  if (s === 'success') return 'command-badge is-success';
-  if (['error', 'timeout', 'exception'].includes(s)) return 'command-badge is-error';
-  if (s === 'cancelled') return 'command-badge is-error';
-  return 'command-badge is-pending';
 }
 
 function getCommandStatusLabel(status) {
@@ -56,7 +48,6 @@ export default function Home() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
-  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [targetMode, setTargetMode] = useState('all');
   const [selectedMachineId, setSelectedMachineId] = useState('');
   const [command, setCommand] = useState('');
@@ -70,19 +61,6 @@ export default function Home() {
   const [isCancellingCommand, setIsCancellingCommand] = useState(false);
   const [consoleHistory, setConsoleHistory] = useState([]);
   const [currentPath, setCurrentPath] = useState('C:\\>');
-  const [installTargetMode, setInstallTargetMode] = useState('specific');
-  const [installMachineId, setInstallMachineId] = useState('');
-  const [packageManager, setPackageManager] = useState('winget');
-  const [packageName, setPackageName] = useState('');
-  const [packageVersion, setPackageVersion] = useState('');
-  const [installerPath, setInstallerPath] = useState('');
-  const [installTimeout, setInstallTimeout] = useState(600);
-  const [installError, setInstallError] = useState('');
-  const [isInstallSubmitting, setIsInstallSubmitting] = useState(false);
-  const [installResultIds, setInstallResultIds] = useState([]);
-  const [installResults, setInstallResults] = useState([]);
-  const [isInstallPolling, setIsInstallPolling] = useState(false);
-  const [isCancellingInstall, setIsCancellingInstall] = useState(false);
 
   useEffect(() => {
     if (!auth?.accessToken) return;
@@ -158,51 +136,6 @@ export default function Home() {
     };
   }, [auth?.accessToken, commandResultIds]);
 
-  useEffect(() => {
-    if (!auth?.accessToken || installResultIds.length === 0) return;
-
-    let isMounted = true;
-    let interval;
-    const terminalStatuses = ['success', 'error', 'timeout', 'exception', 'cancelled'];
-
-    async function loadInstallResults() {
-      try {
-        const res = await getCommandHistory({
-          commandIds: installResultIds,
-          limit: installResultIds.length,
-          category: 'software_install',
-        });
-        if (!isMounted) return;
-
-        const results = res.data.results || [];
-        setInstallResults(results);
-
-        const isComplete =
-          results.length === installResultIds.length &&
-          results.every(item => terminalStatuses.includes(String(item.status || '').toLowerCase()));
-
-        setIsInstallPolling(!isComplete);
-        if (isComplete && interval) {
-          clearInterval(interval);
-        }
-      } catch (err) {
-        if (!isMounted) return;
-        setInstallError("Impossible de récupérer les logs d'installation");
-        setIsInstallPolling(false);
-        if (interval) clearInterval(interval);
-      }
-    }
-
-    setIsInstallPolling(true);
-    loadInstallResults();
-    interval = setInterval(loadInstallResults, 2500);
-
-    return () => {
-      isMounted = false;
-      if (interval) clearInterval(interval);
-    };
-  }, [auth?.accessToken, installResultIds]);
-
   const stats = useMemo(() => {
     const total = machines.length;
     const online = machines.filter(m => m.status === "online").length;
@@ -217,11 +150,6 @@ export default function Home() {
   const selectedMachine = useMemo(
     () => machines.find(machine => String(machine.id) === String(selectedMachineId)),
     [machines, selectedMachineId]
-  );
-
-  const selectedInstallMachine = useMemo(
-    () => machines.find(machine => String(machine.id) === String(installMachineId)),
-    [machines, installMachineId]
   );
 
   async function handleCommandSubmit(event) {
@@ -303,77 +231,9 @@ export default function Home() {
     }
   }
 
-  async function handleInstallSubmit(event) {
-    event.preventDefault();
-    setInstallError('');
-
-    const usesInstallerPath = ['msi', 'exe'].includes(packageManager);
-    if (!usesInstallerPath && !packageName.trim()) {
-      setInstallError('Veuillez saisir le nom du paquet.');
-      return;
-    }
-    if (usesInstallerPath && !installerPath.trim()) {
-      setInstallError("Veuillez saisir le chemin de l'installateur.");
-      return;
-    }
-    if (installTargetMode === 'specific' && !selectedInstallMachine?.mac_address) {
-      setInstallError('Veuillez sélectionner une machine valide.');
-      return;
-    }
-
-    try {
-      setIsInstallSubmitting(true);
-      setInstallResults([]);
-      setInstallResultIds([]);
-
-      const res = await installSoftware({
-        packageManager,
-        packageName: packageName.trim(),
-        packageVersion: packageVersion.trim(),
-        installerPath: installerPath.trim(),
-        macAddress: installTargetMode === 'specific' ? selectedInstallMachine.mac_address : '',
-        timeout: parseInt(installTimeout),
-      });
-
-      setInstallResultIds(res.data.command_ids || []);
-    } catch (err) {
-      setInstallError(
-        err.response?.data?.detail ||
-        "Impossible de lancer l'installation"
-      );
-    } finally {
-      setIsInstallSubmitting(false);
-    }
-  }
-
-  async function handleCancelInstall() {
-    if (installResultIds.length === 0) return;
-
-    try {
-      setIsCancellingInstall(true);
-      const results = await Promise.allSettled(installResultIds.map(commandId => cancelCommand(commandId)));
-      const rejected = results.filter(result => result.status === 'rejected');
-      if (rejected.length === results.length) {
-        throw rejected[0].reason;
-      }
-    } catch (err) {
-      setInstallError(
-        err.response?.data?.detail ||
-        "Impossible d'annuler l'installation"
-      );
-    } finally {
-      setIsCancellingInstall(false);
-    }
-  }
-
   function closeCommandModal() {
     setIsCommandModalOpen(false);
     setCommandError('');
-  }
-
-  function closeInstallModal() {
-    setIsInstallModalOpen(false);
-    setInstallError('');
   }
 
   return (
@@ -401,13 +261,6 @@ export default function Home() {
                   onClick={() => setIsCommandModalOpen(true)}
                 >
                   Remote Command
-                </button>
-                <button
-                  type="button"
-                  className="remote-command-trigger"
-                  onClick={() => setIsInstallModalOpen(true)}
-                >
-                  Software Install
                 </button>
               </div>
             </div>
@@ -442,21 +295,6 @@ export default function Home() {
               onClick={() => setIsCommandModalOpen(true)}
             >
               Ouvrir la console
-            </button>
-          </section>
-
-          <section className="remote-command-panel">
-            <div>
-              <span className="section-label">Software Install</span>
-              <h3>Installer un logiciel</h3>
-              <p>Installation guidée par paquet, version, cible, statut et logs.</p>
-            </div>
-            <button
-              type="button"
-              className="remote-command-trigger"
-              onClick={() => setIsInstallModalOpen(true)}
-            >
-              Ouvrir l'installation
             </button>
           </section>
 
@@ -503,196 +341,6 @@ export default function Home() {
           </section>
         </main>
       </div>
-
-      {isInstallModalOpen && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={closeInstallModal}>
-          <div
-            className="command-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="software-install-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <div className="command-modal__header">
-              <div>
-                <span className="section-label">Installation guidée</span>
-                <h3 id="software-install-title">Software Install</h3>
-              </div>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={closeInstallModal}
-                aria-label="Fermer la modale"
-              >
-                x
-              </button>
-            </div>
-
-            <form className="install-form" onSubmit={handleInstallSubmit}>
-              <div className="target-toggle" role="radiogroup" aria-label="Cible installation">
-                <label className={installTargetMode === 'specific' ? 'is-active' : ''}>
-                  <input
-                    type="radio"
-                    name="installTargetMode"
-                    value="specific"
-                    checked={installTargetMode === 'specific'}
-                    onChange={() => setInstallTargetMode('specific')}
-                  />
-                  Machine spécifique
-                </label>
-                <label className={installTargetMode === 'all' ? 'is-active' : ''}>
-                  <input
-                    type="radio"
-                    name="installTargetMode"
-                    value="all"
-                    checked={installTargetMode === 'all'}
-                    onChange={() => setInstallTargetMode('all')}
-                  />
-                  Toutes les machines
-                </label>
-              </div>
-
-              {installTargetMode === 'specific' && (
-                <label className="command-field">
-                  <span>Machine</span>
-                  <select
-                    value={installMachineId}
-                    onChange={(event) => setInstallMachineId(event.target.value)}
-                  >
-                    <option value="">Sélectionner une machine</option>
-                    {machines.map(machine => (
-                      <option key={machine.id} value={machine.id}>
-                        {machine.name} {machine.ip_address ? `- ${machine.ip_address}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-
-              <div className="command-field-row">
-                <label className="command-field">
-                  <span>Source</span>
-                  <select
-                    value={packageManager}
-                    onChange={(event) => setPackageManager(event.target.value)}
-                  >
-                    <option value="winget">winget</option>
-                    <option value="pip">pip</option>
-                    <option value="npm">npm global</option>
-                    <option value="msi">MSI local</option>
-                    <option value="exe">EXE local</option>
-                  </select>
-                </label>
-
-                <label className="command-field">
-                  <span>Timeout</span>
-                  <input
-                    type="number"
-                    value={installTimeout}
-                    onChange={(event) => setInstallTimeout(Math.max(30, Math.min(7200, parseInt(event.target.value) || 600)))}
-                    min="30"
-                    max="7200"
-                  />
-                </label>
-              </div>
-
-              {['msi', 'exe'].includes(packageManager) ? (
-                <>
-                  <label className="command-field">
-                    <span>Chemin installateur</span>
-                    <input
-                      type="text"
-                      value={installerPath}
-                      onChange={(event) => setInstallerPath(event.target.value)}
-                      placeholder="C:\\Temp\\setup.msi"
-                    />
-                  </label>
-                  <label className="command-field">
-                    <span>Nom affiché</span>
-                    <input
-                      type="text"
-                      value={packageName}
-                      onChange={(event) => setPackageName(event.target.value)}
-                      placeholder="Nom logiciel"
-                    />
-                  </label>
-                </>
-              ) : (
-                <div className="command-field-row">
-                  <label className="command-field">
-                    <span>Paquet</span>
-                    <input
-                      type="text"
-                      value={packageName}
-                      onChange={(event) => setPackageName(event.target.value)}
-                      placeholder={packageManager === 'winget' ? 'Google.Chrome' : 'package-name'}
-                    />
-                  </label>
-                  <label className="command-field">
-                    <span>Version</span>
-                    <input
-                      type="text"
-                      value={packageVersion}
-                      onChange={(event) => setPackageVersion(event.target.value)}
-                      placeholder="Optionnel"
-                    />
-                  </label>
-                </div>
-              )}
-
-              {installError && (
-                <p className="error-feedback command-feedback">{installError}</p>
-              )}
-
-              <div className="install-actions">
-                <button
-                  type="submit"
-                  className="command-submit"
-                  disabled={isInstallSubmitting || isInstallPolling}
-                >
-                  {isInstallSubmitting ? "Lancement..." : "Installer"}
-                </button>
-                {isInstallPolling && (
-                  <button
-                    type="button"
-                    className="console-cancel-btn"
-                    onClick={handleCancelInstall}
-                    disabled={isCancellingInstall}
-                  >
-                    {isCancellingInstall ? "Annulation..." : "Cancel"}
-                  </button>
-                )}
-              </div>
-            </form>
-
-            {(installResults.length > 0 || isInstallPolling) && (
-              <div className="install-results">
-                <div className="command-results__heading">
-                  <h4>Statut et logs</h4>
-                  {isInstallPolling && <span>Installation en cours...</span>}
-                </div>
-                {installResults.map(item => (
-                  <div key={item.id} className="command-result-item">
-                    <div className="command-result-item__top">
-                      <div>
-                        <strong>{item.device_name || 'Machine'}</strong>
-                        <span className="install-package-meta">
-                          {item.package_manager} {item.package_name}
-                          {item.package_version ? ` ${item.package_version}` : ''}
-                        </span>
-                      </div>
-                      <span className={getCommandStatusClass(item.status)}>
-                        {getCommandStatusLabel(item.status)}
-                      </span>
-                    </div>
-                    <pre>{getCommandOutput(item)}</pre>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {isCommandModalOpen && (
         <div className="modal-backdrop" role="presentation" onMouseDown={closeCommandModal}>

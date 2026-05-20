@@ -578,28 +578,103 @@ def process_pending_commands():
 
 # ================= SOFTWARE INVENTORY =================
 
+def _get_active_session_account() -> str:
+    try:
+        import win32ts
+        server = win32ts.WTS_CURRENT_SERVER_HANDLE
+        sessions = win32ts.WTSEnumerateSessions(server)
+        for session in sessions:
+            if isinstance(session, (tuple, list)) and len(session) >= 3:
+                session_id, _, state = session[0], session[1], session[2]
+            else:
+                session_id = getattr(session, 'SessionId', None)
+                state = getattr(session, 'State', None)
+
+            if state == win32ts.WTSActive and session_id not in (None, 0):
+                username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
+                domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
+                if username:
+                    return f"{domain}\\{username}" if domain else username
+    except Exception as e:
+        logger.debug("Erreur détection compte session active: %s", e)
+
+    try:
+        import ctypes
+        import win32ts
+        session_id = ctypes.windll.kernel32.WTSGetActiveConsoleSessionId()
+        if session_id not in (None, 0xFFFFFFFF):
+            server = win32ts.WTS_CURRENT_SERVER_HANDLE
+            username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
+            domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
+            if username:
+                return f"{domain}\\{username}" if domain else username
+    except Exception as e:
+        logger.debug("Erreur détection console active: %s", e)
+
+    try:
+        import getpass
+        username = getpass.getuser()
+        if username and username.lower() not in {"system", "localsystem"}:
+            return username
+    except Exception:
+        pass
+
+    return ""
+
+
+def _get_active_session_sid() -> str:
+    account = _get_active_session_account()
+    if not account:
+        return ""
+
+    try:
+        import win32security
+        sid, _, _ = win32security.LookupAccountName(None, account)
+        return win32security.ConvertSidToStringSid(sid)
+    except Exception as e:
+        logger.debug("Impossible de convertir le compte %s en SID: %s", account, e)
+        return ""
+
+
 def collect_installed_software() -> list:
     """
     Collecte la liste des logiciels installés via le registre Windows.
-    Parcourt les deux ruches (64-bit et 32-bit) pour être exhaustif.
+    Parcourt HKLM et la ruche HKU de l'utilisateur de session actif.
     Retourne une liste de dicts {name, version, publisher, install_date}.
     """
     import winreg
 
     software_list = []
+    uninstall_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
     registry_paths = [
-        (winreg.HKEY_CURRENT_USER,  r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
+        ("machine", winreg.HKEY_LOCAL_MACHINE, uninstall_path, winreg.KEY_WOW64_64KEY),
+        ("machine-32", winreg.HKEY_LOCAL_MACHINE, uninstall_path, winreg.KEY_WOW64_32KEY),
+        ("process-user", winreg.HKEY_CURRENT_USER, uninstall_path, winreg.KEY_WOW64_64KEY),
     ]
+
+    active_sid = _get_active_session_sid()
+    if active_sid:
+        registry_paths.extend([
+            ("active-user", winreg.HKEY_USERS, rf"{active_sid}\{uninstall_path}", winreg.KEY_WOW64_64KEY),
+            ("active-user-32", winreg.HKEY_USERS, rf"{active_sid}\{uninstall_path}", winreg.KEY_WOW64_32KEY),
+        ])
+        logger.info("Inventaire logiciels : lecture ruche utilisateur actif %s", active_sid)
+    else:
+        logger.warning(
+            "Inventaire logiciels : SID utilisateur actif introuvable, "
+            "lecture limitée a HKLM et HKCU du processus."
+        )
 
     seen = set()  # éviter les doublons entre ruches
 
-    for hive, path in registry_paths:
+    for source, hive, path, wow64_flag in registry_paths:
+        root_key = None
         try:
-            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | winreg.KEY_WOW64_64KEY)
+            root_key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ | wow64_flag)
         except FileNotFoundError:
             continue
         except Exception as e:
-            logger.warning("Impossible d'ouvrir la ruche %s\\%s : %s", hive, path, e)
+            logger.warning("Impossible d'ouvrir la ruche %s %s\\%s : %s", source, hive, path, e)
             continue
 
         index = 0
@@ -615,14 +690,15 @@ def collect_installed_software() -> list:
 
                 def get_val(name):
                     try:
-                        return winreg.QueryValueEx(subkey, name)[0]
+                        value = winreg.QueryValueEx(subkey, name)[0]
+                        return str(value).strip()
                     except FileNotFoundError:
                         return ""
 
-                name      = get_val("DisplayName").strip()
-                version   = get_val("DisplayVersion").strip()
-                publisher = get_val("Publisher").strip()
-                inst_date = get_val("InstallDate").strip()  # format YYYYMMDD ou vide
+                name      = get_val("DisplayName")
+                version   = get_val("DisplayVersion")
+                publisher = get_val("Publisher")
+                inst_date = get_val("InstallDate")  # format YYYYMMDD ou vide
 
                 winreg.CloseKey(subkey)
 
@@ -630,7 +706,7 @@ def collect_installed_software() -> list:
                 if not name:
                     continue
 
-                uid = f"{name}|{version}"
+                uid = f"{name}|{version}|{publisher}".casefold()
                 if uid in seen:
                     continue
                 seen.add(uid)
@@ -643,9 +719,10 @@ def collect_installed_software() -> list:
                 })
 
             except Exception as e:
-                logger.debug("Erreur lecture sous-clé %s : %s", subkey_name, e)
+                logger.debug("Erreur lecture sous-clé %s (%s) : %s", subkey_name, source, e)
 
-        winreg.CloseKey(root_key)
+        if root_key:
+            winreg.CloseKey(root_key)
 
     logger.info("Inventaire logiciels : %d entrées collectées", len(software_list))
     return software_list
@@ -893,4 +970,9 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         raise
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(NetworkAgent)
+    if len(sys.argv) == 1:
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(NetworkAgent)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(NetworkAgent)

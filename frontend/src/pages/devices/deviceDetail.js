@@ -50,12 +50,17 @@ function formatDuration(seconds) {
   const totalSeconds = Number(seconds || 0);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const remainingSeconds = totalSeconds % 60;
 
   if (hours > 0) {
     return `${hours}h ${String(minutes).padStart(2, '0')}min`;
   }
 
-  return `${minutes}min`;
+  if (minutes > 0) {
+    return remainingSeconds > 0 ? `${minutes}min ${remainingSeconds}s` : `${minutes}min`;
+  }
+
+  return `${remainingSeconds}s`;
 }
 
 function getRelativeDate(dateString) {
@@ -143,6 +148,7 @@ export default function DeviceDetail() {
             setSoftwareError('');
             const softwareRes = await getDeviceSoftware(deviceRes.data.mac_address);
             setSoftware(softwareRes.data.software || []);
+            setSoftwarePage(1);
           } catch (softwareErr) {
             setSoftware([]);
             setSoftwareError("Erreur chargement logiciels");
@@ -302,6 +308,29 @@ export default function DeviceDetail() {
                     </tbody>
                   </table>
                 </div>
+                {software.length > 10 && (
+                  <div className="pagination-controls">
+                    <button
+                      className="btn-pagination"
+                      onClick={() => setSoftwarePage(softwarePage - 1)}
+                      disabled={softwarePage === 1}
+                    >
+                      &lt;
+                    </button>
+
+                    <span className="pagination-info">
+                      {softwarePage} / {Math.ceil(software.length / 10)}
+                    </span>
+
+                    <button
+                      className="btn-pagination"
+                      onClick={() => setSoftwarePage(softwarePage + 1)}
+                      disabled={softwarePage >= Math.ceil(software.length / 10)}
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </section>
