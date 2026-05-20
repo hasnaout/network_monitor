@@ -247,12 +247,38 @@ def fetch_pending_commands() -> list:
         return []
 
 
+def is_process_admin() -> bool:
+    if os.name != "nt":
+        return False
+    try:
+        import ctypes
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    except Exception as e:
+        logger.debug("Impossible de vérifier les privilèges administrateur : %s", e)
+        return False
+
+
 def execute_command(command: str, timeout: int = 30) -> dict:
     """
     Exécute une commande shell et retourne stdout, stderr et le code de retour.
     Le paramètre timeout évite de bloquer l'agent indéfiniment.
     """
     logger.info("Execution commande : %s (timeout=%ds)", command, timeout)
+
+    if os.name == "nt" and not is_process_admin():
+        logger.warning(
+            "Remote command exécutée sans privilèges administrateur. "
+            "Assurez-vous que l'agent est installé et exécuté comme service Windows avec des droits élevés."
+        )
+
+    creationflags = 0
+    startupinfo = None
+    if os.name == "nt":
+        creationflags = subprocess.CREATE_NEW_CONSOLE
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+
     try:
         result = subprocess.run(
             command,
@@ -260,6 +286,8 @@ def execute_command(command: str, timeout: int = 30) -> dict:
             capture_output=True,
             text=True,
             timeout=timeout,
+            creationflags=creationflags,
+            startupinfo=startupinfo,
         )
         output = {
             "stdout": result.stdout.strip(),
