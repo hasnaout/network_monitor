@@ -30,7 +30,16 @@ useEffect(() => {
   };
 
   ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (error) {
+      console.error("Invalid WebSocket alert payload", error);
+      return;
+    }
+
+    if (!data?.id) return;
+
     setAlerts((prev) => {
       const exists = prev.some(a => a.id === data.id);
       if (exists) return prev;

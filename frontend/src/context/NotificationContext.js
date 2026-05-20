@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const NotificationContext = createContext();
+const NOTIFICATION_VISIBLE_MS = 6000;
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
@@ -50,12 +51,22 @@ export function NotificationProvider({ children }) {
       badge: `${window.location.origin}/logo.png`,
       tag: alert.id ? `alert-${alert.id}` : `alert-${Date.now()}`,
       renotify: true,
+      requireInteraction: false,
     });
 
+    const closeTimer = window.setTimeout(() => {
+      notification.close();
+    }, NOTIFICATION_VISIBLE_MS);
+
     notification.onclick = () => {
+      window.clearTimeout(closeTimer);
       window.focus();
       window.location.href = '/alerts';
       notification.close();
+    };
+
+    notification.onclose = () => {
+      window.clearTimeout(closeTimer);
     };
   }, []);
 
@@ -81,7 +92,7 @@ export function NotificationProvider({ children }) {
       setNotifications((prev) =>
         prev.filter((notif) => notif.id !== id)
       );
-    }, 6000);
+    }, NOTIFICATION_VISIBLE_MS);
 
     return notification;
   }, [showBrowserNotification]);
