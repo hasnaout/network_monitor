@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import "./home.css";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../../components/Header";
@@ -51,11 +51,15 @@ export default function Home() {
   const [targetMode, setTargetMode] = useState('all');
   const [selectedMachineId, setSelectedMachineId] = useState('');
   const [command, setCommand] = useState('');
+  const [shell, setShell] = useState('cmd');
+  const [timeout, setTimeout] = useState(30);
   const [commandError, setCommandError] = useState('');
   const [isCommandSubmitting, setIsCommandSubmitting] = useState(false);
   const [commandResultIds, setCommandResultIds] = useState([]);
   const [commandResults, setCommandResults] = useState([]);
   const [isCommandPolling, setIsCommandPolling] = useState(false);
+  const [consoleHistory, setConsoleHistory] = useState([]);
+  const [currentPath, setCurrentPath] = useState('C:\\>');
 
   useEffect(() => {
     if (!auth?.accessToken) return;
@@ -155,6 +159,19 @@ export default function Home() {
       return;
     }
 
+    const historyEntry = {
+      type: 'command',
+      prompt: currentPath,
+      command: trimmedCommand,
+      shell: shell,
+      timestamp: new Date(),
+    };
+    setConsoleHistory(prev => [...prev, historyEntry]);
+
+    const isCdCommand = trimmedCommand.toLowerCase().startsWith('cd ') ||
+                       trimmedCommand.toLowerCase().startsWith('cd"') ||
+                       trimmedCommand === 'cd';
+
     try {
       setIsCommandSubmitting(true);
       setCommandResults([]);
@@ -163,14 +180,34 @@ export default function Home() {
       const res = await executeCommand({
         command: trimmedCommand,
         macAddress: targetMode === 'specific' ? selectedMachine.mac_address : '',
+        shell: shell,
+        timeout: parseInt(timeout),
       });
 
       setCommandResultIds(res.data.command_ids || []);
+
+      if (isCdCommand) {
+        const pathMatch = trimmedCommand.match(/cd\s+(.+?)(?:\s|$)/i);
+        if (pathMatch && pathMatch[1]) {
+          let newPath = pathMatch[1].trim().replace(/["']/g, '');
+          if (!newPath.endsWith('\\') && !newPath.endsWith('/')) {
+            newPath += '\\';
+          }
+          setCurrentPath(newPath + '>');
+        }
+      }
+
+      setCommand('');
     } catch (err) {
       setCommandError(
         err.response?.data?.detail ||
         "Impossible de lancer l'exécution de la commande"
       );
+      setConsoleHistory(prev => [...prev, {
+        type: 'error',
+        message: err.response?.data?.detail || "Erreur d'exécution",
+        timestamp: new Date(),
+      }]);
     } finally {
       setIsCommandSubmitting(false);
     }
@@ -311,7 +348,7 @@ export default function Home() {
               </button>
             </div>
 
-            <form className="command-form" onSubmit={handleCommandSubmit}>
+            <div className="console-panel-options">
               <div className="target-toggle" role="radiogroup" aria-label="Cible de commande">
                 <label className={targetMode === 'all' ? 'is-active' : ''}>
                   <input
@@ -336,68 +373,118 @@ export default function Home() {
               </div>
 
               {targetMode === 'specific' && (
-                <label className="command-field">
-                  <span>Machine</span>
-                  <select
-                    value={selectedMachineId}
-                    onChange={(event) => setSelectedMachineId(event.target.value)}
-                  >
-                    <option value="">Sélectionner une machine</option>
-                    {machines.map(machine => (
-                      <option key={machine.id} value={machine.id}>
-                        {machine.name} {machine.ip_address ? `- ${machine.ip_address}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <select
+                  className="console-option-select"
+                  value={selectedMachineId}
+                  onChange={(event) => setSelectedMachineId(event.target.value)}
+                >
+                  <option value="">Sélectionner une machine</option>
+                  {machines.map(machine => (
+                    <option key={machine.id} value={machine.id}>
+                      {machine.name} {machine.ip_address ? `- ${machine.ip_address}` : ''}
+                    </option>
+                  ))}
+                </select>
               )}
 
-              <label className="command-field">
-                <span>Commande</span>
-                <textarea
-                  className="console-textarea"
-                  value={command}
-                  onChange={(event) => setCommand(event.target.value)}
-                  placeholder="ipconfig /all"
-                  rows={6}
-                />
-              </label>
-
-              {commandError && <p className="error-feedback command-feedback">{commandError}</p>}
-
-              <button
-                type="submit"
-                className="command-submit"
-                disabled={isCommandSubmitting || isCommandPolling}
+              <select
+                className="console-option-select"
+                value={shell}
+                onChange={(event) => setShell(event.target.value)}
               >
-                {isCommandSubmitting ? "Envoi..." : "Lancer l'exécution"}
-              </button>
-            </form>
+                <option value="cmd">cmd.exe</option>
+                <option value="powershell">powershell.exe</option>
+              </select>
 
-            {(commandResults.length > 0 || isCommandPolling) && (
-              <div className="command-results">
-                <div className="command-results__heading">
-                  <h4>Résumé d'exécution</h4>
-                  {isCommandPolling && <span>Actualisation en temps réel...</span>}
-                </div>
+              <input
+                type="number"
+                className="console-option-input"
+                value={timeout}
+                onChange={(event) => setTimeout(Math.max(1, Math.min(1200, parseInt(event.target.value) || 30)))}
+                min="1"
+                max="1200"
+                placeholder="Timeout (s)"
+                title="Timeout en secondes (1-1200)"
+              />
+            </div>
 
-                {commandResults.length === 0 ? (
-                  <div className="empty-state compact">En attente des agents...</div>
-                ) : (
-                  commandResults.map(item => (
-                    <article key={item.id} className="command-result-item">
-                      <div className="command-result-item__top">
-                        <strong>{item.device_name || 'Machine'}</strong>
-                        <span className={getCommandStatusClass(item.status)}>
-                          {getCommandStatusLabel(item.status)}
-                        </span>
+            <div className="console-emulator">
+              <div className="console-content">
+                {consoleHistory.map((entry, idx) => {
+                  if (entry.type === 'command') {
+                    return (
+                      <div key={idx} className="console-line">
+                        <span className="console-prompt">{entry.prompt}</span>
+                        <span className="console-command">{entry.command}</span>
                       </div>
-                      <pre>{getCommandOutput(item)}</pre>
-                    </article>
-                  ))
+                    );
+                  } else if (entry.type === 'error') {
+                    return (
+                      <div key={idx} className="console-line console-error-line">
+                        <span className="console-error-text">Erreur: {entry.message}</span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+
+                {(commandResults.length > 0 || isCommandPolling) && (
+                  <div className="console-results-section">
+                    {isCommandPolling && (
+                      <div className="console-line console-info">
+                        <span>Attente des resultats des agents...</span>
+                      </div>
+                    )}
+
+                    {commandResults.map(item => (
+                      <div key={item.id} className="console-result-block">
+                        <div className="console-line console-result-header">
+                          <span className="console-result-device">[{item.device_name || 'Machine'}] [{item.shell || 'cmd'}]</span>
+                          <span className={`console-result-status console-status-${item.status}`}>
+                            {getCommandStatusLabel(item.status)}
+                          </span>
+                        </div>
+                        <div className="console-result-output">
+                          {getCommandOutput(item).split('\n').map((line, i) => (
+                            <div key={i} className="console-line">
+                              <span className="console-output">{line}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {commandError && (
+                  <div className="console-line console-error-line">
+                    <span className="console-error-text">{commandError}</span>
+                  </div>
                 )}
               </div>
-            )}
+
+              <form className="console-input-form" onSubmit={handleCommandSubmit}>
+                <div className="console-input-line">
+                  <span className="console-prompt">{currentPath}</span>
+                  <input
+                    type="text"
+                    className="console-input"
+                    value={command}
+                    onChange={(event) => setCommand(event.target.value)}
+                    placeholder="Tapez votre commande..."
+                    disabled={isCommandSubmitting || isCommandPolling}
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="console-submit-btn"
+                  disabled={isCommandSubmitting || isCommandPolling}
+                >
+                  {isCommandSubmitting ? "Envoi..." : "Executer"}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}

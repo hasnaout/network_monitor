@@ -24,7 +24,6 @@ except ImportError as e:
     print(f"ERREUR: modules win32 non disponibles - {e}")
     sys.exit(1)
 
-# ================= PATH =================
 def get_base_dir():
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
@@ -40,7 +39,6 @@ if not os.path.exists(BASE_DIR):
     print(f"ERREUR: Répertoire introuvable: {BASE_DIR}")
     sys.exit(1)
 
-# ================= LOGGING =================
 logger = None
 
 def setup_logger():
@@ -92,7 +90,6 @@ except Exception as e:
     print(f"ERREUR lors de la configuration du logging: {e}")
     sys.exit(1)
 
-# ================= CONFIG =================
 _config: dict = {}
 
 def load_config() -> dict:
@@ -298,12 +295,13 @@ def is_process_admin() -> bool:
         return False
 
 
-def execute_command(command: str, timeout: int = 30) -> dict:
+def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd") -> dict:
     """
     Exécute une commande shell et retourne stdout, stderr et le code de retour.
     Le paramètre timeout évite de bloquer l'agent indéfiniment.
+    shell_type peut être "cmd" ou "powershell"
     """
-    logger.info("Execution commande : %s (timeout=%ds)", command, timeout)
+    logger.info("Execution commande : %s (shell=%s, timeout=%ds)", command, shell_type, timeout)
 
     if os.name == "nt" and not is_process_admin():
         logger.warning(
@@ -317,7 +315,12 @@ def execute_command(command: str, timeout: int = 30) -> dict:
     exec_command = command
 
     if os.name == "nt":
-        exec_command = ["cmd.exe", "/c", command]
+        if shell_type.lower() == "powershell":
+            # PowerShell : -Command pour exécuter la commande, -NoProfile pour aller vite
+            exec_command = ["powershell.exe", "-NoProfile", "-Command", command]
+        else:
+            # CMD classique
+            exec_command = ["cmd.exe", "/c", command]
         shell = False
         creationflags = subprocess.CREATE_NEW_CONSOLE
         startupinfo = subprocess.STARTUPINFO()
@@ -325,7 +328,7 @@ def execute_command(command: str, timeout: int = 30) -> dict:
         startupinfo.wShowWindow = subprocess.SW_HIDE
 
     try:
-        logger.debug("Execution de la commande Windows via cmd.exe : %s", command)
+        logger.debug("Execution de la commande Windows via %s : %s", shell_type, command)
         result = subprocess.run(
             exec_command,
             shell=shell,
@@ -399,14 +402,15 @@ def process_pending_commands():
     for cmd_entry in commands:
         command_id  = cmd_entry.get("id")
         command_str = cmd_entry.get("command", "").strip()
+        shell_type  = cmd_entry.get("shell", "cmd")  # Par défaut cmd
         timeout     = int(cmd_entry.get("timeout", 30))
 
         if not command_id or not command_str:
             logger.warning("Commande invalide reçue : %s", cmd_entry)
             continue
 
-        logger.info("Traitement commande #%d : %s", command_id, command_str)
-        result = execute_command(command_str, timeout=timeout)
+        logger.info("Traitement commande #%d : %s (shell=%s)", command_id, command_str, shell_type)
+        result = execute_command(command_str, timeout=timeout, shell_type=shell_type)
         report_command_result(command_id, result)
 
 

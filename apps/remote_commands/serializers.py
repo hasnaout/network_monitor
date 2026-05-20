@@ -20,11 +20,17 @@ class CreateCommandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = RemoteCommand
-        fields = ["mac_address", "command", "timeout"]
+        fields = ["mac_address", "command", "shell", "timeout"]
 
     def validate_timeout(self, value):
-        if value < 1 or value > 300:
-            raise serializers.ValidationError("Timeout entre 1 et 300 secondes.")
+        if value < 1 or value > 1200:
+            raise serializers.ValidationError("Timeout entre 1 et 1200 secondes (20 minutes max).")
+        return value
+
+    def validate_shell(self, value):
+        valid_shells = ["cmd", "powershell"]
+        if value not in valid_shells:
+            raise serializers.ValidationError(f"Shell invalide. Valeurs acceptées: {valid_shells}")
         return value
 
 
@@ -36,7 +42,7 @@ class RemoteCommandSerializer(serializers.ModelSerializer):
     class Meta:
         model  = RemoteCommand
         fields = [
-            "id", "device_name", "command", "timeout",
+            "id", "device_name", "command", "shell", "timeout",
             "created_by_username", "created_at",
             "status", "stdout", "stderr", "returncode", "executed_at",
         ]

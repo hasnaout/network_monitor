@@ -1,10 +1,11 @@
 import { api } from './api';
 
-export const executeCommand = ({ command, macAddress = '', timeout = 30 }) =>
+export const executeCommand = ({ command, macAddress = '', timeout = 30, shell = 'cmd' }) =>
   api.post('/api/commands/execute/', {
     command,
     mac_address: macAddress,
     timeout,
+    shell,
   });
 
 export const getCommandHistory = ({ macAddress, deviceId, commandIds, limit = 50 } = {}) => {

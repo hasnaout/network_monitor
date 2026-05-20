@@ -31,18 +31,7 @@ def _verify_agent_token(request) -> bool:
     return compare_digest(received, expected)
 
 
-# ─────────────────────────────────────────────
-# 1. ADMIN — Créer une commande
-# ─────────────────────────────────────────────
 class CreateCommandView(APIView):
-    """
-    POST /api/commands/
-    Réservé aux admins authentifiés.
-
-    Body :
-      { "mac_address": "XX:XX:XX:XX:XX:XX", "command": "ipconfig", "timeout": 30 }
-      mac_address vide ou absent → broadcast à tous les agents connectés.
-    """
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def post(self, request):
@@ -52,6 +41,7 @@ class CreateCommandView(APIView):
 
         mac     = serializer.validated_data.get("mac_address", "").strip().lower()
         command = serializer.validated_data["command"]
+        shell   = serializer.validated_data.get("shell", "cmd")
         timeout = serializer.validated_data.get("timeout", 30)
 
         device = None
@@ -65,17 +55,16 @@ class CreateCommandView(APIView):
                 )
 
         if device:
-            # Commande ciblée
             cmd = RemoteCommand.objects.create(
                 device=device,
                 command=command,
+                shell=shell,
                 timeout=timeout,
                 created_by=request.user,
                 status=RemoteCommand.Status.PENDING,
             )
             created_ids = [cmd.id]
         else:
-            # Broadcast — une commande par agent actif
             devices = Device.objects.filter(status="online")
             if not devices.exists():
                 return Response(
@@ -86,6 +75,7 @@ class CreateCommandView(APIView):
                 RemoteCommand(
                     device=d,
                     command=command,
+                    shell=shell,
                     timeout=timeout,
                     created_by=request.user,
                     status=RemoteCommand.Status.PENDING,
@@ -95,8 +85,8 @@ class CreateCommandView(APIView):
             created_ids = [c.id for c in cmds]
 
         logger.info(
-            "Admin %s a créé %d commande(s) : %s",
-            request.user.username, len(created_ids), command[:80],
+            "Admin %s a créé %d commande(s) (shell=%s, timeout=%ds) : %s",
+            request.user.username, len(created_ids), shell, timeout, command[:80],
         )
         return Response(
             {"status": "created", "command_ids": created_ids, "count": len(created_ids)},
@@ -104,15 +94,7 @@ class CreateCommandView(APIView):
         )
 
 
-# ─────────────────────────────────────────────
-# 2. AGENT — Récupérer ses commandes en attente
-# ─────────────────────────────────────────────
 class PendingCommandsView(APIView):
-    """
-    GET /api/commands/pending/?mac_address=XX:XX:XX:XX:XX:XX
-    Appelé par l'agent toutes les N secondes.
-    Sécurisé par X-Agent-Token.
-    """
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -126,15 +108,13 @@ class PendingCommandsView(APIView):
         try:
             device = Device.objects.get(mac_address=mac)
         except Device.DoesNotExist:
-            # Agent pas encore enregistré → liste vide (pas d'erreur)
             return Response([])
 
         pending = RemoteCommand.objects.filter(
             device=device,
             status=RemoteCommand.Status.PENDING,
-        ).values("id", "command", "timeout")
+        ).values("id", "command", "shell", "timeout")
 
-        # Marquer en RUNNING pour éviter double exécution
         ids = [c["id"] for c in pending]
         if ids:
             RemoteCommand.objects.filter(id__in=ids).update(
@@ -145,15 +125,7 @@ class PendingCommandsView(APIView):
         return Response(list(pending))
 
 
-# ─────────────────────────────────────────────
-# 3. AGENT — Envoyer le résultat d'une commande
-# ─────────────────────────────────────────────
 class CommandResultView(APIView):
-    """
-    POST /api/commands/<id>/result/
-    Envoyé par l'agent après exécution.
-    Sécurisé par X-Agent-Token.
-    """
     permission_classes = [AllowAny]
 
     def post(self, request, command_id):
