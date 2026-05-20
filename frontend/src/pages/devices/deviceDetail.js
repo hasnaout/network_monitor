@@ -125,6 +125,7 @@ export default function DeviceDetail() {
   // États pour la pagination
   const [softwarePage, setSoftwarePage] = useState(1);
   const [alertsPage, setAlertsPage] = useState(1);
+  const [commandHistoryPage, setCommandHistoryPage] = useState(1);
 
   useEffect(() => {
 
@@ -199,9 +200,11 @@ export default function DeviceDetail() {
         setCommandHistoryError('');
         const res = await getCommandHistory({ deviceId: device.id, limit: 50 });
         setCommandHistory(res.data.results || []);
+        setCommandHistoryPage(1);
       } catch (historyErr) {
         setCommandHistory([]);
         setCommandHistoryError("Erreur chargement historique des commandes");
+        setCommandHistoryPage(1);
       } finally {
         setCommandHistoryLoading(false);
       }
@@ -239,6 +242,13 @@ export default function DeviceDetail() {
   const maxUsageSeconds = Math.max(
     ...appUsages.map(item => Number(item.duration_seconds || 0)),
     1
+  );
+
+  const commandHistoryItemsPerPage = 10;
+  const commandHistoryTotalPages = Math.ceil(commandHistory.length / commandHistoryItemsPerPage);
+  const paginatedCommandHistory = commandHistory.slice(
+    (commandHistoryPage - 1) * commandHistoryItemsPerPage,
+    commandHistoryPage * commandHistoryItemsPerPage
   );
 
   if (loading) {
@@ -424,49 +434,81 @@ export default function DeviceDetail() {
             ) : commandHistory.length === 0 ? (
               <div className="empty-state">Aucune commande distante exécutée</div>
             ) : (
-              <div className="table-wrap">
-                <table className="command-history-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Commande</th>
-                      <th>Statut</th>
-                    </tr>
-                  </thead>
+              <>
+                <div className="table-wrap">
+                  <table className="command-history-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Commande</th>
+                        <th>Statut</th>
+                      </tr>
+                    </thead>
 
-                  <tbody>
-                    {commandHistory.map((item) => (
-                      <Fragment key={item.id}>
-                        <tr
-                          className="command-history-row"
-                          onClick={() => setExpandedCommandId(
-                            expandedCommandId === item.id ? null : item.id
-                          )}
-                        >
-                          <td>
-                            {item.created_at
-                              ? new Date(item.created_at).toLocaleString('fr-FR')
-                              : "—"}
-                          </td>
-                          <td><code>{item.command}</code></td>
-                          <td>
-                            <span className={getCommandStatusClass(item.status)}>
-                              {getCommandStatusLabel(item.status)}
-                            </span>
-                          </td>
-                        </tr>
-                        {expandedCommandId === item.id && (
-                          <tr className="command-history-detail-row">
-                            <td colSpan="3">
-                              <pre>{getCommandResult(item)}</pre>
+                    <tbody>
+                      {paginatedCommandHistory.map((item) => (
+                        <Fragment key={item.id}>
+                          <tr
+                            className="command-history-row"
+                            onClick={() => setExpandedCommandId(
+                              expandedCommandId === item.id ? null : item.id
+                            )}
+                          >
+                            <td>
+                              {item.created_at
+                                ? new Date(item.created_at).toLocaleString('fr-FR')
+                                : "—"}
+                            </td>
+                            <td><code>{item.command}</code></td>
+                            <td>
+                              <span className={getCommandStatusClass(item.status)}>
+                                {getCommandStatusLabel(item.status)}
+                              </span>
                             </td>
                           </tr>
-                        )}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          {expandedCommandId === item.id && (
+                            <tr className="command-history-detail-row">
+                              <td colSpan="3">
+                                <pre>{getCommandResult(item)}</pre>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {commandHistory.length > commandHistoryItemsPerPage && (
+                  <div className="pagination-controls">
+                    <button
+                      className="btn-pagination"
+                      onClick={() => {
+                        setCommandHistoryPage(commandHistoryPage - 1);
+                        setExpandedCommandId(null);
+                      }}
+                      disabled={commandHistoryPage === 1}
+                    >
+                      &lt;
+                    </button>
+
+                    <span className="pagination-info">
+                      {commandHistoryPage} / {commandHistoryTotalPages}
+                    </span>
+
+                    <button
+                      className="btn-pagination"
+                      onClick={() => {
+                        setCommandHistoryPage(commandHistoryPage + 1);
+                        setExpandedCommandId(null);
+                      }}
+                      disabled={commandHistoryPage >= commandHistoryTotalPages}
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </section>
 

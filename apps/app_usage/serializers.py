@@ -7,6 +7,7 @@ class AppUsageItemSerializer(serializers.Serializer):
     app_name         = serializers.CharField(max_length=255)
     duration_seconds = serializers.IntegerField(min_value=0)
     date             = serializers.DateField()
+    hour             = serializers.IntegerField(min_value=0, max_value=23, required=False, default=0)
 
 
 class AppUsagePayloadSerializer(serializers.Serializer):
@@ -22,7 +23,7 @@ class AppUsageReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = AppUsage
-        fields = ["id", "app_name", "date", "duration_seconds", "duration_minutes", "last_updated"]
+        fields = ["id", "app_name", "date", "hour", "duration_seconds", "duration_minutes", "last_updated"]
 
     def get_duration_minutes(self, obj):
         return round(obj.duration_seconds / 60, 1)

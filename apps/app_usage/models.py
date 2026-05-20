@@ -5,9 +5,9 @@ from django.utils import timezone
 class AppUsage(models.Model):
     """
     Temps d'utilisation d'une application sur un poste client.
-    La clé métier est (device + app_name + date) :
-    - Si l'agent envoie plusieurs fois dans la journée, on incrémente duration_seconds.
-    - On garde ainsi un historique jour par jour.
+    La clé métier est (device + app_name + date + hour) :
+    - Si l'agent envoie plusieurs fois dans la même heure, on incrémente duration_seconds.
+    - On garde ainsi un historique heure par heure.
     """
     device = models.ForeignKey(
         "devices.Device",
@@ -16,15 +16,16 @@ class AppUsage(models.Model):
     )
     app_name         = models.CharField(max_length=255, verbose_name="Application")
     date             = models.DateField(default=timezone.localdate, verbose_name="Date")
+    hour             = models.PositiveSmallIntegerField(default=0, verbose_name="Heure")
     duration_seconds = models.PositiveIntegerField(default=0, verbose_name="Durée (s)")
     last_updated     = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together     = ("device", "app_name", "date")
-        ordering            = ["-date", "-duration_seconds"]
+        unique_together     = ("device", "app_name", "date", "hour")
+        ordering            = ["-date", "hour", "-duration_seconds"]
         verbose_name        = "Utilisation application"
         verbose_name_plural = "Utilisations applications"
 
     def __str__(self):
         minutes = self.duration_seconds // 60
-        return f"{self.app_name} — {self.device} — {self.date} ({minutes} min)"
+        return f"{self.app_name} — {self.device} — {self.date} {self.hour:02d}:00 ({minutes} min)"

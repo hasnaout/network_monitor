@@ -772,7 +772,7 @@ def send_software_inventory() -> bool:
 # ================= APPLICATION USAGE TRACKING =================
 
 from collections import defaultdict
-from datetime import date as _date
+from datetime import datetime as _datetime
 
 
 def _get_foreground_process_name() -> str:
@@ -813,36 +813,40 @@ class AppUsageTracker:
     """
 
     def __init__(self):
-        self._data: dict = defaultdict(lambda: defaultdict(int))
+        self._data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
     def tick(self, seconds: int):
         """Identifie l'app active et ajoute seconds à son compteur."""
         if seconds <= 0:
             return
         app   = _get_foreground_process_name()
-        today = str(_date.today())
-        self._data[today][app] += seconds
+        now = _datetime.now()
+        today = str(now.date())
+        hour = now.hour
+        self._data[today][hour][app] += seconds
 
     def flush(self) -> list:
         """Vide l'accumulateur et retourne la liste des usages."""
         if not self._data:
             return []
         result = []
-        for date_str, apps in self._data.items():
-            for app_name, secs in apps.items():
-                if secs > 0:
-                    result.append({
-                        "app_name":         app_name,
-                        "date":             date_str,
-                        "duration_seconds": secs,
-                    })
+        for date_str, hours in self._data.items():
+            for hour, apps in hours.items():
+                for app_name, secs in apps.items():
+                    if secs > 0:
+                        result.append({
+                            "app_name":         app_name,
+                            "date":             date_str,
+                            "hour":             hour,
+                            "duration_seconds": secs,
+                        })
         self._data.clear()
         return result
 
     def restore(self, usages: list):
         """Remet des données dans l'accumulateur après un échec d'envoi."""
         for item in usages:
-            self._data[item["date"]][item["app_name"]] += item["duration_seconds"]
+            self._data[item["date"]][int(item.get("hour", 0))][item["app_name"]] += item["duration_seconds"]
 
 
 def send_app_usage(tracker: "AppUsageTracker") -> bool:

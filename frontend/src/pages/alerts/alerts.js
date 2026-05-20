@@ -27,6 +27,7 @@ export default function Alerts() {
   const [apiAlerts, setApiAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [alertsPage, setAlertsPage] = useState(1);
 
 
   useEffect(() => {
@@ -37,9 +38,11 @@ export default function Alerts() {
         setError('');
         const res = await getAlerts();
         setApiAlerts(res.data);
+        setAlertsPage(1);
 
       } catch (err) {
         setError("Erreur chargement alertes");
+        setAlertsPage(1);
       } finally {
         setLoading(false);
       }
@@ -60,6 +63,19 @@ export default function Alerts() {
     );
 
   }, [liveAlerts, apiAlerts]);
+
+  const alertsPerPage = 10;
+  const totalAlertPages = Math.ceil(alerts.length / alertsPerPage);
+  const paginatedAlerts = alerts.slice(
+    (alertsPage - 1) * alertsPerPage,
+    alertsPage * alertsPerPage
+  );
+
+  useEffect(() => {
+    if (totalAlertPages > 0 && alertsPage > totalAlertPages) {
+      setAlertsPage(totalAlertPages);
+    }
+  }, [alertsPage, totalAlertPages]);
 
   return (
     <>
@@ -85,37 +101,63 @@ export default function Alerts() {
             ) : alerts.length === 0 ? (
               <div className="empty-state">Aucune alerte</div>
             ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Device</th>
-                    <th>Type</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alerts.map((a) => {
-                    const deviceName =
-                      typeof a.device === "object"
-                        ? a.device.name
-                        : a.device_name || a.device;
-                    return (
-                      <tr key={a.id}>
-                        <td><strong>{deviceName}</strong></td>
-                        <td>
-                          <span className={getAlertTypeClass(a.alert_type)}>
-                            {a.alert_type}
-                          </span>
-                        </td>
-                        <td>{a.message}</td>
-                        <td>{formatDate(a.created_at)}</td>
+              <>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Device</th>
+                      <th>Type</th>
+                      <th>Message</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedAlerts.map((a) => {
+                      const deviceName =
+                        typeof a.device === "object"
+                          ? a.device.name
+                          : a.device_name || a.device;
+                      return (
+                        <tr key={a.id}>
+                          <td><strong>{deviceName}</strong></td>
+                          <td>
+                            <span className={getAlertTypeClass(a.alert_type)}>
+                              {a.alert_type}
+                            </span>
+                          </td>
+                          <td>{a.message}</td>
+                          <td>{formatDate(a.created_at)}</td>
 
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+
+                {alerts.length > alertsPerPage && (
+                  <div className="pagination-controls">
+                    <button
+                      className="btn-pagination"
+                      onClick={() => setAlertsPage(alertsPage - 1)}
+                      disabled={alertsPage === 1}
+                    >
+                      &lt;
+                    </button>
+
+                    <span className="pagination-info">
+                      {alertsPage} / {totalAlertPages}
+                    </span>
+
+                    <button
+                      className="btn-pagination"
+                      onClick={() => setAlertsPage(alertsPage + 1)}
+                      disabled={alertsPage >= totalAlertPages}
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </section>
         </main>

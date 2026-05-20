@@ -32,7 +32,7 @@ function CustomTooltip({ active, payload }) {
     const data = payload[0].payload;
     return (
       <div className="usage-tooltip">
-        <p className="tooltip-hour">{data.appName}</p>
+        <p className="tooltip-hour">{data.hourLabel}</p>
         <p className="tooltip-duration">
           {formatDuration(data.totalSeconds)}
         </p>
@@ -43,17 +43,22 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function AppUsageChart({ appUsages, usageDate }) {
-  // Graphe exact: la donnée disponible est le total par application et par jour.
+  // Totalise toutes les applications dans chaque heure de la journee.
   const chartData = useMemo(() => {
-    return [...(appUsages || [])]
-      .map((item) => ({
-        appName: item.app_name || 'Unknown',
-        totalSeconds: Number(item.duration_seconds || 0),
-        display: formatDuration(item.duration_seconds),
-      }))
-      .filter((item) => item.totalSeconds > 0)
-      .sort((a, b) => b.totalSeconds - a.totalSeconds)
-      .slice(0, 10);
+    const hours = Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      hourLabel: `${String(hour).padStart(2, '0')}:00`,
+      totalSeconds: 0,
+    }));
+
+    (appUsages || []).forEach((item) => {
+      const hour = Number(item.hour);
+      if (Number.isInteger(hour) && hour >= 0 && hour <= 23) {
+        hours[hour].totalSeconds += Number(item.duration_seconds || 0);
+      }
+    });
+
+    return hours;
   }, [appUsages]);
 
   // Calcul du temps total
@@ -77,7 +82,7 @@ export default function AppUsageChart({ appUsages, usageDate }) {
 
       {/* Bar Chart */}
       <div className="chart-container">
-        <h4 className="chart-title">Top applications utilisées</h4>
+        <h4 className="chart-title">Temps total d'utilisation par heure</h4>
         {appUsages.length === 0 ? (
           <div className="empty-chart">
             <p>Aucune donnée disponible pour cette date</p>
@@ -90,14 +95,12 @@ export default function AppUsageChart({ appUsages, usageDate }) {
             >
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(56, 189, 97, 0.1)" />
               <XAxis
-                dataKey="appName"
+                dataKey="hourLabel"
                 tick={{ fill: '#9ca3a3', fontSize: 12 }}
                 tickLine={{ stroke: 'rgba(56, 189, 97, 0.1)' }}
                 axisLine={{ stroke: 'rgba(56, 189, 97, 0.1)' }}
-                interval={0}
-                angle={-25}
-                textAnchor="end"
-                height={80}
+                interval={1}
+                height={45}
               />
               <YAxis
                 label={{

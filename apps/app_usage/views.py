@@ -65,6 +65,7 @@ class AppUsageIngestView(APIView):
                 device   = device,
                 app_name = item["app_name"],
                 date     = item["date"],
+                hour     = item.get("hour", 0),
                 defaults = {"duration_seconds": item["duration_seconds"]},
             )
 
@@ -105,7 +106,7 @@ class AppUsageListView(APIView):
         except Device.DoesNotExist:
             return Response({"detail": "Device non trouvé."}, status=404)
 
-        usages = AppUsage.objects.filter(device=device, date=date).order_by("-duration_seconds")
+        usages = AppUsage.objects.filter(device=device, date=date).order_by("hour", "-duration_seconds")
         serializer = AppUsageReadSerializer(usages, many=True)
         return Response({
             "mac_address": mac,

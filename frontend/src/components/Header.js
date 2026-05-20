@@ -63,7 +63,6 @@ export default function Header() {
 
         </nav>
         <div className="header-actions">
-
           <button className="logout-btn" onClick={logout}>
             <FiLogOut className="logout-icon" />
             Déconnexion

@@ -4,8 +4,8 @@ from .models import AppUsage
 
 @admin.register(AppUsage)
 class AppUsageAdmin(admin.ModelAdmin):
-    list_display  = ["app_name", "device", "date", "duration_seconds", "last_updated"]
-    list_filter   = ["date", "device"]
+    list_display  = ["app_name", "device", "date", "hour", "duration_seconds", "last_updated"]
+    list_filter   = ["date", "hour", "device"]
     search_fields = ["app_name", "device__name"]
-    ordering      = ["-date", "-duration_seconds"]
+    ordering      = ["-date", "hour", "-duration_seconds"]
     readonly_fields = ["last_updated"]

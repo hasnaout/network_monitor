@@ -244,6 +244,69 @@
   text-align: center;
 }
 
+.device-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid rgba(56, 189, 97, 0.08);
+}
+
+.device-status-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.device-status-filter button {
+  min-height: 30px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca3a3;
+  padding: 0.3rem 0.6rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: none;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.device-status-filter button:hover {
+  color: #d1fae5;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.device-status-filter button.is-active {
+  border-color: rgba(74, 222, 128, 0.35);
+  background: rgba(34, 197, 94, 0.12);
+  color: #bbf7d0;
+}
+
+.device-search-input {
+  width: min(100%, 280px);
+  min-height: 34px;
+  border: 1px solid rgba(56, 189, 97, 0.18);
+  border-radius: 8px;
+  background: rgba(3, 12, 9, 0.72);
+  color: #f8fff7;
+  padding: 0.45rem 0.75rem;
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.device-search-input::placeholder {
+  color: #6b7280;
+}
+
+.device-search-input:focus {
+  outline: 2px solid rgba(74, 222, 128, 0.35);
+  outline-offset: 2px;
+  border-color: rgba(74, 222, 128, 0.45);
+}
+
 .remote-command-panel {
   display: flex;
   align-items: center;
