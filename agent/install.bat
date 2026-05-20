@@ -139,6 +139,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 sc description %SERVICE_NAME% "Agent leger de supervision reseau" >nul
 if %ERRORLEVEL% NEQ 0 (
+    
     echo [ERREUR] Impossible de configurer la description du service.
     pause
     exit /b 1
