@@ -290,6 +290,13 @@ export default function DeviceDetail() {
 
   const sessionUser = device.current_user || device.name || "—";
   const pcName = device.hostname || (!device.current_user ? device.name : "") || "—";
+  const selectedDateLabel = selectedDate === todayISO()
+    ? "Aujourd'hui"
+    : new Date(`${selectedDate}T00:00:00`).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      });
 
   return (
     <>
@@ -301,13 +308,14 @@ export default function DeviceDetail() {
             <div className="device-detail-topbar">
               <h2>{sessionUser}</h2>
               <label className="device-date-picker">
-                <span>Date</span>
+                <span>Vue du</span>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(event) => setSelectedDate(event.target.value || todayISO())}
                   aria-label="Choisir la date des détails du périphérique"
                 />
+                <small>{selectedDateLabel}</small>
               </label>
             </div>
             <div className="device-meta">
