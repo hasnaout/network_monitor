@@ -1,5 +1,7 @@
 import logging
 from secrets import compare_digest
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -89,9 +91,17 @@ class SoftwareInventoryView(APIView):
 class DeviceSoftwareListView(APIView):
     def get(self, request):
         mac = request.query_params.get("mac_address")
+        date_param = request.query_params.get("date", str(timezone.localdate()))
+        selected_date = parse_date(date_param)
+
         if not mac:
             return Response(
                 {"detail": "Paramètre mac_address requis."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not selected_date:
+            return Response(
+                {"detail": "Paramètre date invalide. Format attendu: YYYY-MM-DD."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -102,4 +112,10 @@ class DeviceSoftwareListView(APIView):
 
         software = InstalledSoftware.objects.filter(device=device)
         serializer = InstalledSoftwareSerializer(software, many=True)
-        return Response({"mac_address": mac, "count": software.count(), "software": serializer.data})
+        return Response({
+            "mac_address": mac,
+            "date": selected_date.isoformat(),
+            "snapshot_strategy": "current_inventory",
+            "count": software.count(),
+            "software": serializer.data,
+        })

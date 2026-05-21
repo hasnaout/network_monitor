@@ -11,7 +11,7 @@ export const executeCommand = ({ command, macAddress = '', timeout = 30, shell =
 export const cancelCommand = (commandId) =>
   api.post(`/api/commands/${commandId}/cancel/`);
 
-export const getCommandHistory = ({ macAddress, deviceId, commandIds, limit = 50 } = {}) => {
+export const getCommandHistory = ({ macAddress, deviceId, commandIds, date, limit = 50 } = {}) => {
   const url = deviceId ? `/api/commands/history/${deviceId}/` : '/api/commands/history/';
   const params = { limit };
 
@@ -21,6 +21,10 @@ export const getCommandHistory = ({ macAddress, deviceId, commandIds, limit = 50
 
   if (commandIds?.length) {
     params.command_ids = commandIds.join(',');
+  }
+
+  if (date) {
+    params.date = date;
   }
 
   return api.get(url, { params });

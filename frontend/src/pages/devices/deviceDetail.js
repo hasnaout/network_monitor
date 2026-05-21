@@ -43,7 +43,19 @@ function getCommandResult(command) {
 }
 
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function toDateKey(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 function formatDuration(seconds) {
@@ -109,8 +121,9 @@ export default function DeviceDetail() {
   const [device, setDevice] = useState(null);
   const [apiAlerts, setApiAlerts] = useState([]);
   const [software, setSoftware] = useState([]);
-  const [usageDate, setUsageDate] = useState(todayISO());
+  const [selectedDate, setSelectedDate] = useState(todayISO());
   const [appUsages, setAppUsages] = useState([]);
+  const [appUsageHourly, setAppUsageHourly] = useState([]);
   const [softwareLoading, setSoftwareLoading] = useState(false);
   const [appUsageLoading, setAppUsageLoading] = useState(false);
   const [commandHistory, setCommandHistory] = useState([]);
@@ -138,17 +151,18 @@ export default function DeviceDetail() {
         setError('');
 
         const [deviceRes, alertsRes] = await Promise.all([
-          getDeviceById(id),
-          getAlerts(),
+          getDeviceById(id, selectedDate),
+          getAlerts({ device_id: id, date: selectedDate }),
         ]);
         setDevice(deviceRes.data);
         setApiAlerts(alertsRes.data);
+        setAlertsPage(1);
 
         if (deviceRes.data?.mac_address) {
           try {
             setSoftwareLoading(true);
             setSoftwareError('');
-            const softwareRes = await getDeviceSoftware(deviceRes.data.mac_address);
+            const softwareRes = await getDeviceSoftware(deviceRes.data.mac_address, selectedDate);
             setSoftware(softwareRes.data.software || []);
             setSoftwarePage(1);
           } catch (softwareErr) {
@@ -170,19 +184,21 @@ export default function DeviceDetail() {
 
     load();
 
-  }, [auth?.accessToken, id]);
+  }, [auth?.accessToken, id, selectedDate]);
 
   useEffect(() => {
-    if (!auth?.accessToken || !device?.mac_address || !usageDate) return;
+    if (!auth?.accessToken || !device?.mac_address || !selectedDate) return;
 
     async function loadAppUsage() {
       try {
         setAppUsageLoading(true);
         setAppUsageError('');
-        const usageRes = await getAppUsage(device.mac_address, usageDate);
-        setAppUsages(usageRes.data.usages || []);
+        const usageRes = await getAppUsage(device.mac_address, selectedDate);
+        setAppUsageHourly(usageRes.data.usages || []);
+        setAppUsages(usageRes.data.app_totals || usageRes.data.usages || []);
       } catch (usageErr) {
         setAppUsages([]);
+        setAppUsageHourly([]);
         setAppUsageError("Erreur chargement utilisation applications");
       } finally {
         setAppUsageLoading(false);
@@ -190,18 +206,19 @@ export default function DeviceDetail() {
     }
 
     loadAppUsage();
-  }, [auth?.accessToken, device?.mac_address, usageDate]);
+  }, [auth?.accessToken, device?.mac_address, selectedDate]);
 
   useEffect(() => {
-    if (!auth?.accessToken || !device?.id) return;
+    if (!auth?.accessToken || !device?.id || !selectedDate) return;
 
     async function loadCommandHistory() {
       try {
         setCommandHistoryLoading(true);
         setCommandHistoryError('');
-        const res = await getCommandHistory({ deviceId: device.id, limit: 50 });
+        const res = await getCommandHistory({ deviceId: device.id, date: selectedDate, limit: 50 });
         setCommandHistory(res.data.results || []);
         setCommandHistoryPage(1);
+        setExpandedCommandId(null);
       } catch (historyErr) {
         setCommandHistory([]);
         setCommandHistoryError("Erreur chargement historique des commandes");
@@ -212,7 +229,7 @@ export default function DeviceDetail() {
     }
 
     loadCommandHistory();
-  }, [auth?.accessToken, device?.id]);
+  }, [auth?.accessToken, device?.id, selectedDate]);
 
   useEffect(() => {
     setSoftwarePage(1);
@@ -237,6 +254,7 @@ export default function DeviceDetail() {
         a.device_name === device?.name
       );
     })
+    .filter(a => toDateKey(a.created_at) === selectedDate)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const totalUsageSeconds = appUsages.reduce(
@@ -280,7 +298,18 @@ export default function DeviceDetail() {
       <div className="dashboard-shell">
         <main className="dashboard-main">
           <section className="hero-panel">
-            <h2>{sessionUser}</h2>
+            <div className="device-detail-topbar">
+              <h2>{sessionUser}</h2>
+              <label className="device-date-picker">
+                <span>Date</span>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(event) => setSelectedDate(event.target.value || todayISO())}
+                  aria-label="Choisir la date des détails du périphérique"
+                />
+              </label>
+            </div>
             <div className="device-meta">
               <p><strong>Nom du PC :</strong> {pcName}</p>
               <p><strong>Utilisateur de session :</strong> {sessionUser}</p>
@@ -320,7 +349,7 @@ export default function DeviceDetail() {
               <div className="empty-state">Chargement des logiciels...</div>
             ) : software.length === 0 ? (
               <div className="empty-state">
-                Aucun logiciel inventorié
+                Aucun logiciel inventorié pour cette date
               </div>
             ) : filteredSoftware.length === 0 ? (
               <div className="empty-state">
@@ -380,17 +409,6 @@ export default function DeviceDetail() {
               <span className="panel-count">{formatDuration(totalUsageSeconds)}</span>
             </div>
 
-            <div className="usage-filters">
-              <label>
-                <span>Date</span>
-                <input
-                  type="date"
-                  value={usageDate}
-                  onChange={(event) => setUsageDate(event.target.value)}
-                />
-              </label>
-            </div>
-
             {appUsageError && <p className="error-feedback detail-feedback">{appUsageError}</p>}
 
             {appUsageLoading ? (
@@ -398,7 +416,7 @@ export default function DeviceDetail() {
             ) : (
               <>
                 {/* Dashboard avec graphique */}
-                <AppUsageChart appUsages={appUsages} usageDate={usageDate} />
+                <AppUsageChart appUsages={appUsageHourly} usageDate={selectedDate} />
 
                 {/* Tableau détaillé */}
                 {appUsages.length === 0 ? (
@@ -461,7 +479,7 @@ export default function DeviceDetail() {
             {commandHistoryLoading ? (
               <div className="empty-state">Chargement des commandes...</div>
             ) : commandHistory.length === 0 ? (
-              <div className="empty-state">Aucune commande distante exécutée</div>
+              <div className="empty-state">Aucune commande distante exécutée pour cette date</div>
             ) : (
               <>
                 <div className="table-wrap">
@@ -549,7 +567,7 @@ export default function DeviceDetail() {
 
             {deviceAlerts.length === 0 ? (
               <div className="empty-state">
-                Aucune alerte récente
+                Aucune alerte pour cette date
               </div>
             ) : (
               <>

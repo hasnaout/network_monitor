@@ -1,3 +1,3 @@
 import { api } from './api';
 
-export const getAlerts = () => api.get('/api/alerts/');
+export const getAlerts = (params = {}) => api.get('/api/alerts/', { params });

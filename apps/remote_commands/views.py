@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime, time, timedelta
 from secrets import compare_digest
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -253,6 +255,7 @@ class CommandHistoryView(APIView):
         mac    = request.query_params.get("mac_address")
         status_filter = request.query_params.get("status")
         command_ids = request.query_params.get("command_ids", "")
+        date_param = request.query_params.get("date")
         limit  = int(request.query_params.get("limit", 50))
 
         if device_id:
@@ -261,6 +264,19 @@ class CommandHistoryView(APIView):
             qs = qs.filter(device__mac_address=mac)
         if status_filter:
             qs = qs.filter(status=status_filter)
+        if date_param:
+            selected_date = parse_date(date_param)
+            if not selected_date:
+                return Response(
+                    {"detail": "Paramètre date invalide. Format attendu: YYYY-MM-DD."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            start = timezone.make_aware(
+                datetime.combine(selected_date, time.min),
+                timezone.get_current_timezone(),
+            )
+            end = start + timedelta(days=1)
+            qs = qs.filter(created_at__gte=start, created_at__lt=end)
         if command_ids:
             ids = [value for value in command_ids.split(",") if value.strip().isdigit()]
             qs = qs.filter(id__in=ids)

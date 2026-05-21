@@ -45,6 +45,54 @@
   pointer-events: none;
 }
 
+.device-detail-topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.device-detail-topbar h2 {
+  margin: 0;
+  color: #f8fff7;
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.device-date-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.45rem 0.6rem 0.45rem 0.85rem;
+  border: 1px solid rgba(56, 189, 97, 0.22);
+  border-radius: 8px;
+  background: rgba(3, 12, 9, 0.58);
+  color: #bbf7d0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.device-date-picker input {
+  min-height: 32px;
+  border: 1px solid rgba(56, 189, 97, 0.2);
+  border-radius: 6px;
+  background: rgba(5, 15, 12, 0.9);
+  color: #e7f6ec;
+  padding: 0.35rem 0.55rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.device-date-picker input:focus {
+  outline: 2px solid rgba(74, 222, 128, 0.4);
+  outline-offset: 2px;
+}
+
 .hero-panel--split {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -1308,6 +1356,19 @@ tbody tr:hover {
   .hero-panel {
     padding: 2rem 1.5rem;
     margin-bottom: 1.5rem;
+  }
+
+  .device-detail-topbar {
+    flex-direction: column;
+  }
+
+  .device-detail-topbar h2 {
+    font-size: 1.9rem;
+  }
+
+  .device-date-picker {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .hero-panel--split {

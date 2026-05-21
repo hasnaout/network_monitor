@@ -1,7 +1,10 @@
+from datetime import datetime, time, timedelta
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.conf import settings
 from secrets import compare_digest
 from apps.devices.models import Device
@@ -92,4 +95,24 @@ class AlertViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Alert.objects.all()
+        qs = Alert.objects.select_related("device").all()
+        device_id = self.request.query_params.get("device_id")
+        mac = self.request.query_params.get("mac_address")
+        date_param = self.request.query_params.get("date")
+
+        if device_id:
+            qs = qs.filter(device_id=device_id)
+        if mac:
+            qs = qs.filter(device__mac_address=mac)
+        if date_param:
+            selected_date = parse_date(date_param)
+            if not selected_date:
+                return Alert.objects.none()
+            start = timezone.make_aware(
+                datetime.combine(selected_date, time.min),
+                timezone.get_current_timezone(),
+            )
+            end = start + timedelta(days=1)
+            qs = qs.filter(created_at__gte=start, created_at__lt=end)
+
+        return qs

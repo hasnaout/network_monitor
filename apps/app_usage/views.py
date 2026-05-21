@@ -1,7 +1,8 @@
 import logging
 from secrets import compare_digest
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Max, Sum
+from django.utils.dateparse import parse_date
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -96,21 +97,38 @@ class AppUsageListView(APIView):
 
     def get(self, request):
         mac  = request.query_params.get("mac_address")
-        date = request.query_params.get("date", str(timezone.localdate()))
+        date_param = request.query_params.get("date", str(timezone.localdate()))
+        selected_date = parse_date(date_param)
 
         if not mac:
             return Response({"detail": "Paramètre mac_address requis."}, status=400)
+        if not selected_date:
+            return Response({"detail": "Paramètre date invalide. Format attendu: YYYY-MM-DD."}, status=400)
 
         try:
             device = Device.objects.get(mac_address=mac)
         except Device.DoesNotExist:
             return Response({"detail": "Device non trouvé."}, status=404)
 
-        usages = AppUsage.objects.filter(device=device, date=date).order_by("hour", "-duration_seconds")
+        usages = AppUsage.objects.filter(device=device, date=selected_date).order_by("hour", "-duration_seconds")
+        app_totals = usages.values("app_name").annotate(
+            duration_seconds=Sum("duration_seconds"),
+            last_updated=Max("last_updated"),
+        ).order_by("-duration_seconds", "app_name")
+
         serializer = AppUsageReadSerializer(usages, many=True)
         return Response({
             "mac_address": mac,
-            "date":        date,
+            "date":        selected_date.isoformat(),
             "count":       usages.count(),
             "usages":      serializer.data,
+            "app_totals": [
+                {
+                    "id": item["app_name"],
+                    "app_name": item["app_name"],
+                    "duration_seconds": item["duration_seconds"] or 0,
+                    "last_updated": item["last_updated"],
+                }
+                for item in app_totals
+            ],
         })
