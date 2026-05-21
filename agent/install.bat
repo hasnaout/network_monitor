@@ -121,11 +121,11 @@ if %ERRORLEVEL% EQU 0 (
 :SERVICE_DELETED
 echo [4/6] Installation du service Windows...
 "%EXE_PATH%" install > "%INSTALL_LOG%" 2>&1
-if %ERRORLEVEL% NEQ 0 (
+if errorlevel 1 (
     echo [INFO] Installation via NetworkAgent.exe install echouee.
     echo [INFO] Tentative d'installation directe via sc create...
     sc create %SERVICE_NAME% binPath= "\"%EXE_PATH%\"" DisplayName= "Network Monitoring Agent" start= auto
-    if %ERRORLEVEL% NEQ 0 (
+    if errorlevel 1 (
         echo [ERREUR] L'installation du service Windows a echoue.
         echo Verifiez que ce script est lance en Administrateur.
         echo Verifiez aussi le fichier: "%EXE_PATH%"
