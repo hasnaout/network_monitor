@@ -820,6 +820,100 @@ def send_software_inventory() -> bool:
 
 from collections import defaultdict
 from datetime import datetime as _datetime
+import csv
+import io
+
+
+def _is_valid_app_name(app_name: str) -> bool:
+    app_name = (app_name or "").strip()
+    return bool(app_name) and app_name.lower() not in {"unknown", "idle", "system"}
+
+
+def _get_active_session_id():
+    if os.name != "nt":
+        return None
+
+    try:
+        import win32ts
+        server = win32ts.WTS_CURRENT_SERVER_HANDLE
+        sessions = win32ts.WTSEnumerateSessions(server)
+        for session in sessions:
+            if isinstance(session, (tuple, list)) and len(session) >= 3:
+                session_id, _, state = session[0], session[1], session[2]
+            else:
+                session_id = getattr(session, 'SessionId', None)
+                state = getattr(session, 'State', None)
+
+            if state == win32ts.WTSActive and session_id not in (None, 0):
+                return int(session_id)
+    except Exception as e:
+        logger.debug("Erreur détection session active pour AppUsage: %s", e)
+
+    return None
+
+
+def _get_visible_user_processes() -> list:
+    """
+    Fallback pour les services Windows: liste les processus visibles
+    dans la session utilisateur active via tasklist /v.
+    """
+    session_id = _get_active_session_id()
+    if session_id is None:
+        return []
+
+    try:
+        output = subprocess.check_output(
+            [
+                "tasklist.exe",
+                "/v",
+                "/fi",
+                f"SESSION eq {session_id}",
+                "/fo",
+                "csv",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+        )
+    except Exception as e:
+        logger.debug("Erreur tasklist AppUsage session %s: %s", session_id, e)
+        return []
+
+    apps = []
+    ignored_titles = {"n/a", "non applicable"}
+    ignored_apps = {
+        "dwm.exe",
+        "fontdrvhost.exe",
+        "sihost.exe",
+        "taskhostw.exe",
+        "ctfmon.exe",
+        "searchhost.exe",
+        "startmenuexperiencehost.exe",
+        "shellexperiencehost.exe",
+        "runtimebroker.exe",
+    }
+
+    try:
+        reader = csv.reader(io.StringIO(output))
+        next(reader, None)  # ligne d'en-tête, localisée selon la langue Windows
+        for row in reader:
+            if len(row) < 2:
+                continue
+            app_name = (row[0] or "").strip()
+            window_title = (row[-1] or "").strip()
+            if not _is_valid_app_name(app_name):
+                continue
+            if app_name.lower() in ignored_apps:
+                continue
+            if not window_title or window_title.lower() in ignored_titles:
+                continue
+            apps.append(app_name)
+    except Exception as e:
+        logger.debug("Erreur parsing tasklist AppUsage: %s", e)
+        return []
+
+    # Garder l'ordre tasklist tout en supprimant les doublons.
+    return list(dict.fromkeys(apps))
 
 
 def _get_foreground_process_name() -> str:
@@ -845,7 +939,8 @@ def _get_foreground_process_name() -> str:
             exe_path = win32process.GetModuleFileNameEx(handle, 0)
         finally:
             win32api.CloseHandle(handle)
-        return os.path.basename(exe_path)
+        app_name = os.path.basename(exe_path)
+        return app_name if _is_valid_app_name(app_name) else "Unknown"
 
     except Exception as e:
         logger.debug("Erreur détection fenêtre active : %s", e)
@@ -866,11 +961,22 @@ class AppUsageTracker:
         """Identifie l'app active et ajoute seconds à son compteur."""
         if seconds <= 0:
             return
-        app   = _get_foreground_process_name()
+        apps = []
+        foreground_app = _get_foreground_process_name()
+        if _is_valid_app_name(foreground_app):
+            apps = [foreground_app]
+        else:
+            apps = _get_visible_user_processes()
+
+        if not apps:
+            logger.debug("AppUsage : aucune application utilisateur visible détectée")
+            return
+
         now = _datetime.now()
         today = str(now.date())
         hour = now.hour
-        self._data[today][hour][app] += seconds
+        for app in apps:
+            self._data[today][hour][app] += seconds
 
     def flush(self) -> list:
         """Vide l'accumulateur et retourne la liste des usages."""
