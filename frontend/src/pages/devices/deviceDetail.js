@@ -308,7 +308,6 @@ export default function DeviceDetail() {
             <div className="device-detail-topbar">
               <h2>{sessionUser}</h2>
               <label className="device-date-picker">
-                <span>Vue du</span>
                 <input
                   type="date"
                   value={selectedDate}
