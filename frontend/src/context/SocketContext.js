@@ -43,7 +43,7 @@ useEffect(() => {
     setAlerts((prev) => {
       const exists = prev.some(a => a.id === data.id);
       if (exists) return prev;
-      // Add new alert at the beginning for real-time display
+      
       return [data, ...prev];
     });
   };

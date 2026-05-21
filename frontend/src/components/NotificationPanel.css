@@ -1,4 +1,4 @@
-/* Notification Panel Styles */
+
 .notification-panel-container {
   position: relative;
 }
@@ -278,7 +278,7 @@
   text-decoration: underline;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .notification-dropdown {
     width: calc(100vw - 24px);

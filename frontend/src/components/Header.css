@@ -1,4 +1,4 @@
-/* Header Styles */
+
 .app-header {
   background: linear-gradient(135deg, #07271a 0%, #0c3a2a 100%);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
@@ -151,7 +151,7 @@
   color: #ecfccb;
 }
 
-/* Alert Badge Styles */
+
 .alert-link {
   position: relative;
 }
@@ -185,7 +185,7 @@
   }
 }
 
-/* Mobile Menu Styles */
+
 .header-nav.mobile-open {
   transform: translateY(0);
   opacity: 1;

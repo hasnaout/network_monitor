@@ -3,7 +3,7 @@ from .models import RemoteCommand
 
 
 class CommandResultSerializer(serializers.Serializer):
-    """Payload envoyé par l'agent après exécution."""
+    
     mac_address = serializers.CharField(max_length=64)
     stdout      = serializers.CharField(allow_blank=True, default="")
     stderr      = serializers.CharField(allow_blank=True, default="")
@@ -18,7 +18,7 @@ class CommandResultSerializer(serializers.Serializer):
 
 
 class CreateCommandSerializer(serializers.ModelSerializer):
-    """Payload envoyé par l'admin pour créer une commande."""
+    
     mac_address = serializers.CharField(
         required=False, allow_blank=True, allow_null=True,
         help_text="Laisser vide pour un broadcast à tous les agents"
@@ -41,7 +41,6 @@ class CreateCommandSerializer(serializers.ModelSerializer):
 
 
 class RemoteCommandSerializer(serializers.ModelSerializer):
-    """Sérialisation complète pour lecture (dashboard admin)."""
     device_name = serializers.SerializerMethodField()
     created_by_username = serializers.SerializerMethodField()
 

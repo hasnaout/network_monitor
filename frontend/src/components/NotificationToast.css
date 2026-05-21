@@ -1,4 +1,4 @@
-/* Notification Toast Styles */
+
 .notification-toast {
   position: fixed;
   bottom: 20px;
@@ -106,7 +106,7 @@
   color: #1f2937;
 }
 
-/* Responsive */
+
 @media (max-width: 640px) {
   .notification-toast {
     min-width: auto;

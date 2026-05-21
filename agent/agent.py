@@ -127,11 +127,9 @@ def get_retry_delay() -> int:
     return int(_config.get("retry_delay_s", 5))
 
 def get_command_poll_interval() -> int:
-    """Intervalle de polling des commandes en ms (défaut: 5s)."""
     return int(_config.get("command_poll_interval_ms", 5_000))
 
 def get_inventory_interval() -> int:
-    """Intervalle d'envoi de l'inventaire logiciels en ms (defaut: 1h)."""
     return int(_config.get("inventory_interval_ms", 3_600_000))
 
 # ================= DEVICE INFO =================
@@ -221,7 +219,6 @@ def _get_windows_interactive_username() -> str:
 
 
 def _get_session_username() -> str:
-    """Retourne l'utilisateur de session actif sur Windows."""
     try:
         import win32ts
         server = win32ts.WTS_CURRENT_SERVER_HANDLE
@@ -414,11 +411,7 @@ def terminate_process_tree(process: subprocess.Popen):
 
 
 def fetch_pending_commands() -> list:
-    """
-    Interroge le serveur pour récupérer les commandes en attente pour cet agent.
-    Endpoint : GET /api/commands/pending/?mac_address=<MAC>
-    Réponse  : [{"id": 1, "command": "shutdown /r", "timeout": 30}, ...]
-    """
+    
     url = get_server_url() + "/api/commands/pending/"
     params = {"mac_address": get_mac()}
     try:
@@ -458,11 +451,7 @@ def is_process_admin() -> bool:
 
 
 def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd", command_id: int | None = None) -> dict:
-    """
-    Exécute une commande shell et retourne stdout, stderr et le code de retour.
-    Le paramètre timeout évite de bloquer l'agent indéfiniment.
-    shell_type peut être "cmd" ou "powershell"
-    """
+    
     logger.info("Execution commande : %s (shell=%s, timeout=%ds)", command, shell_type, timeout)
 
     if os.name == "nt" and not is_process_admin():
@@ -573,10 +562,7 @@ def execute_command(command: str, timeout: int = 30, shell_type: str = "cmd", co
 
 
 def report_command_result(command_id: int, result: dict) -> bool:
-    """
-    Envoie le résultat d'une commande au serveur.
-    Endpoint : POST /api/commands/<id>/result/
-    """
+
     url = get_server_url() + f"/api/commands/{command_id}/result/"
     payload = {
         "mac_address": get_mac(),
@@ -603,7 +589,6 @@ def report_command_result(command_id: int, result: dict) -> bool:
 
 
 def process_pending_commands():
-    """Cycle complet : fetch → execute → report pour chaque commande en attente."""
     commands = fetch_pending_commands()
     for cmd_entry in commands:
         command_id  = cmd_entry.get("id")
@@ -684,11 +669,7 @@ def _get_active_session_sid() -> str:
 
 
 def collect_installed_software() -> list:
-    """
-    Collecte la liste des logiciels installés via le registre Windows.
-    Parcourt HKLM et la ruche HKU de l'utilisateur de session actif.
-    Retourne une liste de dicts {name, version, publisher, install_date}.
-    """
+   
     import winreg
 
     software_list = []
@@ -745,11 +726,10 @@ def collect_installed_software() -> list:
                 name      = get_val("DisplayName")
                 version   = get_val("DisplayVersion")
                 publisher = get_val("Publisher")
-                inst_date = get_val("InstallDate")  # format YYYYMMDD ou vide
+                inst_date = get_val("InstallDate")  
 
                 winreg.CloseKey(subkey)
 
-                # Ignorer les entrées sans nom (mises à jour Windows, clés vides...)
                 if not name:
                     continue
 
@@ -776,11 +756,7 @@ def collect_installed_software() -> list:
 
 
 def send_software_inventory() -> bool:
-    """
-    Envoie l'inventaire complet au serveur.
-    Endpoint : POST /api/inventory/software/
-    Body     : { mac_address, hostname, software: [...] }
-    """
+    
     url     = get_server_url() + "/api/inventory/software/"
     payload = {
         "mac_address": get_mac(),
@@ -828,7 +804,6 @@ def _is_valid_app_name(app_name: str) -> bool:
 
 
 def _iso_timestamp(dt: _datetime) -> str:
-    """Timestamp ISO local prêt pour JSON."""
     return dt.astimezone().isoformat(timespec="seconds")
 
 
@@ -880,10 +855,6 @@ def _get_process_session_id(pid: int):
 
 
 def _is_interactive_desktop_available() -> bool:
-    """
-    Retourne False quand Windows est sur un desktop non interactif
-    typique de l'écran verrouillé/UAC sécurisé.
-    """
     if os.name != "nt":
         return False
 
@@ -904,11 +875,7 @@ def _is_interactive_desktop_available() -> bool:
 
 
 def _get_foreground_process_name() -> str | None:
-    """
-    Retourne le nom de l'exécutable de la fenêtre au premier plan.
-    Ex : 'chrome.exe', 'Code.exe', 'explorer.exe'
-    Retourne "Unknown" en cas d'échec.
-    """
+
     try:
         import win32gui
         import win32process
@@ -968,18 +935,12 @@ def _get_foreground_process_name() -> str | None:
 
 
 class AppUsageTracker:
-    """
-    Accumule le temps d'utilisation par application en mémoire.
-    tick() à chaque poll, flush() à chaque envoi.
-    Si l'envoi échoue, les données sont remises dans l'accumulateur.
-    """
 
     def __init__(self):
         self._data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         self._last_active: dict = defaultdict(lambda: defaultdict(dict))
 
     def tick(self, seconds: int):
-        """Identifie l'app active et ajoute seconds à son compteur."""
         if seconds <= 0:
             return
         app = _get_foreground_process_name()
@@ -994,7 +955,6 @@ class AppUsageTracker:
         logger.debug("[AppTracker] App active: %s (+%ss)", app, seconds)
 
     def flush(self) -> list:
-        """Vide l'accumulateur et retourne la liste des usages."""
         if not self._data:
             return []
         result = []
@@ -1015,7 +975,6 @@ class AppUsageTracker:
         return result
 
     def restore(self, usages: list):
-        """Remet des données dans l'accumulateur après un échec d'envoi."""
         for item in usages:
             date_str = str(item["date"])
             hour = int(item.get("hour", 0))
@@ -1029,12 +988,6 @@ class AppUsageTracker:
 
 
 def send_app_usage(tracker: "AppUsageTracker") -> bool:
-    """
-    Vide le tracker et envoie les usages au serveur.
-    Endpoint : POST /api/usage/apps/
-    Body     : { mac_address, hostname, usages: [...] }
-    En cas d'échec total, les données sont restaurées dans le tracker.
-    """
     usages = tracker.flush()
     if not usages:
         logger.debug("AppUsage : aucune donnée à envoyer")
@@ -1078,15 +1031,10 @@ def send_app_usage(tracker: "AppUsageTracker") -> bool:
 
 
 def get_usage_send_interval() -> int:
-    """Intervalle d'envoi des usages en ms (défaut : 5 min)."""
     return int(_config.get("usage_send_interval_ms", 300_000))
 
 
 def run_apptracker_process():
-    """
-    Boucle App Tracking lancée dans la session utilisateur interactive.
-    Nécessaire pour lire correctement la foreground window Windows.
-    """
     load_config()
     logger.info("[AppTracker] Processus interactif démarré — URL : %s", get_server_url())
 
@@ -1126,10 +1074,10 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         super().__init__(args)
         self.stop_event = win32event.CreateEvent(None, 0, 0, None)
         self.running    = True
-        self._heartbeat_accumulator  = 0  # ms depuis le dernier heartbeat
-        self._inventory_accumulator  = 0  # ms depuis le dernier inventaire
-        self._usage_accumulator      = 0  # ms depuis le dernier envoi usage
-        self._tracker = AppUsageTracker()  # accumulateur app usage
+        self._heartbeat_accumulator  = 0 
+        self._inventory_accumulator  = 0  
+        self._usage_accumulator      = 0  
+        self._tracker = AppUsageTracker() 
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
@@ -1148,8 +1096,8 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
 
         send_heartbeat()
         self._heartbeat_accumulator = 0
-        self._inventory_accumulator = get_inventory_interval()  # déclenche au 1er cycle
-        self._usage_accumulator     = get_usage_send_interval()  # déclenche après le 1er tick
+        self._inventory_accumulator = get_inventory_interval()  
+        self._usage_accumulator     = get_usage_send_interval() 
 
         while self.running:
             poll_interval      = get_command_poll_interval()

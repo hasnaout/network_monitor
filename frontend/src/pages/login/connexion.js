@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import "./connexion.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../context/AuthContext';
-import { login as loginService } from '../../services/authService'; // ✅ utiliser service
+import { login as loginService } from '../../services/authService'; 
 
 export default function Connexion() {
 

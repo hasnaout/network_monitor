@@ -20,7 +20,7 @@
   padding: 0;
 }
 
-/* Hero Panel */
+
 .hero-panel {
   position: relative;
   background: rgba(12, 40, 28, 0.92);
@@ -148,7 +148,7 @@
   font-weight: 700;
 }
 
-/* Hero Sidecard */
+
 .hero-sidecard {
   background: rgba(5, 26, 18, 0.98);
   padding: 2rem;
@@ -258,14 +258,14 @@
   border-radius: inherit;
   background: linear-gradient(90deg, #059669, #22c55e);
 }
-/* Dashboard Columns */
+
 .dashboard-columns {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
 }
 
-/* Table Panel */
+
 .table-panel {
   background: rgba(8, 24, 18, 0.95);
   border-radius: 18px;
@@ -667,7 +667,7 @@
   margin: 1rem 1.5rem 0;
 }
 
-/* Empty State */
+
 .empty-state {
   text-align: center;
   padding: 3rem;
@@ -982,7 +982,7 @@
   cursor: not-allowed;
 }
 
-/* Screen States */
+
 .screen-state {
   min-height: 100vh;
   display: flex;
@@ -991,7 +991,7 @@
   background: linear-gradient(135deg, #071c15 0%, #0f2f22 100%);
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .hero-panel--split {
     grid-template-columns: 1fr;
@@ -1071,7 +1071,7 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
-/* Status Pills */
+
 .status-pill {
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -1092,7 +1092,7 @@ tbody tr:hover {
   color: #991b1b;
 }
 
-/* Feedback */
+
 .feedback {
   padding: 1rem;
   border-radius: 8px;
@@ -1105,7 +1105,7 @@ tbody tr:hover {
   border: 1px solid #fecaca;
 }
 
-/* Dark Theme Tables (within table-panel) */
+
 .table-panel table {
   width: 100%;
   border-collapse: collapse;
@@ -1141,7 +1141,7 @@ tbody tr:hover {
   background: rgba(34, 197, 94, 0.06);
 }
 
-/* Usage Bar in Tables */
+
 .usage-bar {
   background: rgba(56, 189, 97, 0.15);
   height: 24px;
@@ -1158,7 +1158,7 @@ tbody tr:hover {
   transition: width 0.3s ease;
 }
 
-/* Usage Filters */
+
 .usage-filters {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(56, 189, 97, 0.12);
@@ -1199,7 +1199,7 @@ tbody tr:hover {
   outline: none;
 }
 
-/* Pagination */
+
 .pagination-controls {
   padding: 1.5rem;
   border-top: 1px solid rgba(56, 189, 97, 0.12);
@@ -1252,7 +1252,7 @@ tbody tr:hover {
   background: linear-gradient(135deg, rgba(56, 189, 97, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%);
 }
 
-/* Legacy Load More Button (si utilisé ailleurs) */
+
 .pagination-footer {
   padding: 1.5rem;
   border-top: 1px solid rgba(56, 189, 97, 0.12);
@@ -1286,7 +1286,7 @@ tbody tr:hover {
   transform: translateY(0);
 }
 
-/* Alerts Grouping */
+
 .alerts-group {
   border-top: 1px solid rgba(56, 189, 97, 0.12);
 }
@@ -1341,7 +1341,7 @@ tbody tr:hover {
   background: rgba(34, 197, 94, 0.06);
 }
 
-/* Alert Badge */
+
 .alert-badge {
   display: inline-block;
   padding: 0.35rem 0.7rem;
@@ -1355,10 +1355,10 @@ tbody tr:hover {
 }
 
 .alert-badge:has(+ *) {
-  /* Aide à la stylisation si besoin */
+  
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .hero-panel {
     padding: 2rem 1.5rem;

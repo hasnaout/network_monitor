@@ -3,12 +3,7 @@ from django.utils import timezone
 
 
 class AppUsage(models.Model):
-    """
-    Temps d'utilisation d'une application sur un poste client.
-    La clé métier est (device + app_name + date + hour) :
-    - Si l'agent envoie plusieurs fois dans la même heure, on incrémente duration_seconds.
-    - On garde ainsi un historique heure par heure.
-    """
+    
     device = models.ForeignKey(
         "devices.Device",
         on_delete=models.CASCADE,

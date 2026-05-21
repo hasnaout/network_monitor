@@ -21,10 +21,6 @@ logger = logging.getLogger(__name__)
 
 
 def _verify_agent_token(request) -> bool:
-    """
-    Vérifie le token de l'agent dans le header X-Agent-Token.
-    Si AGENT_TOKEN n'est pas défini dans settings → accès refusé.
-    """
     expected = getattr(settings, "AGENT_TOKEN", None)
     if not expected:
         logger.error("AGENT_TOKEN non configuré dans settings.py")
@@ -243,10 +239,6 @@ class CommandCancelStatusView(APIView):
                                      
                                                
 class CommandHistoryView(APIView):
-    """
-    GET /api/commands/history/?mac_address=XX&status=success&limit=50
-    Réservé aux admins.
-    """
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get(self, request, device_id=None):

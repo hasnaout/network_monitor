@@ -146,7 +146,7 @@ export function NotificationProvider({ children }) {
     setUnreadCount((prev) => prev + 1);
     showBrowserNotification(alert);
 
-    // Auto-remove toast notification after 6 seconds
+    
     setTimeout(() => {
       setNotifications((prev) =>
         prev.filter((notif) => notif.id !== id)

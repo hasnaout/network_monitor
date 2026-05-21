@@ -43,7 +43,7 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function AppUsageChart({ appUsages, usageDate }) {
-  // Totalise toutes les applications dans chaque heure de la journee.
+  
   const chartData = useMemo(() => {
     const hours = Array.from({ length: 24 }, (_, hour) => ({
       hour,
@@ -61,7 +61,7 @@ export default function AppUsageChart({ appUsages, usageDate }) {
     return hours;
   }, [appUsages]);
 
-  // Calcul du temps total
+  
   const totalSeconds = useMemo(() => {
     return appUsages.reduce(
       (sum, item) => sum + Number(item.duration_seconds || 0),
@@ -71,7 +71,7 @@ export default function AppUsageChart({ appUsages, usageDate }) {
 
   return (
     <div className="app-usage-dashboard">
-      {/* Total Usage Summary */}
+      {}
       <div className="usage-summary">
         <div className="summary-card">
           <h4> Temps total d'utilisation</h4>

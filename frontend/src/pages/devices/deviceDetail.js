@@ -106,7 +106,7 @@ function groupAlertsByDay(alerts) {
     grouped[dateKey].alerts.push(alert);
   });
 
-  // Trier par date décroissante (plus récent en premier)
+  
   return Object.entries(grouped)
     .sort(([keyA], [keyB]) => new Date(keyB) - new Date(keyA))
     .map(([, { label, alerts }]) => ({ label, alerts }));
@@ -136,7 +136,7 @@ export default function DeviceDetail() {
   const [error, setError] = useState('');
   const [softwareSearch, setSoftwareSearch] = useState('');
   
-  // États pour la pagination
+  
   const [softwarePage, setSoftwarePage] = useState(1);
   const [alertsPage, setAlertsPage] = useState(1);
   const [commandHistoryPage, setCommandHistoryPage] = useState(1);

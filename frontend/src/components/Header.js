@@ -26,7 +26,7 @@ export default function Header() {
     <header className="app-header">
       <div className="header-container">
 
-        {/* LOGO */}
+        {}
         <div className="header-logo">
           <div className='logo-icon'>
             <img 

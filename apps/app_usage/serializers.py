@@ -3,7 +3,7 @@ from .models import AppUsage
 
 
 class AppUsageItemSerializer(serializers.Serializer):
-    """Un enregistrement d'utilisation pour une application."""
+    
     app_name         = serializers.CharField(max_length=255, required=False, allow_blank=True)
     process_name     = serializers.CharField(max_length=255, required=False, allow_blank=True)
     duration_seconds = serializers.IntegerField(min_value=0)
@@ -21,14 +21,14 @@ class AppUsageItemSerializer(serializers.Serializer):
 
 
 class AppUsagePayloadSerializer(serializers.Serializer):
-    """Payload complet envoyé par l'agent."""
+    
     mac_address = serializers.CharField(max_length=64)
     hostname    = serializers.CharField(max_length=255)
     usages      = AppUsageItemSerializer(many=True)
 
 
 class AppUsageReadSerializer(serializers.ModelSerializer):
-    """Sérialisation pour lecture dashboard."""
+    
     duration_minutes = serializers.SerializerMethodField()
 
     class Meta:

@@ -23,13 +23,7 @@ def _is_valid_app_usage_name(value):
 
 class AppUsageIngestView(APIView):
     permission_classes = [AllowAny]
-    """
-    POST /api/usage/apps/
-    Reçoit les données d'utilisation accumulées par l'agent.
-
-    Stratégie : update_or_create avec F() pour incrémenter atomiquement
-    la durée si l'app existe déjà pour ce jour — safe en multi-agents.
-    """
+    
 
     def post(self, request):
         agent_token = getattr(settings, "AGENT_TOKEN", "").strip()
@@ -100,10 +94,7 @@ class AppUsageIngestView(APIView):
 
 
 class AppUsageListView(APIView):
-    """
-    GET /api/usage/apps/?mac_address=XX&date=YYYY-MM-DD
-    Retourne les usages d'un device pour une date donnée (dashboard).
-    """
+    
 
     def get(self, request):
         mac  = request.query_params.get("mac_address")
