@@ -3,26 +3,75 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 const NotificationContext = createContext();
 const NOTIFICATION_VISIBLE_MS = 6000;
 
+function getDeviceName(alert) {
+  if (typeof alert.device === 'object' && alert.device !== null) {
+    return alert.device.name || alert.device.hostname || alert.device.ip_address;
+  }
+
+  return alert.device_name || alert.device || 'Equipement';
+}
+
+function canUseSystemNotifications() {
+  return (
+    typeof window !== 'undefined' &&
+    'Notification' in window &&
+    window.isSecureContext
+  );
+}
+
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [browserPermission, setBrowserPermission] = useState(
-    typeof window !== 'undefined' && 'Notification' in window
+    canUseSystemNotifications()
       ? window.Notification.permission
       : 'unsupported'
   );
+  const [systemNotificationReady, setSystemNotificationReady] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (canUseSystemNotifications()) {
       setBrowserPermission(window.Notification.permission);
       if (window.Notification.permission === 'default') {
         window.Notification.requestPermission().then(setBrowserPermission);
       }
+    } else {
+      setBrowserPermission('unsupported');
+    }
+
+    if ('serviceWorker' in navigator && window.isSecureContext) {
+      navigator.serviceWorker.ready
+        .then(() => setSystemNotificationReady(true))
+        .catch(() => setSystemNotificationReady(false));
     }
   }, []);
 
+  useEffect(() => {
+    if (!canUseSystemNotifications() || window.Notification.permission !== 'default') {
+      return undefined;
+    }
+
+    let requested = false;
+
+    const requestOnInteraction = () => {
+      if (requested || window.Notification.permission !== 'default') return;
+      requested = true;
+      window.Notification.requestPermission().then(setBrowserPermission);
+    };
+
+    window.addEventListener('click', requestOnInteraction, { once: true });
+    window.addEventListener('keydown', requestOnInteraction, { once: true });
+    window.addEventListener('touchstart', requestOnInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('click', requestOnInteraction);
+      window.removeEventListener('keydown', requestOnInteraction);
+      window.removeEventListener('touchstart', requestOnInteraction);
+    };
+  }, []);
+
   const requestBrowserPermission = useCallback(async () => {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
+    if (!canUseSystemNotifications()) {
       setBrowserPermission('unsupported');
       return 'unsupported';
     }
@@ -33,26 +82,36 @@ export function NotificationProvider({ children }) {
   }, []);
 
   const showBrowserNotification = useCallback((alert) => {
-    if (
-      typeof window === 'undefined' ||
-      !('Notification' in window) ||
-      window.Notification.permission !== 'granted'
-    ) {
+    if (!canUseSystemNotifications() || window.Notification.permission !== 'granted') {
       return;
     }
 
-    const deviceName = typeof alert.device === 'object' && alert.device !== null
-      ? alert.device.name || alert.device.hostname || alert.device.ip_address
-      : alert.device_name || alert.device || 'Equipement';
-
-    const notification = new window.Notification(`Alerte - ${deviceName}`, {
+    const title = `Alerte - ${getDeviceName(alert)}`;
+    const options = {
       body: alert.message || 'Nouvelle alerte reseau',
       icon: `${window.location.origin}/logo.png`,
       badge: `${window.location.origin}/logo.png`,
       tag: alert.id ? `alert-${alert.id}` : `alert-${Date.now()}`,
       renotify: true,
       requireInteraction: false,
-    });
+      data: { url: '/alerts' },
+    };
+
+    if ('serviceWorker' in navigator && systemNotificationReady) {
+      navigator.serviceWorker.ready
+        .then((registration) => registration.showNotification(title, options))
+        .catch(() => {
+          const notification = new window.Notification(title, options);
+          notification.onclick = () => {
+            window.focus();
+            window.location.href = '/alerts';
+            notification.close();
+          };
+        });
+      return;
+    }
+
+    const notification = new window.Notification(title, options);
 
     const closeTimer = window.setTimeout(() => {
       notification.close();
@@ -68,7 +127,7 @@ export function NotificationProvider({ children }) {
     notification.onclose = () => {
       window.clearTimeout(closeTimer);
     };
-  }, []);
+  }, [systemNotificationReady]);
 
   const addNotification = useCallback((alert) => {
     const id = `${alert.id}-${Date.now()}`;
