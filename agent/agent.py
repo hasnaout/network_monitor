@@ -907,156 +907,51 @@ def _get_foreground_process_name() -> str | None:
     """
     Retourne le nom de l'exécutable de la fenêtre au premier plan.
     Ex : 'chrome.exe', 'Code.exe', 'explorer.exe'
-    Retourne None si aucune fenêtre interactive n'est disponible.
+    Retourne "Unknown" en cas d'échec.
     """
-    if os.name != "nt":
-        logger.debug("[AppTracker] Foreground window non supporté hors Windows")
-        return None
-
     try:
-        import ctypes
-        from ctypes import wintypes
+        import win32gui
+        import win32process
+        import win32api
 
-        if not _is_interactive_desktop_available():
-            logger.debug("[AppTracker] Session verrouillée ou desktop non interactif")
-            return None
-
-        user32 = ctypes.windll.user32
-        kernel32 = ctypes.windll.kernel32
-
-        hwnd = user32.GetForegroundWindow()
+        hwnd = win32gui.GetForegroundWindow()
         if not hwnd:
-            logger.debug("[AppTracker] Aucune foreground window détectée")
-            return None
+            return "Unknown"
 
-        pid = wintypes.DWORD()
-        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        if not pid.value:
-            return None
-
-        active_session_id = _get_active_session_id()
-        if active_session_id is not None:
-            process_session_id = _get_process_session_id(pid.value)
-            if process_session_id != int(active_session_id):
-                logger.debug(
-                    "[AppTracker] Processus foreground ignoré: PID %s session %s != active %s",
-                    pid.value,
-                    process_session_id,
-                    active_session_id,
-                )
-                return None
-
-        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
-        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid.value)
-        if not handle:
-            logger.debug("[AppTracker] OpenProcess impossible pour PID %s", pid.value)
-            return None
-
-        try:
-            buffer_len = wintypes.DWORD(32768)
-            buffer = ctypes.create_unicode_buffer(buffer_len.value)
-            if not kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(buffer_len)):
-                logger.debug("[AppTracker] QueryFullProcessImageNameW impossible pour PID %s", pid.value)
-                return None
-            exe_path = buffer.value
-        finally:
-            kernel32.CloseHandle(handle)
-
-        app_name = os.path.basename(exe_path)
-        return app_name if _is_valid_app_name(app_name) else None
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        handle = win32api.OpenProcess(0x0410, False, pid)
+        exe_path = win32api.QueryFullProcessImageName(handle)
+        win32api.CloseHandle(handle)
+        return os.path.basename(exe_path)
 
     except Exception as e:
-        logger.debug("[AppTracker] Erreur détection fenêtre active : %s", e)
-        return None
+        logger.debug("Erreur détection fenêtre active : %s", e)
+        return "Unknown"
 
 
 class AppUsageTracker:
     """
-    Accumule le temps d'utilisation par application foreground en mémoire.
+    Accumule le temps d'utilisation par application en mémoire.
     tick() à chaque poll, flush() à chaque envoi.
     Si l'envoi échoue, les données sont remises dans l'accumulateur.
     """
 
     def __init__(self):
-        self._data: dict = defaultdict(lambda: defaultdict(dict))
-        self._current_process: str | None = None
-        self._last_tick_monotonic: float | None = None
-        self._paused = False
-
-    def _add_usage(self, process_name: str, seconds: int, when: _datetime):
-        if seconds <= 0 or not _is_valid_app_name(process_name):
-            return
-
-        date_str = str(when.date())
-        hour = when.hour
-        bucket = self._data[date_str][hour].setdefault(
-            process_name,
-            {
-                "process_name": process_name,
-                "app_name": process_name,
-                "date": date_str,
-                "hour": hour,
-                "duration_seconds": 0,
-                "last_active": _iso_timestamp(when),
-            },
-        )
-        bucket["duration_seconds"] += int(seconds)
-        bucket["last_active"] = _iso_timestamp(when)
+        self._data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        self._last_active: dict = defaultdict(lambda: defaultdict(dict))
 
     def tick(self, seconds: int):
-        """Identifie l'app foreground et ajoute le delta réel à son compteur."""
-        del seconds  # Le delta réel vient de time.monotonic(), pas de la config.
-
+        """Identifie l'app active et ajoute seconds à son compteur."""
+        if seconds <= 0:
+            return
+        app = _get_foreground_process_name()
+        if not _is_valid_app_name(app):
+            return
         now = _datetime.now().astimezone()
-        now_monotonic = time.monotonic()
-        foreground_app = _get_foreground_process_name()
-
-        if not _is_valid_app_name(foreground_app):
-            if self._current_process and self._last_tick_monotonic is not None:
-                elapsed = max(0, round(now_monotonic - self._last_tick_monotonic))
-                self._add_usage(self._current_process, elapsed, now)
-                logger.info(
-                    "[AppTracker] Pause tracking: session verrouillée/inactive après %s (+%ss)",
-                    self._current_process,
-                    elapsed,
-                )
-            elif not self._paused:
-                logger.info("[AppTracker] Pause tracking: aucune fenêtre active accessible")
-
-            self._current_process = None
-            self._last_tick_monotonic = None
-            self._paused = True
-            return
-
-        if self._paused:
-            logger.info("[AppTracker] Reprise tracking: %s", foreground_app)
-            self._paused = False
-
-        if self._current_process is None:
-            self._current_process = foreground_app
-            self._last_tick_monotonic = now_monotonic
-            logger.info("[AppTracker] Nouvelle app détectée : %s", foreground_app)
-            return
-
-        elapsed = 0
-        if self._last_tick_monotonic is not None:
-            elapsed = max(0, round(now_monotonic - self._last_tick_monotonic))
-
-        if foreground_app != self._current_process:
-            self._add_usage(self._current_process, elapsed, now)
-            logger.info(
-                "[AppTracker] Changement app : %s -> %s (+%ss)",
-                self._current_process,
-                foreground_app,
-                elapsed,
-            )
-            self._current_process = foreground_app
-            self._last_tick_monotonic = now_monotonic
-            return
-
-        self._add_usage(foreground_app, elapsed, now)
-        self._last_tick_monotonic = now_monotonic
-        logger.debug("[AppTracker] App active : %s (+%ss)", foreground_app, elapsed)
+        date_str = str(now.date())
+        hour = now.hour
+        self._data[date_str][hour][app] += int(seconds)
+        self._last_active[date_str][hour][app] = _iso_timestamp(now)
 
     def flush(self) -> list:
         """Vide l'accumulateur et retourne la liste des usages."""
@@ -1065,10 +960,18 @@ class AppUsageTracker:
         result = []
         for date_str, hours in self._data.items():
             for hour, apps in hours.items():
-                for item in apps.values():
-                    if item["duration_seconds"] > 0:
-                        result.append(dict(item))
+                for app_name, secs in apps.items():
+                    if secs > 0:
+                        result.append({
+                            "process_name":      app_name,
+                            "app_name":          app_name,
+                            "date":              date_str,
+                            "hour":              int(hour),
+                            "duration_seconds":  secs,
+                            "last_active":       self._last_active[date_str][hour].get(app_name),
+                        })
         self._data.clear()
+        self._last_active.clear()
         return result
 
     def restore(self, usages: list):
@@ -1076,20 +979,13 @@ class AppUsageTracker:
         for item in usages:
             date_str = str(item["date"])
             hour = int(item.get("hour", 0))
-            process_name = item.get("process_name") or item.get("app_name")
-            bucket = self._data[date_str][hour].setdefault(
-                process_name,
-                {
-                    "process_name": process_name,
-                    "app_name": process_name,
-                    "date": date_str,
-                    "hour": hour,
-                    "duration_seconds": 0,
-                    "last_active": item.get("last_active") or _iso_timestamp(_datetime.now().astimezone()),
-                },
+            app_name = item.get("process_name") or item.get("app_name")
+            if not _is_valid_app_name(app_name):
+                continue
+            self._data[date_str][hour][app_name] += int(item.get("duration_seconds", 0))
+            self._last_active[date_str][hour][app_name] = (
+                item.get("last_active") or _iso_timestamp(_datetime.now().astimezone())
             )
-            bucket["duration_seconds"] += int(item.get("duration_seconds", 0))
-            bucket["last_active"] = item.get("last_active") or bucket["last_active"]
 
 
 def send_app_usage(tracker: "AppUsageTracker") -> bool:
