@@ -55,12 +55,6 @@ if %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
-copy /Y README_CLIENT.txt dist\NetworkAgent\ >nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Impossible de copier README_CLIENT.txt dans le paquet client.
-    pause
-    exit /b 1
-)
 
 echo [3/3] Paquet pret.
 echo Dossier client: %CD%\dist\NetworkAgent

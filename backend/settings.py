@@ -18,7 +18,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # Override the static defaults with a valid, comma-separated host list.
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.11.107,192.168.120.*").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.96,192.168.1.*").split(",")
     if host.strip()
 ]
 
@@ -123,9 +123,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://192.168.11.107:3000",
-    "http://192.168.11.107:3001",
-    "http://192.168.11.107:5173",
+    "http://192.168.1.96:3000",
+    "http://192.168.1.96:3001",
+    "http://192.168.1.96:5173",
 ]
 
 REST_FRAMEWORK = {
