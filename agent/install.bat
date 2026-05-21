@@ -107,9 +107,18 @@ if %ERRORLEVEL% EQU 0 (
         pause
         exit /b 1
     )
-    timeout /t 2 /nobreak >nul
+    for /L %%i in (1,1,10) do (
+        sc query %SERVICE_NAME% >nul 2>&1
+        if ERRORLEVEL 1 goto SERVICE_DELETED
+        timeout /t 1 /nobreak >nul
+    )
+    echo [ERREUR] L'ancien service est toujours present apres suppression.
+    echo Fermez services.msc si ouvert, puis relancez l'installation.
+    pause
+    exit /b 1
 )
 
+:SERVICE_DELETED
 echo [4/6] Installation du service Windows...
 "%EXE_PATH%" install > "%INSTALL_LOG%" 2>&1
 if %ERRORLEVEL% NEQ 0 (
