@@ -191,9 +191,7 @@ def _format_session_account(username: str, domain: str = "") -> str:
     if short_username.lower() in invalid_names or short_username.endswith("$"):
         return ""
 
-    if "\\" in username:
-        return username
-    return f"{domain}\\{username}" if domain else username
+    return short_username
 
 
 def _get_windows_interactive_username() -> str:

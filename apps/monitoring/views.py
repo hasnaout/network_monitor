@@ -16,7 +16,7 @@ def _clean_session_user(value):
     invalid_names = {"system", "localsystem", "localservice", "networkservice", "defaultuser0"}
     if not username or username.lower() in invalid_names or username.endswith("$"):
         return ""
-    return value
+    return username
 
 
 class HeartbeatViewSet(viewsets.ModelViewSet):
