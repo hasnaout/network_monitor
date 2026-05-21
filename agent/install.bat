@@ -13,6 +13,7 @@ set SOURCE_DIR=%~dp0
 set INSTALL_DIR=%ProgramFiles%\NetworkAgent
 set EXE_PATH=%INSTALL_DIR%\NetworkAgent.exe
 set SOURCE_EXE=%SOURCE_DIR%NetworkAgent.exe
+set INSTALL_LOG=%INSTALL_DIR%\install_service.log
 
 echo [1/6] Preparation du dossier d'installation...
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
@@ -74,18 +75,16 @@ if not exist "%SOURCE_DIR%_internal" (
     exit /b 1
 )
 
-if not exist "%INSTALL_DIR%\agent.config.json" (
-    if not exist "%SOURCE_DIR%agent.config.json" (
-        echo [ERREUR] Fichier introuvable: "%SOURCE_DIR%agent.config.json"
-        pause
-        exit /b 1
-    )
-    copy /Y "%SOURCE_DIR%agent.config.json" "%INSTALL_DIR%\" >nul
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERREUR] Impossible de copier agent.config.json.
-        pause
-        exit /b 1
-    )
+if not exist "%SOURCE_DIR%agent.config.json" (
+    echo [ERREUR] Fichier introuvable: "%SOURCE_DIR%agent.config.json"
+    pause
+    exit /b 1
+)
+copy /Y "%SOURCE_DIR%agent.config.json" "%INSTALL_DIR%\" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier agent.config.json.
+    pause
+    exit /b 1
 )
 
 if exist "%SOURCE_DIR%uninstall.bat" (
@@ -112,13 +111,19 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 echo [4/6] Installation du service Windows...
-"%EXE_PATH%" install
+"%EXE_PATH%" install > "%INSTALL_LOG%" 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] L'installation du service Windows a echoue.
-    echo Verifiez que ce script est lance en Administrateur.
-    echo Verifiez aussi le fichier: "%EXE_PATH%"
-    pause
-    exit /b 1
+    echo [INFO] Installation via NetworkAgent.exe install echouee.
+    echo [INFO] Tentative d'installation directe via sc create...
+    sc create %SERVICE_NAME% binPath= "\"%EXE_PATH%\"" DisplayName= "Network Monitoring Agent" start= auto
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] L'installation du service Windows a echoue.
+        echo Verifiez que ce script est lance en Administrateur.
+        echo Verifiez aussi le fichier: "%EXE_PATH%"
+        echo Journal detaille: "%INSTALL_LOG%"
+        pause
+        exit /b 1
+    )
 )
 
 sc query %SERVICE_NAME% >nul 2>&1
