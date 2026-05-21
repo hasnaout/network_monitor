@@ -233,6 +233,14 @@
   color: #e7f6ec;
 }
 
+.panel-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .panel-count {
   min-width: 2rem;
   padding: 0.25rem 0.7rem;
@@ -961,6 +969,11 @@
   .command-results__heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .panel-heading-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .target-toggle {

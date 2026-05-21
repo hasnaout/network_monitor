@@ -301,18 +301,17 @@ export default function DeviceDetail() {
           <section className="table-panel detail-panel">
             <div className="panel-heading">
               <h3>Logiciels installés</h3>
-              <span className="panel-count">{filteredSoftware.length}</span>
-            </div>
-
-            <div className="device-toolbar">
-              <input
-                className="device-search-input"
-                type="search"
-                value={softwareSearch}
-                onChange={(event) => setSoftwareSearch(event.target.value)}
-                placeholder="Rechercher un logiciel..."
-                aria-label="Rechercher un logiciel par son nom"
-              />
+              <div className="panel-heading-actions">
+                <input
+                  className="device-search-input"
+                  type="search"
+                  value={softwareSearch}
+                  onChange={(event) => setSoftwareSearch(event.target.value)}
+                  placeholder="Rechercher un logiciel..."
+                  aria-label="Rechercher un logiciel par son nom"
+                />
+                <span className="panel-count">{filteredSoftware.length}</span>
+              </div>
             </div>
 
             {softwareError && <p className="error-feedback detail-feedback">{softwareError}</p>}
