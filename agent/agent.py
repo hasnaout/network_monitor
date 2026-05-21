@@ -62,6 +62,8 @@ def setup_logger():
         handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
     else:
         handlers.append(logging.StreamHandler(sys.stderr))
+    if any(arg.lower() == "apptracker" for arg in sys.argv[1:]) and sys.stdout:
+        handlers.append(logging.StreamHandler(sys.stdout))
 
     logging.basicConfig(
         handlers=handlers,
@@ -818,13 +820,16 @@ def send_software_inventory() -> bool:
 
 from collections import defaultdict
 from datetime import datetime as _datetime
-import csv
-import io
 
 
 def _is_valid_app_name(app_name: str) -> bool:
     app_name = (app_name or "").strip()
     return bool(app_name) and app_name.lower() not in {"unknown", "idle", "system"}
+
+
+def _iso_timestamp(dt: _datetime) -> str:
+    """Timestamp ISO local prêt pour JSON."""
+    return dt.astimezone().isoformat(timespec="seconds")
 
 
 def _get_active_session_id():
@@ -874,131 +879,184 @@ def _get_process_session_id(pid: int):
     return None
 
 
-def _get_visible_user_processes() -> list:
+def _is_interactive_desktop_available() -> bool:
     """
-    Fallback pour les services Windows: liste les processus visibles
-    dans la session utilisateur active via tasklist /v.
+    Retourne False quand Windows est sur un desktop non interactif
+    typique de l'écran verrouillé/UAC sécurisé.
     """
-    try:
-        session_id = _get_active_session_id()
-        command = ["tasklist.exe", "/v", "/fo", "csv"]
-        if session_id is not None:
-            command[2:2] = ["/fi", f"SESSION eq {session_id}"]
-
-        output = subprocess.check_output(
-            command,
-            text=True,
-            stderr=subprocess.DEVNULL,
-            timeout=5,
-        )
-    except Exception as e:
-        logger.debug("Erreur tasklist AppUsage: %s", e)
-        return []
-
-    apps = []
-    ignored_titles = {"n/a", "non applicable"}
-    ignored_apps = {
-        "dwm.exe",
-        "fontdrvhost.exe",
-        "sihost.exe",
-        "taskhostw.exe",
-        "ctfmon.exe",
-        "searchhost.exe",
-        "startmenuexperiencehost.exe",
-        "shellexperiencehost.exe",
-        "runtimebroker.exe",
-    }
+    if os.name != "nt":
+        return False
 
     try:
-        reader = csv.reader(io.StringIO(output))
-        next(reader, None)  # ligne d'en-tête, localisée selon la langue Windows
-        for row in reader:
-            if len(row) < 2:
-                continue
-            app_name = (row[0] or "").strip()
-            window_title = (row[-1] or "").strip()
-            if not _is_valid_app_name(app_name):
-                continue
-            if app_name.lower() in ignored_apps:
-                continue
-            if not window_title or window_title.lower() in ignored_titles:
-                continue
-            apps.append(app_name)
+        import ctypes
+        user32 = ctypes.windll.user32
+        DESKTOP_SWITCHDESKTOP = 0x0100
+        desktop = user32.OpenInputDesktop(0, False, DESKTOP_SWITCHDESKTOP)
+        if not desktop:
+            return False
+        try:
+            return bool(user32.SwitchDesktop(desktop))
+        finally:
+            user32.CloseDesktop(desktop)
     except Exception as e:
-        logger.debug("Erreur parsing tasklist AppUsage: %s", e)
-        return []
-
-    # Garder l'ordre tasklist tout en supprimant les doublons.
-    return list(dict.fromkeys(apps))
+        logger.debug("[AppTracker] Erreur test desktop interactif: %s", e)
+        return True
 
 
-def _get_foreground_process_name() -> str:
+def _get_foreground_process_name() -> str | None:
     """
     Retourne le nom de l'exécutable de la fenêtre au premier plan.
     Ex : 'chrome.exe', 'Code.exe', 'explorer.exe'
-    Retourne 'Unknown' en cas d'échec.
+    Retourne None si aucune fenêtre interactive n'est disponible.
     """
+    if os.name != "nt":
+        logger.debug("[AppTracker] Foreground window non supporté hors Windows")
+        return None
+
     try:
-        import win32gui
-        import win32process
-        import win32con
-        import win32api
+        import ctypes
+        from ctypes import wintypes
 
-        hwnd = win32gui.GetForegroundWindow()
+        if not _is_interactive_desktop_available():
+            logger.debug("[AppTracker] Session verrouillée ou desktop non interactif")
+            return None
+
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+
+        hwnd = user32.GetForegroundWindow()
         if not hwnd:
-            return "Unknown"
+            logger.debug("[AppTracker] Aucune foreground window détectée")
+            return None
 
-        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if not pid.value:
+            return None
+
         active_session_id = _get_active_session_id()
         if active_session_id is not None:
-            process_session_id = _get_process_session_id(pid)
+            process_session_id = _get_process_session_id(pid.value)
             if process_session_id != int(active_session_id):
-                return "Unknown"
+                logger.debug(
+                    "[AppTracker] Processus foreground ignoré: PID %s session %s != active %s",
+                    pid.value,
+                    process_session_id,
+                    active_session_id,
+                )
+                return None
 
-        access = win32con.PROCESS_QUERY_LIMITED_INFORMATION | win32con.PROCESS_VM_READ
-        handle = win32api.OpenProcess(access, False, pid)
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid.value)
+        if not handle:
+            logger.debug("[AppTracker] OpenProcess impossible pour PID %s", pid.value)
+            return None
+
         try:
-            exe_path = win32process.GetModuleFileNameEx(handle, 0)
+            buffer_len = wintypes.DWORD(32768)
+            buffer = ctypes.create_unicode_buffer(buffer_len.value)
+            if not kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(buffer_len)):
+                logger.debug("[AppTracker] QueryFullProcessImageNameW impossible pour PID %s", pid.value)
+                return None
+            exe_path = buffer.value
         finally:
-            win32api.CloseHandle(handle)
+            kernel32.CloseHandle(handle)
+
         app_name = os.path.basename(exe_path)
-        return app_name if _is_valid_app_name(app_name) else "Unknown"
+        return app_name if _is_valid_app_name(app_name) else None
 
     except Exception as e:
-        logger.debug("Erreur détection fenêtre active : %s", e)
-        return "Unknown"
+        logger.debug("[AppTracker] Erreur détection fenêtre active : %s", e)
+        return None
 
 
 class AppUsageTracker:
     """
-    Accumule le temps d'utilisation par application en mémoire.
+    Accumule le temps d'utilisation par application foreground en mémoire.
     tick() à chaque poll, flush() à chaque envoi.
     Si l'envoi échoue, les données sont remises dans l'accumulateur.
     """
 
     def __init__(self):
-        self._data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+        self._data: dict = defaultdict(lambda: defaultdict(dict))
+        self._current_process: str | None = None
+        self._last_tick_monotonic: float | None = None
+        self._paused = False
+
+    def _add_usage(self, process_name: str, seconds: int, when: _datetime):
+        if seconds <= 0 or not _is_valid_app_name(process_name):
+            return
+
+        date_str = str(when.date())
+        hour = when.hour
+        bucket = self._data[date_str][hour].setdefault(
+            process_name,
+            {
+                "process_name": process_name,
+                "app_name": process_name,
+                "date": date_str,
+                "hour": hour,
+                "duration_seconds": 0,
+                "last_active": _iso_timestamp(when),
+            },
+        )
+        bucket["duration_seconds"] += int(seconds)
+        bucket["last_active"] = _iso_timestamp(when)
 
     def tick(self, seconds: int):
-        """Identifie l'app active et ajoute seconds à son compteur."""
-        if seconds <= 0:
-            return
-        apps = []
+        """Identifie l'app foreground et ajoute le delta réel à son compteur."""
+        del seconds  # Le delta réel vient de time.monotonic(), pas de la config.
+
+        now = _datetime.now().astimezone()
+        now_monotonic = time.monotonic()
         foreground_app = _get_foreground_process_name()
-        if _is_valid_app_name(foreground_app):
-            apps = [foreground_app]
-        else:
-            apps = _get_visible_user_processes()
 
-        if not apps:
-            logger.debug("AppUsage : aucune application utilisateur visible détectée")
+        if not _is_valid_app_name(foreground_app):
+            if self._current_process and self._last_tick_monotonic is not None:
+                elapsed = max(0, round(now_monotonic - self._last_tick_monotonic))
+                self._add_usage(self._current_process, elapsed, now)
+                logger.info(
+                    "[AppTracker] Pause tracking: session verrouillée/inactive après %s (+%ss)",
+                    self._current_process,
+                    elapsed,
+                )
+            elif not self._paused:
+                logger.info("[AppTracker] Pause tracking: aucune fenêtre active accessible")
+
+            self._current_process = None
+            self._last_tick_monotonic = None
+            self._paused = True
             return
 
-        now = _datetime.now()
-        today = str(now.date())
-        hour = now.hour
-        for app in apps:
-            self._data[today][hour][app] += seconds
+        if self._paused:
+            logger.info("[AppTracker] Reprise tracking: %s", foreground_app)
+            self._paused = False
+
+        if self._current_process is None:
+            self._current_process = foreground_app
+            self._last_tick_monotonic = now_monotonic
+            logger.info("[AppTracker] Nouvelle app détectée : %s", foreground_app)
+            return
+
+        elapsed = 0
+        if self._last_tick_monotonic is not None:
+            elapsed = max(0, round(now_monotonic - self._last_tick_monotonic))
+
+        if foreground_app != self._current_process:
+            self._add_usage(self._current_process, elapsed, now)
+            logger.info(
+                "[AppTracker] Changement app : %s -> %s (+%ss)",
+                self._current_process,
+                foreground_app,
+                elapsed,
+            )
+            self._current_process = foreground_app
+            self._last_tick_monotonic = now_monotonic
+            return
+
+        self._add_usage(foreground_app, elapsed, now)
+        self._last_tick_monotonic = now_monotonic
+        logger.debug("[AppTracker] App active : %s (+%ss)", foreground_app, elapsed)
 
     def flush(self) -> list:
         """Vide l'accumulateur et retourne la liste des usages."""
@@ -1007,21 +1065,31 @@ class AppUsageTracker:
         result = []
         for date_str, hours in self._data.items():
             for hour, apps in hours.items():
-                for app_name, secs in apps.items():
-                    if secs > 0:
-                        result.append({
-                            "app_name":         app_name,
-                            "date":             date_str,
-                            "hour":             hour,
-                            "duration_seconds": secs,
-                        })
+                for item in apps.values():
+                    if item["duration_seconds"] > 0:
+                        result.append(dict(item))
         self._data.clear()
         return result
 
     def restore(self, usages: list):
         """Remet des données dans l'accumulateur après un échec d'envoi."""
         for item in usages:
-            self._data[item["date"]][int(item.get("hour", 0))][item["app_name"]] += item["duration_seconds"]
+            date_str = str(item["date"])
+            hour = int(item.get("hour", 0))
+            process_name = item.get("process_name") or item.get("app_name")
+            bucket = self._data[date_str][hour].setdefault(
+                process_name,
+                {
+                    "process_name": process_name,
+                    "app_name": process_name,
+                    "date": date_str,
+                    "hour": hour,
+                    "duration_seconds": 0,
+                    "last_active": item.get("last_active") or _iso_timestamp(_datetime.now().astimezone()),
+                },
+            )
+            bucket["duration_seconds"] += int(item.get("duration_seconds", 0))
+            bucket["last_active"] = item.get("last_active") or bucket["last_active"]
 
 
 def send_app_usage(tracker: "AppUsageTracker") -> bool:
@@ -1076,6 +1144,38 @@ def get_usage_send_interval() -> int:
     """Intervalle d'envoi des usages en ms (défaut : 5 min)."""
     return int(_config.get("usage_send_interval_ms", 300_000))
 
+
+def run_apptracker_process():
+    """
+    Boucle App Tracking lancée dans la session utilisateur interactive.
+    Nécessaire pour lire correctement la foreground window Windows.
+    """
+    load_config()
+    logger.info("[AppTracker] Processus interactif démarré — URL : %s", get_server_url())
+
+    tracker = AppUsageTracker()
+    usage_accumulator = 0
+
+    try:
+        while True:
+            poll_interval = get_command_poll_interval()
+            time.sleep(max(1, poll_interval) / 1000)
+
+            tracker.tick(poll_interval // 1000)
+            usage_accumulator += poll_interval
+
+            usage_interval = get_usage_send_interval()
+            if usage_accumulator >= usage_interval:
+                send_app_usage(tracker)
+                usage_accumulator = 0
+    except KeyboardInterrupt:
+        logger.info("[AppTracker] Arrêt demandé au clavier")
+    except Exception:
+        logger.exception("[AppTracker] Erreur fatale dans le processus interactif")
+        raise
+    finally:
+        send_app_usage(tracker)
+        logger.info("[AppTracker] Processus interactif arrêté")
 
 
 
@@ -1149,6 +1249,10 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         raise
 # ================= ENTRY POINT =================
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "apptracker":
+        run_apptracker_process()
+        sys.exit(0)
+
     if len(sys.argv) == 1:
         servicemanager.Initialize()
         servicemanager.PrepareToHostSingle(NetworkAgent)

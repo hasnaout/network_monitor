@@ -9,9 +9,11 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 set SERVICE_NAME=NetworkAgent
+set TRACKER_RUN_NAME=NetworkAgentAppTracker
 set INSTALL_DIR=%ProgramFiles%\NetworkAgent
 
-echo [1/3] Arret du service...
+echo [1/4] Arret du service et du tracker applicatif...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter 'name=''NetworkAgent.exe''' | Where-Object { $_.CommandLine -like '* apptracker*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
 sc query %SERVICE_NAME% >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     sc stop %SERVICE_NAME% >nul 2>&1
@@ -20,7 +22,10 @@ if %ERRORLEVEL% EQU 0 (
     echo [INFO] Le service n'existe pas.
 )
 
-echo [2/3] Suppression du service...
+echo [2/4] Suppression du demarrage utilisateur...
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /f >nul 2>&1
+
+echo [3/4] Suppression du service...
 sc query %SERVICE_NAME% >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     sc delete %SERVICE_NAME%
@@ -33,7 +38,7 @@ if %ERRORLEVEL% EQU 0 (
     echo [INFO] Aucune suppression de service necessaire.
 )
 
-echo [3/3] Nettoyage des fichiers installes...
+echo [4/4] Nettoyage des fichiers installes...
 cd /d "%TEMP%"
 if exist "%INSTALL_DIR%" (
     rmdir /S /Q "%INSTALL_DIR%"

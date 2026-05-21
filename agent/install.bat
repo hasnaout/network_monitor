@@ -9,13 +9,15 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 set SERVICE_NAME=NetworkAgent
+set TRACKER_RUN_NAME=NetworkAgentAppTracker
 set SOURCE_DIR=%~dp0
 set INSTALL_DIR=%ProgramFiles%\NetworkAgent
 set EXE_PATH=%INSTALL_DIR%\NetworkAgent.exe
 set SOURCE_EXE=%SOURCE_DIR%NetworkAgent.exe
 set INSTALL_LOG=%INSTALL_DIR%\install_service.log
+set TRACKER_COMMAND="%EXE_PATH%" apptracker
 
-echo [1/6] Preparation du dossier d'installation...
+echo [1/7] Preparation du dossier d'installation...
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de creer le dossier "%INSTALL_DIR%".
@@ -23,7 +25,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [2/6] Copie des fichiers...
+echo [2/7] Copie des fichiers...
 if not exist "%SOURCE_EXE%" (
     echo [ERREUR] Fichier introuvable: "%SOURCE_EXE%"
     echo.
@@ -96,7 +98,8 @@ if exist "%SOURCE_DIR%uninstall.bat" (
     )
 )
 
-echo [3/6] Arret d'une ancienne instance si elle existe...
+echo [3/7] Arret d'une ancienne instance si elle existe...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter 'name=''NetworkAgent.exe''' | Where-Object { $_.CommandLine -like '* apptracker*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
 sc query %SERVICE_NAME% >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     sc stop %SERVICE_NAME% >nul 2>&1
@@ -119,7 +122,7 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 :SERVICE_DELETED
-echo [4/6] Installation du service Windows...
+echo [4/7] Installation du service Windows...
 "%EXE_PATH%" install > "%INSTALL_LOG%" 2>&1
 if errorlevel 1 (
     echo [INFO] Installation via NetworkAgent.exe install echouee.
@@ -143,7 +146,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [5/6] Configuration du demarrage automatique...
+echo [5/7] Configuration du demarrage automatique...
 sc config %SERVICE_NAME% start= auto
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de configurer le demarrage automatique.
@@ -159,7 +162,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-echo [6/6] Demarrage du service...
+echo [6/7] Demarrage du service...
 sc start %SERVICE_NAME%
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de demarrer le service.
@@ -170,8 +173,24 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+echo [7/7] Demarrage du tracker applicatif interactif...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "%TRACKER_COMMAND%" /f >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de configurer le demarrage utilisateur du tracker applicatif.
+    pause
+    exit /b 1
+)
+
+start "" "%EXE_PATH%" apptracker
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de lancer le tracker applicatif interactif.
+    pause
+    exit /b 1
+)
+
 echo.
 echo [OK] Service "%SERVICE_NAME%" installe et demarre.
+echo      Tracker applicatif interactif "%TRACKER_RUN_NAME%" lance pour la session utilisateur.
 echo      Il se lancera automatiquement a chaque demarrage Windows.
 echo      Dossier: "%INSTALL_DIR%"
 echo      Configuration: "%INSTALL_DIR%\agent.config.json"

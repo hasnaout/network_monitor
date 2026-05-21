@@ -4,10 +4,20 @@ from .models import AppUsage
 
 class AppUsageItemSerializer(serializers.Serializer):
     """Un enregistrement d'utilisation pour une application."""
-    app_name         = serializers.CharField(max_length=255)
+    app_name         = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    process_name     = serializers.CharField(max_length=255, required=False, allow_blank=True)
     duration_seconds = serializers.IntegerField(min_value=0)
     date             = serializers.DateField()
     hour             = serializers.IntegerField(min_value=0, max_value=23, required=False, default=0)
+    last_active      = serializers.DateTimeField(required=False)
+
+    def validate(self, attrs):
+        process_name = (attrs.get("process_name") or attrs.get("app_name") or "").strip()
+        if not process_name:
+            raise serializers.ValidationError("app_name ou process_name est requis.")
+        attrs["process_name"] = process_name
+        attrs["app_name"] = attrs.get("app_name") or process_name
+        return attrs
 
 
 class AppUsagePayloadSerializer(serializers.Serializer):
