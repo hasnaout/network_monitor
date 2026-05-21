@@ -18,7 +18,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # Override the static defaults with a valid, comma-separated host list.
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.96,192.168.120.*").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.96,192.168.1.*").split(",")
     if host.strip()
 ]
 
