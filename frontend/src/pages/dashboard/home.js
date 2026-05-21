@@ -50,6 +50,8 @@ export default function Home() {
   const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
   const [targetMode, setTargetMode] = useState('all');
   const [selectedMachineId, setSelectedMachineId] = useState('');
+  const [selectedMachineSearch, setSelectedMachineSearch] = useState('');
+  const [isMachinePickerOpen, setIsMachinePickerOpen] = useState(false);
   const [command, setCommand] = useState('');
   const [shell, setShell] = useState('cmd');
   const [timeout, setTimeout] = useState(30);
@@ -151,6 +153,24 @@ export default function Home() {
     () => machines.find(machine => String(machine.id) === String(selectedMachineId)),
     [machines, selectedMachineId]
   );
+
+  const filteredMachines = useMemo(() => {
+    const query = selectedMachineSearch.trim().toLowerCase();
+    if (!query) return machines.slice(0, 8);
+
+    return machines
+      .filter(machine => {
+        const searchable = [
+          machine.name,
+          machine.ip_address,
+          machine.mac_address,
+          machine.status,
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        return searchable.includes(query);
+      })
+      .slice(0, 8);
+  }, [machines, selectedMachineSearch]);
 
   async function handleCommandSubmit(event) {
     event.preventDefault();
@@ -374,7 +394,12 @@ export default function Home() {
                     name="targetMode"
                     value="all"
                     checked={targetMode === 'all'}
-                    onChange={() => setTargetMode('all')}
+                    onChange={() => {
+                      setTargetMode('all');
+                      setSelectedMachineId('');
+                      setSelectedMachineSearch('');
+                      setIsMachinePickerOpen(false);
+                    }}
                   />
                   Toutes les machines
                 </label>
@@ -384,25 +409,65 @@ export default function Home() {
                     name="targetMode"
                     value="specific"
                     checked={targetMode === 'specific'}
-                    onChange={() => setTargetMode('specific')}
+                    onChange={() => {
+                      setTargetMode('specific');
+                      setIsMachinePickerOpen(true);
+                    }}
                   />
                   Machine spécifique
                 </label>
               </div>
 
               {targetMode === 'specific' && (
-                <select
-                  className="console-option-select"
-                  value={selectedMachineId}
-                  onChange={(event) => setSelectedMachineId(event.target.value)}
-                >
-                  <option value="">Sélectionner une machine</option>
-                  {machines.map(machine => (
-                    <option key={machine.id} value={machine.id}>
-                      {machine.name} {machine.ip_address ? `- ${machine.ip_address}` : ''}
-                    </option>
-                  ))}
-                </select>
+                <div className="machine-search">
+                  <input
+                    type="text"
+                    className="console-option-input machine-search__input"
+                    value={selectedMachineSearch}
+                    onChange={(event) => {
+                      setSelectedMachineSearch(event.target.value);
+                      setSelectedMachineId('');
+                      setIsMachinePickerOpen(true);
+                    }}
+                    onFocus={() => setIsMachinePickerOpen(true)}
+                    placeholder="Chercher une machine..."
+                  />
+
+                  {selectedMachine && (
+                    <span className="machine-search__selected">
+                      {selectedMachine.name}
+                      {selectedMachine.ip_address ? ` - ${selectedMachine.ip_address}` : ''}
+                    </span>
+                  )}
+
+                  {isMachinePickerOpen && (
+                    <div className="machine-search__list">
+                      {filteredMachines.length === 0 ? (
+                        <div className="machine-search__empty">Aucune machine trouvée</div>
+                      ) : (
+                        filteredMachines.map(machine => (
+                          <button
+                            type="button"
+                            key={machine.id}
+                            className="machine-search__item"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              setSelectedMachineId(machine.id);
+                              setSelectedMachineSearch(machine.name || '');
+                              setIsMachinePickerOpen(false);
+                            }}
+                          >
+                            <strong>{machine.name}</strong>
+                            <span>
+                              {machine.ip_address || 'IP inconnue'}
+                              {machine.status ? ` - ${machine.status}` : ''}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
 
               <select
