@@ -651,14 +651,6 @@
   max-width: none;
 }
 
-.machine-search__selected {
-  display: block;
-  margin-top: 0.35rem;
-  color: #86efac;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
 .machine-search__list {
   position: absolute;
   top: calc(100% + 0.35rem);

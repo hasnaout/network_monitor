@@ -433,13 +433,6 @@ export default function Home() {
                     placeholder="Chercher une machine..."
                   />
 
-                  {selectedMachine && (
-                    <span className="machine-search__selected">
-                      {selectedMachine.name}
-                      {selectedMachine.ip_address ? ` - ${selectedMachine.ip_address}` : ''}
-                    </span>
-                  )}
-
                   {isMachinePickerOpen && (
                     <div className="machine-search__list">
                       {filteredMachines.length === 0 ? (
