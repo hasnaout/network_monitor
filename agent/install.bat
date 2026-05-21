@@ -174,7 +174,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [7/7] Demarrage du tracker applicatif interactif...
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "%TRACKER_COMMAND%" /f >nul
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "%TRACKER_COMMAND%" /f >nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERREUR] Impossible de configurer le demarrage utilisateur du tracker applicatif.
     pause
@@ -191,7 +191,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo [OK] Service "%SERVICE_NAME%" installe et demarre.
 echo      Tracker applicatif interactif "%TRACKER_RUN_NAME%" lance pour la session utilisateur.
-echo      Il se lancera automatiquement a chaque demarrage Windows.
+echo      Il se lancera automatiquement a chaque ouverture de session Windows.
 echo      Dossier: "%INSTALL_DIR%"
 echo      Configuration: "%INSTALL_DIR%\agent.config.json"
 pause

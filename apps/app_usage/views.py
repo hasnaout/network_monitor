@@ -16,6 +16,11 @@ from .serializers import AppUsagePayloadSerializer, AppUsageReadSerializer
 logger = logging.getLogger(__name__)
 
 
+def _is_valid_app_usage_name(value):
+    value = (value or "").strip()
+    return bool(value) and value.lower() not in {"unknown", "idle", "system"}
+
+
 class AppUsageIngestView(APIView):
     permission_classes = [AllowAny]
     """
@@ -59,12 +64,17 @@ class AppUsageIngestView(APIView):
         updated_count  = 0
 
         for item in usages:
+            app_name = item.get("app_name") or item.get("process_name")
+            if not _is_valid_app_usage_name(app_name):
+                logger.debug("AppUsage ignoré: application invalide (%s)", app_name)
+                continue
+
             if item["duration_seconds"] == 0:
                 continue  # ignorer les apps avec 0 seconde
 
             obj, created = AppUsage.objects.get_or_create(
                 device   = device,
-                app_name = item["app_name"],
+                app_name = app_name,
                 date     = item["date"],
                 hour     = item.get("hour", 0),
                 defaults = {"duration_seconds": item["duration_seconds"]},
@@ -110,7 +120,13 @@ class AppUsageListView(APIView):
         except Device.DoesNotExist:
             return Response({"detail": "Device non trouvé."}, status=404)
 
-        usages = AppUsage.objects.filter(device=device, date=selected_date).order_by("hour", "-duration_seconds")
+        usages = AppUsage.objects.filter(device=device, date=selected_date).exclude(
+            app_name__iexact="unknown",
+        ).exclude(
+            app_name__iexact="idle",
+        ).exclude(
+            app_name__iexact="system",
+        ).order_by("hour", "-duration_seconds")
         app_totals = usages.values("app_name").annotate(
             duration_seconds=Sum("duration_seconds"),
             last_updated=Max("last_updated"),

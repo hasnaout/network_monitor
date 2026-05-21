@@ -984,12 +984,14 @@ class AppUsageTracker:
             return
         app = _get_foreground_process_name()
         if not _is_valid_app_name(app):
+            logger.debug("[AppTracker] App ignorée ou introuvable: %s", app)
             return
         now = _datetime.now().astimezone()
         date_str = str(now.date())
         hour = now.hour
         self._data[date_str][hour][app] += int(seconds)
         self._last_active[date_str][hour][app] = _iso_timestamp(now)
+        logger.debug("[AppTracker] App active: %s (+%ss)", app, seconds)
 
     def flush(self) -> list:
         """Vide l'accumulateur et retourne la liste des usages."""
@@ -1046,6 +1048,7 @@ def send_app_usage(tracker: "AppUsageTracker") -> bool:
     }
 
     logger.info("Envoi AppUsage (%d entrées) → %s", len(usages), url)
+    logger.debug("Payload AppUsage: %s", usages[:5])
 
     for attempt in range(1, get_max_retries() + 1):
         try:
