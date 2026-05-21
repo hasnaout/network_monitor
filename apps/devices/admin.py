@@ -6,6 +6,8 @@ class DeviceAdmin(admin.ModelAdmin):
 
     list_display = (
         "name",
+        "hostname",
+        "current_user",
         "ip_address",
         "status",
         "last_seen",
@@ -13,9 +15,11 @@ class DeviceAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-    "name",
-    "mac_address",
-    "ip_address",
+        "name",
+        "hostname",
+        "current_user",
+        "mac_address",
+        "ip_address",
     )
     list_filter = (
         "status",

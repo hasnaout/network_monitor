@@ -162,6 +162,7 @@ export default function Home() {
       .filter(machine => {
         const searchable = [
           machine.name,
+          machine.hostname,
           machine.ip_address,
           machine.mac_address,
           machine.status,
@@ -452,6 +453,7 @@ export default function Home() {
                           >
                             <strong>{machine.name}</strong>
                             <span>
+                              {machine.hostname ? `${machine.hostname} - ` : ''}
                               {machine.ip_address || 'IP inconnue'}
                               {machine.status ? ` - ${machine.status}` : ''}
                             </span>

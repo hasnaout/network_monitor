@@ -27,7 +27,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
             return Response({"error": "Token agent invalide"}, status=401)
 
         mac = (request.data.get('mac_address') or '').strip().lower()
-        name = (request.data.get('name') or '').strip()
+        hostname = (request.data.get('name') or '').strip()
         session_user = (request.data.get('session_user') or '').strip()
         ip = request.data.get('ip_address')
         if ip in ("", "unknown"):
@@ -37,12 +37,13 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
 
         existing = Device.objects.filter(mac_address=mac).first()
         was_offline = existing and existing.status == "offline"
-        device_name = session_user or name or mac
+        device_name = session_user or hostname or mac
 
         device, created = Device.objects.update_or_create(
             mac_address=mac,
             defaults={
                 "name": device_name,
+                "hostname": hostname,
                 "ip_address": ip,
                 "status": "online",
                 "current_user": session_user,
@@ -57,9 +58,12 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
             if session_user and device.current_user != session_user:
                 device.current_user = session_user
                 updated_fields.append('current_user')
-            elif not session_user and name and device.name != name:
-                device.name = name
+            elif not session_user and hostname and device.name != hostname:
+                device.name = hostname
                 updated_fields.append('name')
+            if hostname and device.hostname != hostname:
+                device.hostname = hostname
+                updated_fields.append('hostname')
             if updated_fields:
                 device.save(update_fields=updated_fields)
 

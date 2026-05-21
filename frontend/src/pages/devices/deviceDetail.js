@@ -259,6 +259,9 @@ export default function DeviceDetail() {
   }
   if (!device) return null;
 
+  const sessionUser = device.current_user || device.name || "—";
+  const pcName = device.hostname || (!device.current_user ? device.name : "") || "—";
+
   return (
     <>
       <Header />
@@ -266,12 +269,13 @@ export default function DeviceDetail() {
       <div className="dashboard-shell">
         <main className="dashboard-main">
           <section className="hero-panel">
-            <h2>{device.name}</h2>
+            <h2>{sessionUser}</h2>
             <div className="device-meta">
+              <p><strong>Nom du PC :</strong> {pcName}</p>
+              <p><strong>Utilisateur de session :</strong> {sessionUser}</p>
               <p><strong>IP :</strong> {device.ip_address || "—"}</p>
               <p><strong>MAC :</strong> {device.mac_address || "—"}</p>
               <p><strong>Type :</strong> {device.device_type || "—"}</p>
-              <p><strong>Utilisateur :</strong> {device.current_user || "—"}</p>
 
               <p>
                 <strong>Status :</strong>{" "}

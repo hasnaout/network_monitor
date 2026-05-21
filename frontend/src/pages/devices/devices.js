@@ -61,7 +61,13 @@ export default function Devices() {
         String(device.status || '').toLowerCase() === statusFilter;
       const matchesSearch =
         !search ||
-        String(device.name || '').toLowerCase().includes(search);
+        [
+          device.name,
+          device.current_user,
+          device.hostname,
+          device.ip_address,
+          device.mac_address,
+        ].filter(Boolean).join(' ').toLowerCase().includes(search);
 
       return matchesStatus && matchesSearch;
     });
@@ -134,8 +140,8 @@ export default function Devices() {
                 type="search"
                 value={deviceSearch}
                 onChange={(event) => setDeviceSearch(event.target.value)}
-                placeholder="Rechercher par nom"
-                aria-label="Rechercher une machine par son nom"
+                placeholder="Rechercher par utilisateur, PC, IP..."
+                aria-label="Rechercher une machine par utilisateur, nom PC ou IP"
               />
             </div>
 
@@ -152,7 +158,8 @@ export default function Devices() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Nom</th>
+                        <th>Utilisateur</th>
+                        <th>Nom PC</th>
                         <th>IP</th>
                         <th>Type</th>
                         <th>Statut</th>
@@ -170,6 +177,7 @@ export default function Devices() {
                             {device.name}
                           </strong>
                          </td>
+                          <td>{device.hostname || "—"}</td>
                           <td>{device.ip_address || "—"}</td>
                           <td>{device.device_type || "—"}</td>
                           <td>

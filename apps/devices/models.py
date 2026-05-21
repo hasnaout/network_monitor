@@ -8,6 +8,7 @@ class Device(models.Model):
     ]
 
     name = models.CharField(max_length=100)
+    hostname = models.CharField(max_length=100, blank=True, default="")
     ip_address = models.GenericIPAddressField(null=True,blank=True)
     mac_address = models.CharField(max_length=17,unique=True, validators=[
         RegexValidator(
