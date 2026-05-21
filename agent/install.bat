@@ -15,7 +15,6 @@ set INSTALL_DIR=%ProgramFiles%\NetworkAgent
 set EXE_PATH=%INSTALL_DIR%\NetworkAgent.exe
 set SOURCE_EXE=%SOURCE_DIR%NetworkAgent.exe
 set INSTALL_LOG=%INSTALL_DIR%\install_service.log
-set TRACKER_COMMAND="%EXE_PATH%" apptracker
 
 echo [1/7] Preparation du dossier d'installation...
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
@@ -174,9 +173,9 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [7/7] Demarrage du tracker applicatif interactif...
-reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "%TRACKER_COMMAND%" /f >nul
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "\"%EXE_PATH%\" apptracker" /f >nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERREUR] Impossible de configurer le demarrage utilisateur du tracker applicatif.
+    echo [ERREUR] Impossible de configurer le demarrage automatique du tracker applicatif.
     pause
     exit /b 1
 )

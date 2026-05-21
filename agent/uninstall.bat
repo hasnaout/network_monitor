@@ -22,7 +22,8 @@ if %ERRORLEVEL% EQU 0 (
     echo [INFO] Le service n'existe pas.
 )
 
-echo [2/4] Suppression du demarrage utilisateur...
+echo [2/4] Suppression du demarrage automatique...
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /f >nul 2>&1
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /f >nul 2>&1
 
 echo [3/4] Suppression du service...
