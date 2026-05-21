@@ -239,9 +239,9 @@ class CommandCancelStatusView(APIView):
         return Response({"cancel_requested": cmd.cancel_requested})
 
 
-# ─────────────────────────────────────────────
-# 4. ADMIN — Historique des commandes
-# ─────────────────────────────────────────────
+                                               
+                                     
+                                               
 class CommandHistoryView(APIView):
     """
     GET /api/commands/history/?mac_address=XX&status=success&limit=50

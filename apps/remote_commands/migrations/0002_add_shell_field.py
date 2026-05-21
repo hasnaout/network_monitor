@@ -1,4 +1,4 @@
-# Generated migration to add shell field
+                                        
 
 from django.db import migrations, models
 

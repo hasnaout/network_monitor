@@ -17,11 +17,11 @@ def send_alert_ws(alert):
         if channel_layer is None:
             return
 
-        # Send device data in a structured format
+                                                 
         device_data = {
             "id": alert.device.id,
             "name": alert.device.name,
-            "hostname": alert.device.name,  # Use device name as hostname
+            "hostname": alert.device.name,                               
             "ip_address": alert.device.ip_address,
             "mac_address": alert.device.mac_address,
             "status": alert.device.status,

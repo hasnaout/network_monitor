@@ -70,7 +70,7 @@ class AppUsageIngestView(APIView):
                 continue
 
             if item["duration_seconds"] == 0:
-                continue  # ignorer les apps avec 0 seconde
+                continue                                   
 
             obj, created = AppUsage.objects.get_or_create(
                 device   = device,
@@ -81,7 +81,7 @@ class AppUsageIngestView(APIView):
             )
 
             if not created:
-                # Incrémenter la durée existante
+                                                
                 obj.duration_seconds = F("duration_seconds") + item["duration_seconds"]
                 obj.save(update_fields=["duration_seconds", "last_updated"])
                 updated_count += 1
