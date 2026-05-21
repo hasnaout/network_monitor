@@ -847,6 +847,30 @@ def _get_active_session_id():
     except Exception as e:
         logger.debug("Erreur détection session active pour AppUsage: %s", e)
 
+    try:
+        import ctypes
+        session_id = ctypes.windll.kernel32.WTSGetActiveConsoleSessionId()
+        if session_id not in (None, 0xFFFFFFFF, 0):
+            return int(session_id)
+    except Exception as e:
+        logger.debug("Erreur console session active pour AppUsage: %s", e)
+
+    return None
+
+
+def _get_process_session_id(pid: int):
+    if os.name != "nt":
+        return None
+
+    try:
+        import ctypes
+        session_id = ctypes.c_ulong()
+        ok = ctypes.windll.kernel32.ProcessIdToSessionId(int(pid), ctypes.byref(session_id))
+        if ok:
+            return int(session_id.value)
+    except Exception as e:
+        logger.debug("Erreur ProcessIdToSessionId(%s): %s", pid, e)
+
     return None
 
 
@@ -855,26 +879,20 @@ def _get_visible_user_processes() -> list:
     Fallback pour les services Windows: liste les processus visibles
     dans la session utilisateur active via tasklist /v.
     """
-    session_id = _get_active_session_id()
-    if session_id is None:
-        return []
-
     try:
+        session_id = _get_active_session_id()
+        command = ["tasklist.exe", "/v", "/fo", "csv"]
+        if session_id is not None:
+            command[2:2] = ["/fi", f"SESSION eq {session_id}"]
+
         output = subprocess.check_output(
-            [
-                "tasklist.exe",
-                "/v",
-                "/fi",
-                f"SESSION eq {session_id}",
-                "/fo",
-                "csv",
-            ],
+            command,
             text=True,
             stderr=subprocess.DEVNULL,
             timeout=5,
         )
     except Exception as e:
-        logger.debug("Erreur tasklist AppUsage session %s: %s", session_id, e)
+        logger.debug("Erreur tasklist AppUsage: %s", e)
         return []
 
     apps = []
@@ -931,6 +949,12 @@ def _get_foreground_process_name() -> str:
             return "Unknown"
 
         _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        active_session_id = _get_active_session_id()
+        if active_session_id is not None:
+            process_session_id = _get_process_session_id(pid)
+            if process_session_id != int(active_session_id):
+                return "Unknown"
+
         access = win32con.PROCESS_QUERY_LIMITED_INFORMATION | win32con.PROCESS_VM_READ
         handle = win32api.OpenProcess(access, False, pid)
         try:
@@ -1088,7 +1112,7 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
         send_heartbeat()
         self._heartbeat_accumulator = 0
         self._inventory_accumulator = get_inventory_interval()  # déclenche au 1er cycle
-        self._usage_accumulator     = 0
+        self._usage_accumulator     = get_usage_send_interval()  # déclenche après le 1er tick
 
         while self.running:
             poll_interval      = get_command_poll_interval()
