@@ -308,7 +308,7 @@ export default function Home() {
             <div>
               <span className="section-label">Remote Command</span>
               <h3>Exécuter une commande à distance</h3>
-              <p>Console libre réservée aux opérations avancées.</p>
+
             </div>
             <button
               type="button"
