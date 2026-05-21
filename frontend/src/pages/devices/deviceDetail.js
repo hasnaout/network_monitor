@@ -310,7 +310,7 @@ export default function DeviceDetail() {
                   placeholder="Rechercher un logiciel..."
                   aria-label="Rechercher un logiciel par son nom"
                 />
-                <span className="panel-count">{filteredSoftware.length}</span>
+          
               </div>
             </div>
 
