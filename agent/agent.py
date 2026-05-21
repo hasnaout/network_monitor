@@ -920,12 +920,50 @@ def _get_foreground_process_name() -> str | None:
 
         _, pid = win32process.GetWindowThreadProcessId(hwnd)
         handle = win32api.OpenProcess(0x0410, False, pid)
-        exe_path = win32api.QueryFullProcessImageName(handle)
-        win32api.CloseHandle(handle)
+        try:
+            if hasattr(win32api, "QueryFullProcessImageName"):
+                exe_path = win32api.QueryFullProcessImageName(handle)
+            else:
+                exe_path = win32process.GetModuleFileNameEx(handle, 0)
+        finally:
+            win32api.CloseHandle(handle)
         return os.path.basename(exe_path)
 
     except Exception as e:
-        logger.debug("Erreur détection fenêtre active : %s", e)
+        logger.debug("Erreur détection fenêtre active via pywin32 : %s", e)
+
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+
+        hwnd = user32.GetForegroundWindow()
+        if not hwnd:
+            return "Unknown"
+
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if not pid.value:
+            return "Unknown"
+
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid.value)
+        if not handle:
+            return "Unknown"
+
+        try:
+            buffer_len = wintypes.DWORD(32768)
+            buffer = ctypes.create_unicode_buffer(buffer_len.value)
+            if not kernel32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(buffer_len)):
+                return "Unknown"
+            return os.path.basename(buffer.value)
+        finally:
+            kernel32.CloseHandle(handle)
+
+    except Exception as e:
+        logger.debug("Erreur détection fenêtre active via ctypes : %s", e)
         return "Unknown"
 
 
@@ -1127,7 +1165,7 @@ class NetworkAgent(win32serviceutil.ServiceFramework):
             if self._heartbeat_accumulator >= heartbeat_interval:
                 send_heartbeat()
                 self._heartbeat_accumulator = 0
-
+ 
             if self._inventory_accumulator >= inventory_interval:
                 send_software_inventory()
                 self._inventory_accumulator = 0
