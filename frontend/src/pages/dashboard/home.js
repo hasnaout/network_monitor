@@ -156,7 +156,7 @@ export default function Home() {
 
   const filteredMachines = useMemo(() => {
     const query = selectedMachineSearch.trim().toLowerCase();
-    if (!query) return machines.slice(0, 8);
+    if (!query) return machines.slice(0, 5);
 
     return machines
       .filter(machine => {
@@ -411,7 +411,7 @@ export default function Home() {
                     checked={targetMode === 'specific'}
                     onChange={() => {
                       setTargetMode('specific');
-                      setIsMachinePickerOpen(true);
+                      setIsMachinePickerOpen(false);
                     }}
                   />
                   Machine spécifique
