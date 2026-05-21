@@ -180,6 +180,46 @@ def get_mac() -> str:
         return "02:00:00:00:00:00"
 
 
+def _format_session_account(username: str, domain: str = "") -> str:
+    username = (username or "").strip()
+    domain = (domain or "").strip()
+    if not username:
+        return ""
+
+    short_username = username.rsplit("\\", 1)[-1].strip()
+    invalid_names = {"system", "localsystem", "localservice", "networkservice", "defaultuser0"}
+    if short_username.lower() in invalid_names or short_username.endswith("$"):
+        return ""
+
+    if "\\" in username:
+        return username
+    return f"{domain}\\{username}" if domain else username
+
+
+def _get_windows_interactive_username() -> str:
+    if os.name != "nt":
+        return ""
+
+    try:
+        output = subprocess.check_output(
+            [
+                "powershell.exe",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                "(Get-CimInstance Win32_ComputerSystem).UserName",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+        ).strip()
+        return _format_session_account(output)
+    except Exception as e:
+        logger.debug("Erreur détection utilisateur interactif Windows: %s", e)
+        return ""
+
+
 def _get_session_username() -> str:
     """Retourne l'utilisateur de session actif sur Windows."""
     try:
@@ -196,20 +236,25 @@ def _get_session_username() -> str:
             if state == win32ts.WTSActive and session_id not in (None, 0):
                 username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
                 domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
-                if username:
-                    return f"{domain}\\{username}" if domain else username
+                account = _format_session_account(username, domain)
+                if account:
+                    return account
     except Exception as e:
         logger.debug("Erreur détection utilisateur session Windows: %s", e)
 
+    account = _get_windows_interactive_username()
+    if account:
+        return account
+
     try:
         import getpass
-        user = getpass.getuser()
-        if user:
-            return user
+        account = _format_session_account(getpass.getuser())
+        if account:
+            return account
     except Exception:
         pass
 
-    return os.environ.get('USERNAME') or os.environ.get('USER') or "Unknown"
+    return _format_session_account(os.environ.get('USERNAME') or os.environ.get('USER') or "")
 
 
 def build_payload() -> dict:
@@ -593,8 +638,9 @@ def _get_active_session_account() -> str:
             if state == win32ts.WTSActive and session_id not in (None, 0):
                 username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
                 domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
-                if username:
-                    return f"{domain}\\{username}" if domain else username
+                account = _format_session_account(username, domain)
+                if account:
+                    return account
     except Exception as e:
         logger.debug("Erreur détection compte session active: %s", e)
 
@@ -606,20 +652,21 @@ def _get_active_session_account() -> str:
             server = win32ts.WTS_CURRENT_SERVER_HANDLE
             username = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSUserName)
             domain = win32ts.WTSQuerySessionInformation(server, session_id, win32ts.WTSDomainName)
-            if username:
-                return f"{domain}\\{username}" if domain else username
+            account = _format_session_account(username, domain)
+            if account:
+                return account
     except Exception as e:
         logger.debug("Erreur détection console active: %s", e)
 
     try:
         import getpass
-        username = getpass.getuser()
-        if username and username.lower() not in {"system", "localsystem"}:
-            return username
+        account = _format_session_account(getpass.getuser())
+        if account:
+            return account
     except Exception:
         pass
 
-    return ""
+    return _get_windows_interactive_username()
 
 
 def _get_active_session_sid() -> str:

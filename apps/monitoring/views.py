@@ -9,6 +9,16 @@ from .models import Heartbeat, Alert
 from .serializers import HeartbeatSerializer, AlertSerializer
 from .services import handle_first_connection, handle_reconnection, mark_stale_devices_offline
 
+
+def _clean_session_user(value):
+    value = (value or "").strip()
+    username = value.rsplit("\\", 1)[-1].strip()
+    invalid_names = {"system", "localsystem", "localservice", "networkservice", "defaultuser0"}
+    if not username or username.lower() in invalid_names or username.endswith("$"):
+        return ""
+    return value
+
+
 class HeartbeatViewSet(viewsets.ModelViewSet):
 
     queryset = Heartbeat.objects.all()
@@ -28,7 +38,7 @@ class HeartbeatViewSet(viewsets.ModelViewSet):
 
         mac = (request.data.get('mac_address') or '').strip().lower()
         hostname = (request.data.get('name') or '').strip()
-        session_user = (request.data.get('session_user') or '').strip()
+        session_user = _clean_session_user(request.data.get('session_user'))
         ip = request.data.get('ip_address')
         if ip in ("", "unknown"):
             ip = None

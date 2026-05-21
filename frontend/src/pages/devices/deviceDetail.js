@@ -121,6 +121,7 @@ export default function DeviceDetail() {
   const [appUsageError, setAppUsageError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [softwareSearch, setSoftwareSearch] = useState('');
   
   // États pour la pagination
   const [softwarePage, setSoftwarePage] = useState(1);
@@ -213,6 +214,10 @@ export default function DeviceDetail() {
     loadCommandHistory();
   }, [auth?.accessToken, device?.id]);
 
+  useEffect(() => {
+    setSoftwarePage(1);
+  }, [softwareSearch]);
+
   const mergedAlerts = [...alerts, ...apiAlerts].filter(
     (item, index, self) =>
       index === self.findIndex(a => a.id === item.id)
@@ -243,6 +248,12 @@ export default function DeviceDetail() {
     ...appUsages.map(item => Number(item.duration_seconds || 0)),
     1
   );
+
+  const filteredSoftware = software.filter((item) => {
+    const query = softwareSearch.trim().toLowerCase();
+    if (!query) return true;
+    return String(item.name || '').toLowerCase().includes(query);
+  });
 
   const commandHistoryItemsPerPage = 10;
   const commandHistoryTotalPages = Math.ceil(commandHistory.length / commandHistoryItemsPerPage);
@@ -290,7 +301,18 @@ export default function DeviceDetail() {
           <section className="table-panel detail-panel">
             <div className="panel-heading">
               <h3>Logiciels installés</h3>
-              <span className="panel-count">{software.length}</span>
+              <span className="panel-count">{filteredSoftware.length}</span>
+            </div>
+
+            <div className="device-toolbar">
+              <input
+                className="device-search-input"
+                type="search"
+                value={softwareSearch}
+                onChange={(event) => setSoftwareSearch(event.target.value)}
+                placeholder="Rechercher un logiciel..."
+                aria-label="Rechercher un logiciel par son nom"
+              />
             </div>
 
             {softwareError && <p className="error-feedback detail-feedback">{softwareError}</p>}
@@ -300,6 +322,10 @@ export default function DeviceDetail() {
             ) : software.length === 0 ? (
               <div className="empty-state">
                 Aucun logiciel inventorié
+              </div>
+            ) : filteredSoftware.length === 0 ? (
+              <div className="empty-state">
+                Aucun logiciel trouvé pour cette recherche
               </div>
             ) : (
               <>
@@ -312,7 +338,7 @@ export default function DeviceDetail() {
                     </thead>
 
                     <tbody>
-                      {software
+                      {filteredSoftware
                         .slice((softwarePage - 1) * 10, softwarePage * 10)
                         .map((item) => (
                           <tr key={item.id}>
@@ -322,7 +348,7 @@ export default function DeviceDetail() {
                     </tbody>
                   </table>
                 </div>
-                {software.length > 10 && (
+                {filteredSoftware.length > 10 && (
                   <div className="pagination-controls">
                     <button
                       className="btn-pagination"
@@ -333,13 +359,13 @@ export default function DeviceDetail() {
                     </button>
 
                     <span className="pagination-info">
-                      {softwarePage} / {Math.ceil(software.length / 10)}
+                      {softwarePage} / {Math.ceil(filteredSoftware.length / 10)}
                     </span>
 
                     <button
                       className="btn-pagination"
                       onClick={() => setSoftwarePage(softwarePage + 1)}
-                      disabled={softwarePage >= Math.ceil(software.length / 10)}
+                      disabled={softwarePage >= Math.ceil(filteredSoftware.length / 10)}
                     >
                       &gt;
                     </button>
