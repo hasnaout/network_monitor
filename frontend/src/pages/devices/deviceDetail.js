@@ -459,7 +459,7 @@ export default function DeviceDetail() {
                                   <span style={{ width: `${width}%` }} />
                                 </div>
                               </td>
-                              <td>
+                              <td className="text-center">
                                 {item.last_updated
                                   ? new Date(item.last_updated).toLocaleTimeString('fr-FR', {
                                       hour: '2-digit',
@@ -511,7 +511,7 @@ export default function DeviceDetail() {
                               expandedCommandId === item.id ? null : item.id
                             )}
                           >
-                            <td>
+                            <td className="text-center">
                               {item.created_at
                                 ? new Date(item.created_at).toLocaleTimeString('fr-FR', {
                                     hour: '2-digit',

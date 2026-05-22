@@ -1133,6 +1133,11 @@ tbody tr:hover {
   color: #d1fae5;
 }
 
+/* utility: center text in table cells (used for time columns) */
+.text-center {
+  text-align: center;
+}
+
 .table-panel tbody tr {
   transition: background 0.2s ease;
 }
