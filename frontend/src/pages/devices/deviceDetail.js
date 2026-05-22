@@ -413,7 +413,6 @@ export default function DeviceDetail() {
           <section className="table-panel detail-panel">
             <div className="panel-heading">
               <h3>Utilisation des applications</h3>
-              <span className="panel-count">{formatDuration(totalUsageSeconds)}</span>
             </div>
 
             {appUsageError && <p className="error-feedback detail-feedback">{appUsageError}</p>}
@@ -481,7 +480,6 @@ export default function DeviceDetail() {
           <section className="table-panel detail-panel">
             <div className="panel-heading">
               <h3>Historique des Commandes Distantes</h3>
-              <span className="panel-count">{commandHistory.length}</span>
             </div>
 
             {commandHistoryError && <p className="error-feedback detail-feedback">{commandHistoryError}</p>}
@@ -599,7 +597,6 @@ export default function DeviceDetail() {
                     <>
                       {groupedArray.map((group) => (
                         <div key={group.label} className="alerts-group">
-                          <div className="alerts-group-header">{group.label}</div>
                           <table>
                             <thead>
                               <tr>
