@@ -461,7 +461,10 @@ export default function DeviceDetail() {
                               </td>
                               <td>
                                 {item.last_updated
-                                  ? new Date(item.last_updated).toLocaleString('fr-FR')
+                                  ? new Date(item.last_updated).toLocaleTimeString('fr-FR', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                    })
                                   : "—"}
                               </td>
                             </tr>
@@ -510,7 +513,10 @@ export default function DeviceDetail() {
                           >
                             <td>
                               {item.created_at
-                                ? new Date(item.created_at).toLocaleString('fr-FR')
+                                ? new Date(item.created_at).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
                                 : "—"}
                             </td>
                             <td><code>{item.command}</code></td>
