@@ -18,7 +18,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
                                                                        
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.96,192.168.1.*").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,10.240.43.80,10.240.43.*").split(",")
     if host.strip()
 ]
 
@@ -122,7 +122,7 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://192.168.1.96:3000,http://192.168.1.96:5173",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://10.240.43.80:3000,http://10.240.43.80:5173",
     ).split(",")
     if origin.strip()
 ]
