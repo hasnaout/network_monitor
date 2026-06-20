@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
 --
--- Host: localhost    Database: network_monitor
+-- Host: 127.0.0.1    Database: network_monitor
 -- ------------------------------------------------------
 -- Server version	8.0.45
 
@@ -157,7 +157,7 @@ CREATE TABLE `auth_permission` (
 
 LOCK TABLES `auth_permission` WRITE;
 /*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add content type',4,'add_contenttype'),(14,'Can change content type',4,'change_contenttype'),(15,'Can delete content type',4,'delete_contenttype'),(16,'Can view content type',4,'view_contenttype'),(17,'Can add session',5,'add_session'),(18,'Can change session',5,'change_session'),(19,'Can delete session',5,'delete_session'),(20,'Can view session',5,'view_session'),(21,'Can add device',6,'add_device'),(22,'Can change device',6,'change_device'),(23,'Can delete device',6,'delete_device'),(24,'Can view device',6,'view_device'),(25,'Can add alert',7,'add_alert'),(26,'Can change alert',7,'change_alert'),(27,'Can delete alert',7,'delete_alert'),(28,'Can view alert',7,'view_alert'),(29,'Can add heartbeat',8,'add_heartbeat'),(30,'Can change heartbeat',8,'change_heartbeat'),(31,'Can delete heartbeat',8,'delete_heartbeat'),(32,'Can view heartbeat',8,'view_heartbeat'),(33,'Can add report',9,'add_report'),(34,'Can change report',9,'change_report'),(35,'Can delete report',9,'delete_report'),(36,'Can view report',9,'view_report'),(37,'Can add user',10,'add_user'),(38,'Can change user',10,'change_user'),(39,'Can delete user',10,'delete_user'),(40,'Can view user',10,'view_user'),(41,'Can add user',11,'add_user'),(42,'Can change user',11,'change_user'),(43,'Can delete user',11,'delete_user'),(44,'Can view user',11,'view_user'),(45,'Can add blacklisted token',12,'add_blacklistedtoken'),(46,'Can change blacklisted token',12,'change_blacklistedtoken'),(47,'Can delete blacklisted token',12,'delete_blacklistedtoken'),(48,'Can view blacklisted token',12,'view_blacklistedtoken'),(49,'Can add outstanding token',13,'add_outstandingtoken'),(50,'Can change outstanding token',13,'change_outstandingtoken'),(51,'Can delete outstanding token',13,'delete_outstandingtoken'),(52,'Can view outstanding token',13,'view_outstandingtoken'),(53,'Can add Logiciel installé',14,'add_installedsoftware'),(54,'Can change Logiciel installé',14,'change_installedsoftware'),(55,'Can delete Logiciel installé',14,'delete_installedsoftware'),(56,'Can view Logiciel installé',14,'view_installedsoftware'),(57,'Can add Session d\'application',15,'add_appsession'),(58,'Can change Session d\'application',15,'change_appsession'),(59,'Can delete Session d\'application',15,'delete_appsession'),(60,'Can view Session d\'application',15,'view_appsession'),(61,'Can add Utilisation application',16,'add_appusage'),(62,'Can change Utilisation application',16,'change_appusage'),(63,'Can delete Utilisation application',16,'delete_appusage'),(64,'Can view Utilisation application',16,'view_appusage'),(65,'Can add Commande distante',17,'add_remotecommand'),(66,'Can change Commande distante',17,'change_remotecommand'),(67,'Can delete Commande distante',17,'delete_remotecommand'),(68,'Can view Commande distante',17,'view_remotecommand'),(69,'Can add usb history',20,'add_usbhistory'),(70,'Can change usb history',20,'change_usbhistory'),(71,'Can delete usb history',20,'delete_usbhistory'),(72,'Can view usb history',20,'view_usbhistory'),(73,'Can add usb policy',21,'add_usbpolicy'),(74,'Can change usb policy',21,'change_usbpolicy'),(75,'Can delete usb policy',21,'delete_usbpolicy'),(76,'Can view usb policy',21,'view_usbpolicy'),(77,'Can add usb alert',18,'add_usbalert'),(78,'Can change usb alert',18,'change_usbalert'),(79,'Can delete usb alert',18,'delete_usbalert'),(80,'Can view usb alert',18,'view_usbalert'),(81,'Can add usb device',19,'add_usbdevice'),(82,'Can change usb device',19,'change_usbdevice'),(83,'Can delete usb device',19,'delete_usbdevice'),(84,'Can view usb device',19,'view_usbdevice');
+INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add content type',4,'add_contenttype'),(14,'Can change content type',4,'change_contenttype'),(15,'Can delete content type',4,'delete_contenttype'),(16,'Can view content type',4,'view_contenttype'),(17,'Can add session',5,'add_session'),(18,'Can change session',5,'change_session'),(19,'Can delete session',5,'delete_session'),(20,'Can view session',5,'view_session'),(21,'Can add device',6,'add_device'),(22,'Can change device',6,'change_device'),(23,'Can delete device',6,'delete_device'),(24,'Can view device',6,'view_device'),(25,'Can add alert',7,'add_alert'),(26,'Can change alert',7,'change_alert'),(27,'Can delete alert',7,'delete_alert'),(28,'Can view alert',7,'view_alert'),(29,'Can add heartbeat',8,'add_heartbeat'),(30,'Can change heartbeat',8,'change_heartbeat'),(31,'Can delete heartbeat',8,'delete_heartbeat'),(32,'Can view heartbeat',8,'view_heartbeat'),(33,'Can add report',9,'add_report'),(34,'Can change report',9,'change_report'),(35,'Can delete report',9,'delete_report'),(36,'Can view report',9,'view_report'),(37,'Can add user',10,'add_user'),(38,'Can change user',10,'change_user'),(39,'Can delete user',10,'delete_user'),(40,'Can view user',10,'view_user'),(41,'Can add user',11,'add_user'),(42,'Can change user',11,'change_user'),(43,'Can delete user',11,'delete_user'),(44,'Can view user',11,'view_user'),(45,'Can add blacklisted token',12,'add_blacklistedtoken'),(46,'Can change blacklisted token',12,'change_blacklistedtoken'),(47,'Can delete blacklisted token',12,'delete_blacklistedtoken'),(48,'Can view blacklisted token',12,'view_blacklistedtoken'),(49,'Can add outstanding token',13,'add_outstandingtoken'),(50,'Can change outstanding token',13,'change_outstandingtoken'),(51,'Can delete outstanding token',13,'delete_outstandingtoken'),(52,'Can view outstanding token',13,'view_outstandingtoken'),(53,'Can add Logiciel installé',14,'add_installedsoftware'),(54,'Can change Logiciel installé',14,'change_installedsoftware'),(55,'Can delete Logiciel installé',14,'delete_installedsoftware'),(56,'Can view Logiciel installé',14,'view_installedsoftware'),(61,'Can add Utilisation application',16,'add_appusage'),(62,'Can change Utilisation application',16,'change_appusage'),(63,'Can delete Utilisation application',16,'delete_appusage'),(64,'Can view Utilisation application',16,'view_appusage'),(65,'Can add Commande distante',17,'add_remotecommand'),(66,'Can change Commande distante',17,'change_remotecommand'),(67,'Can delete Commande distante',17,'delete_remotecommand'),(68,'Can view Commande distante',17,'view_remotecommand');
 /*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -303,9 +303,9 @@ CREATE TABLE `django_admin_log` (
   `user_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `django_admin_log_content_type_id_c4bce8eb_fk_django_co` (`content_type_id`),
-  KEY `django_admin_log_user_id_c564eba6_fk_users_user_id` (`user_id`),
+  KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
   CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
-  CONSTRAINT `django_admin_log_user_id_c564eba6_fk_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `users_user` (`id`),
+  CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
   CONSTRAINT `django_admin_log_chk_1` CHECK ((`action_flag` >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -341,7 +341,7 @@ CREATE TABLE `django_content_type` (
 
 LOCK TABLES `django_content_type` WRITE;
 /*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(15,'app_usage','appsession'),(16,'app_usage','appusage'),(3,'auth','group'),(2,'auth','permission'),(11,'auth','user'),(4,'contenttypes','contenttype'),(6,'devices','device'),(7,'monitoring','alert'),(8,'monitoring','heartbeat'),(9,'rapport','report'),(17,'remote_commands','remotecommand'),(14,'server_inventory','installedsoftware'),(5,'sessions','session'),(12,'token_blacklist','blacklistedtoken'),(13,'token_blacklist','outstandingtoken'),(18,'usb_control','usbalert'),(19,'usb_control','usbdevice'),(20,'usb_control','usbhistory'),(21,'usb_control','usbpolicy'),(10,'users','user');
+INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(16,'app_usage','appusage'),(3,'auth','group'),(2,'auth','permission'),(11,'auth','user'),(4,'contenttypes','contenttype'),(6,'devices','device'),(7,'monitoring','alert'),(8,'monitoring','heartbeat'),(17,'remote_commands','remotecommand'),(14,'server_inventory','installedsoftware'),(5,'sessions','session'),(12,'token_blacklist','blacklistedtoken'),(13,'token_blacklist','outstandingtoken');
 /*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -367,7 +367,7 @@ CREATE TABLE `django_migrations` (
 
 LOCK TABLES `django_migrations` WRITE;
 /*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
-INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2026-04-28 11:41:38.375611'),(2,'contenttypes','0002_remove_content_type_name','2026-04-28 11:41:38.452427'),(3,'auth','0001_initial','2026-04-28 11:41:38.716272'),(4,'auth','0002_alter_permission_name_max_length','2026-04-28 11:41:38.771412'),(5,'auth','0003_alter_user_email_max_length','2026-04-28 11:41:38.776406'),(6,'auth','0004_alter_user_username_opts','2026-04-28 11:41:38.781385'),(7,'auth','0005_alter_user_last_login_null','2026-04-28 11:41:38.789403'),(8,'auth','0006_require_contenttypes_0002','2026-04-28 11:41:38.791415'),(9,'auth','0007_alter_validators_add_error_messages','2026-04-28 11:41:38.796643'),(10,'auth','0008_alter_user_username_max_length','2026-04-28 11:41:38.802629'),(11,'auth','0009_alter_user_last_name_max_length','2026-04-28 11:41:38.808652'),(12,'auth','0010_alter_group_name_max_length','2026-04-28 11:41:38.821504'),(13,'auth','0011_update_proxy_permissions','2026-04-28 11:41:38.826925'),(14,'auth','0012_alter_user_first_name_max_length','2026-04-28 11:41:38.831084'),(15,'users','0001_initial','2026-04-28 11:41:39.141905'),(16,'admin','0001_initial','2026-04-28 11:41:39.273388'),(17,'admin','0002_logentry_remove_auto_add','2026-04-28 11:41:39.280413'),(18,'admin','0003_logentry_add_action_flag_choices','2026-04-28 11:41:39.286399'),(19,'devices','0001_initial','2026-04-28 11:41:39.316665'),(20,'monitoring','0001_initial','2026-04-28 11:41:39.460270'),(21,'rapport','0001_initial','2026-04-28 11:41:39.536276'),(22,'sessions','0001_initial','2026-04-28 11:41:39.568753'),(23,'devices','0002_remove_device_location','2026-04-29 07:38:53.385181'),(24,'monitoring','0002_alter_alert_alert_type','2026-04-29 07:38:53.392185'),(25,'token_blacklist','0001_initial','2026-04-29 07:39:28.641735'),(26,'token_blacklist','0002_outstandingtoken_jti_hex','2026-04-29 07:39:34.080278'),(27,'token_blacklist','0003_auto_20171017_2007','2026-04-29 07:39:34.090752'),(28,'token_blacklist','0004_auto_20171017_2013','2026-04-29 07:39:34.150509'),(29,'token_blacklist','0005_remove_outstandingtoken_jti','2026-04-29 07:39:34.199899'),(30,'token_blacklist','0006_auto_20171017_2113','2026-04-29 07:39:34.221299'),(31,'token_blacklist','0007_auto_20171017_2214','2026-04-29 07:39:34.329300'),(32,'token_blacklist','0008_migrate_to_bigautofield','2026-04-29 07:39:34.545575'),(33,'token_blacklist','0010_fix_migrate_to_bigautofield','2026-04-29 07:39:34.555586'),(34,'token_blacklist','0011_linearizes_history','2026-04-29 07:39:34.558573'),(35,'token_blacklist','0012_alter_outstandingtoken_user','2026-04-29 07:39:34.564571'),(38,'token_blacklist','0013_alter_blacklistedtoken_options_and_more','2026-05-04 09:01:49.520047'),(39,'server_inventory','0001_initial','2026-05-07 14:42:19.613876'),(40,'server_inventory','0002_alter_installedsoftware_unique_together_and_more','2026-05-08 10:22:47.232698'),(42,'remote_commands','0001_initial','2026-05-14 07:53:12.784034'),(43,'app_usage','0001_initial','2026-05-15 10:44:11.993755'),(44,'usb_control','0001_initial','2026-05-19 12:44:24.972814'),(45,'usb_control','0002_usbdevice_approval_date_usbdevice_approval_status_and_more','2026-05-20 11:05:29.289249'),(46,'devices','0002_add_current_user','2026-05-20 13:47:53.643232'),(47,'remote_commands','0002_add_shell_field','2026-05-20 19:03:07.753454'),(48,'remote_commands','0003_remotecommand_working_directory','2026-05-20 19:43:46.796461'),(49,'remote_commands','0004_remotecommand_cancel_requested_and_cancelled','2026-05-20 20:06:08.893492'),(50,'remote_commands','0005_remotecommand_install_metadata','2026-05-20 20:13:51.969416'),(51,'remote_commands','0006_remove_software_install_metadata','2026-05-20 21:24:14.683888'),(52,'app_usage','0002_appusage_hour','2026-05-20 22:33:19.255884'),(53,'devices','0003_device_hostname','2026-05-21 08:44:46.393776');
+INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2026-04-28 11:41:38.375611'),(2,'contenttypes','0002_remove_content_type_name','2026-04-28 11:41:38.452427'),(3,'auth','0001_initial','2026-04-28 11:41:38.716272'),(4,'auth','0002_alter_permission_name_max_length','2026-04-28 11:41:38.771412'),(5,'auth','0003_alter_user_email_max_length','2026-04-28 11:41:38.776406'),(6,'auth','0004_alter_user_username_opts','2026-04-28 11:41:38.781385'),(7,'auth','0005_alter_user_last_login_null','2026-04-28 11:41:38.789403'),(8,'auth','0006_require_contenttypes_0002','2026-04-28 11:41:38.791415'),(9,'auth','0007_alter_validators_add_error_messages','2026-04-28 11:41:38.796643'),(10,'auth','0008_alter_user_username_max_length','2026-04-28 11:41:38.802629'),(11,'auth','0009_alter_user_last_name_max_length','2026-04-28 11:41:38.808652'),(12,'auth','0010_alter_group_name_max_length','2026-04-28 11:41:38.821504'),(13,'auth','0011_update_proxy_permissions','2026-04-28 11:41:38.826925'),(14,'auth','0012_alter_user_first_name_max_length','2026-04-28 11:41:38.831084'),(16,'admin','0001_initial','2026-04-28 11:41:39.273388'),(17,'admin','0002_logentry_remove_auto_add','2026-04-28 11:41:39.280413'),(18,'admin','0003_logentry_add_action_flag_choices','2026-04-28 11:41:39.286399'),(19,'devices','0001_initial','2026-04-28 11:41:39.316665'),(20,'monitoring','0001_initial','2026-04-28 11:41:39.460270'),(22,'sessions','0001_initial','2026-04-28 11:41:39.568753'),(23,'devices','0002_remove_device_location','2026-04-29 07:38:53.385181'),(24,'monitoring','0002_alter_alert_alert_type','2026-04-29 07:38:53.392185'),(25,'token_blacklist','0001_initial','2026-04-29 07:39:28.641735'),(26,'token_blacklist','0002_outstandingtoken_jti_hex','2026-04-29 07:39:34.080278'),(27,'token_blacklist','0003_auto_20171017_2007','2026-04-29 07:39:34.090752'),(28,'token_blacklist','0004_auto_20171017_2013','2026-04-29 07:39:34.150509'),(29,'token_blacklist','0005_remove_outstandingtoken_jti','2026-04-29 07:39:34.199899'),(30,'token_blacklist','0006_auto_20171017_2113','2026-04-29 07:39:34.221299'),(31,'token_blacklist','0007_auto_20171017_2214','2026-04-29 07:39:34.329300'),(32,'token_blacklist','0008_migrate_to_bigautofield','2026-04-29 07:39:34.545575'),(33,'token_blacklist','0010_fix_migrate_to_bigautofield','2026-04-29 07:39:34.555586'),(34,'token_blacklist','0011_linearizes_history','2026-04-29 07:39:34.558573'),(35,'token_blacklist','0012_alter_outstandingtoken_user','2026-04-29 07:39:34.564571'),(38,'token_blacklist','0013_alter_blacklistedtoken_options_and_more','2026-05-04 09:01:49.520047'),(39,'server_inventory','0001_initial','2026-05-07 14:42:19.613876'),(40,'server_inventory','0002_alter_installedsoftware_unique_together_and_more','2026-05-08 10:22:47.232698'),(42,'remote_commands','0001_initial','2026-05-14 07:53:12.784034'),(43,'app_usage','0001_initial','2026-05-15 10:44:11.993755'),(46,'devices','0002_add_current_user','2026-05-20 13:47:53.643232'),(47,'remote_commands','0002_add_shell_field','2026-05-20 19:03:07.753454'),(48,'remote_commands','0003_remotecommand_working_directory','2026-05-20 19:43:46.796461'),(49,'remote_commands','0004_remotecommand_cancel_requested_and_cancelled','2026-05-20 20:06:08.893492'),(50,'remote_commands','0005_remotecommand_install_metadata','2026-05-20 20:13:51.969416'),(51,'remote_commands','0006_remove_software_install_metadata','2026-05-20 21:24:14.683888'),(52,'app_usage','0002_appusage_hour','2026-05-20 22:33:19.255884'),(53,'devices','0003_device_hostname','2026-05-21 08:44:46.393776');
 /*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -454,36 +454,6 @@ INSERT INTO `monitoring_heartbeat` VALUES (2,1,'2026-04-29 07:48:58.898466',NULL
 /*!40000 ALTER TABLE `monitoring_heartbeat` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `rapport_report`
---
-
-DROP TABLE IF EXISTS `rapport_report`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `rapport_report` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `date` date NOT NULL,
-  `avg_cpu` double NOT NULL,
-  `avg_ram` double NOT NULL,
-  `avg_latency` double NOT NULL,
-  `uptime_percentage` double NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `device_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `rapport_report_device_id_32ca5137_fk_devices_device_id` (`device_id`),
-  CONSTRAINT `rapport_report_device_id_32ca5137_fk_devices_device_id` FOREIGN KEY (`device_id`) REFERENCES `devices_device` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `rapport_report`
---
-
-LOCK TABLES `rapport_report` WRITE;
-/*!40000 ALTER TABLE `rapport_report` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rapport_report` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `remote_commands_remotecommand`
@@ -609,240 +579,12 @@ INSERT INTO `token_blacklist_outstandingtoken` VALUES (1,'eyJhbGciOiJIUzI1NiIsIn
 /*!40000 ALTER TABLE `token_blacklist_outstandingtoken` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `usb_control_usbalert`
---
 
-DROP TABLE IF EXISTS `usb_control_usbalert`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usb_control_usbalert` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `message` longtext NOT NULL,
-  `severity` varchar(20) NOT NULL,
-  `is_read` tinyint(1) NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `device_id` bigint NOT NULL,
-  `usb_device_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `usb_control_usbalert_device_id_7472f873_fk_devices_device_id` (`device_id`),
-  KEY `usb_control_usbalert_usb_device_id_eb2185ec_fk_usb_contr` (`usb_device_id`),
-  CONSTRAINT `usb_control_usbalert_device_id_7472f873_fk_devices_device_id` FOREIGN KEY (`device_id`) REFERENCES `devices_device` (`id`),
-  CONSTRAINT `usb_control_usbalert_usb_device_id_eb2185ec_fk_usb_contr` FOREIGN KEY (`usb_device_id`) REFERENCES `usb_control_usbdevice` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usb_control_usbalert`
---
 
-LOCK TABLES `usb_control_usbalert` WRITE;
-/*!40000 ALTER TABLE `usb_control_usbalert` DISABLE KEYS */;
-INSERT INTO `usb_control_usbalert` VALUES (1,'New USB device detected: ESD-USB (D:)','medium',0,'2026-05-19 19:42:08.298518',10,1),(2,'New USB device detected: ESD-USB (D:)','medium',0,'2026-05-20 07:19:20.731460',8,2),(3,'USB device rejected by admin: ESD-USB - Reason: hh','medium',0,'2026-05-20 11:26:49.821513',8,2);
-/*!40000 ALTER TABLE `usb_control_usbalert` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Table structure for table `usb_control_usbdevice`
---
 
-DROP TABLE IF EXISTS `usb_control_usbdevice`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usb_control_usbdevice` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `serial_number` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `vendor` varchar(255) NOT NULL,
-  `product` varchar(255) NOT NULL,
-  `size_bytes` bigint DEFAULT NULL,
-  `mount_point` varchar(50) NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `is_trusted` tinyint(1) NOT NULL,
-  `first_detected` datetime(6) NOT NULL,
-  `last_connected` datetime(6) DEFAULT NULL,
-  `last_disconnected` datetime(6) DEFAULT NULL,
-  `device_id` bigint NOT NULL,
-  `approval_date` datetime(6) DEFAULT NULL,
-  `approval_status` varchar(20) NOT NULL,
-  `approved_by` varchar(255) DEFAULT NULL,
-  `rejection_reason` longtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `usb_control_usbdevice_device_id_serial_number_9e9a10f4_uniq` (`device_id`,`serial_number`),
-  CONSTRAINT `usb_control_usbdevice_device_id_942b9908_fk_devices_device_id` FOREIGN KEY (`device_id`) REFERENCES `devices_device` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usb_control_usbdevice`
---
-
-LOCK TABLES `usb_control_usbdevice` WRITE;
-/*!40000 ALTER TABLE `usb_control_usbdevice` DISABLE KEYS */;
-INSERT INTO `usb_control_usbdevice` VALUES (1,'E421BB0C','ESD-USB','Unknown','Disque amovible',7733248000,'D:','connected',1,'2026-05-19 19:42:08.289525','2026-05-19 19:52:02.037292',NULL,10,NULL,'pending',NULL,NULL),(2,'E421BB0C','ESD-USB','Unknown','Disque amovible',7733248000,'D:','disconnected',0,'2026-05-20 07:19:20.728472','2026-05-20 11:27:05.771705','2026-05-20 11:27:22.859865',8,'2026-05-20 11:26:49.813634','rejected','admin','hh');
-/*!40000 ALTER TABLE `usb_control_usbdevice` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `usb_control_usbhistory`
---
-
-DROP TABLE IF EXISTS `usb_control_usbhistory`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usb_control_usbhistory` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `event_type` varchar(30) NOT NULL,
-  `details` json NOT NULL,
-  `user_info` varchar(255) NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `device_id` bigint NOT NULL,
-  `usb_device_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `usb_control_usbhistory_device_id_060d2115_fk_devices_device_id` (`device_id`),
-  KEY `usb_control_usbhisto_usb_device_id_ea67fdbf_fk_usb_contr` (`usb_device_id`),
-  CONSTRAINT `usb_control_usbhisto_usb_device_id_ea67fdbf_fk_usb_contr` FOREIGN KEY (`usb_device_id`) REFERENCES `usb_control_usbdevice` (`id`),
-  CONSTRAINT `usb_control_usbhistory_device_id_060d2115_fk_devices_device_id` FOREIGN KEY (`device_id`) REFERENCES `devices_device` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usb_control_usbhistory`
---
-
-LOCK TABLES `usb_control_usbhistory` WRITE;
-/*!40000 ALTER TABLE `usb_control_usbhistory` DISABLE KEYS */;
-INSERT INTO `usb_control_usbhistory` VALUES (1,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:42:08.292453',10,1),(2,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:42:39.434864',10,1),(3,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:43:11.666995',10,1),(4,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:43:42.863892',10,1),(5,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:44:14.164758',10,1),(6,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:44:45.433705',10,1),(7,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:45:16.414355',10,1),(8,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:45:47.611968',10,1),(9,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:46:19.101332',10,1),(10,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:46:50.214692',10,1),(11,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:47:21.343853',10,1),(12,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:47:52.654533',10,1),(13,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:48:23.773895',10,1),(14,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:48:54.854813',10,1),(15,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:49:25.967888',10,1),(16,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:49:57.214229',10,1),(17,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:50:28.256588',10,1),(18,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:50:59.537023',10,1),(19,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:51:31.055975',10,1),(20,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-19 19:52:02.041978',10,1),(21,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:19:20.730560',8,2),(22,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:19:51.656603',8,2),(23,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:20:22.638160',8,2),(24,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:20:53.513872',8,2),(25,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:21:24.358991',8,2),(26,'disconnected','{}','','2026-05-20 07:26:42.038762',8,2),(27,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:30:47.655892',8,2),(28,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:31:18.458009',8,2),(29,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:31:49.178443',8,2),(30,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:32:19.888415',8,2),(31,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:32:50.590278',8,2),(32,'disconnected','{}','','2026-05-20 07:33:21.230329',8,2),(33,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:34:22.718303',8,2),(34,'disconnected','{}','','2026-05-20 07:34:53.459249',8,2),(35,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 07:36:56.120392',8,2),(36,'disconnected','{}','','2026-05-20 07:37:26.846647',8,2),(37,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:19:30.881654',8,2),(38,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:19:47.260108',8,2),(39,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:20:03.910114',8,2),(40,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:20:20.406864',8,2),(41,'disconnected','{}','','2026-05-20 08:20:37.128567',8,2),(42,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:39:40.303443',8,2),(43,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 08:39:56.865847',8,2),(44,'disconnected','{}','','2026-05-20 08:40:13.275796',8,2),(45,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:31:40.940339',8,2),(46,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:31:57.143365',8,2),(47,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:32:13.618166',8,2),(48,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:32:30.402552',8,2),(49,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:32:47.071941',8,2),(50,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:33:03.499626',8,2),(51,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:33:03.692530',8,2),(52,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:33:19.987298',8,2),(53,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:33:20.529788',8,2),(54,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:39:44.352614',8,2),(55,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:39:44.534979',8,2),(56,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:00.889513',8,2),(57,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:01.472347',8,2),(58,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:17.313337',8,2),(59,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:18.404729',8,2),(60,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:33.904799',8,2),(61,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:40:35.351013',8,2),(62,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:42:04.847967',8,2),(63,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:42:21.033427',8,2),(64,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:42:37.740898',8,2),(65,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:42:56.495423',8,2),(66,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:43:17.788999',8,2),(67,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:43:34.390381',8,2),(68,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:43:51.071863',8,2),(69,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:44:07.603275',8,2),(70,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:44:24.382898',8,2),(71,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:44:41.135654',8,2),(72,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:44:57.555874',8,2),(73,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:45:13.979566',8,2),(74,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:45:30.468233',8,2),(75,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:45:47.052180',8,2),(76,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 09:46:03.443292',8,2),(77,'disconnected','{}','','2026-05-20 09:57:37.201526',8,2),(78,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:44:07.089260',8,2),(79,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:44:09.668182',8,2),(80,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:45:12.499551',8,2),(81,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:45:28.587029',8,2),(82,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:45:44.992127',8,2),(83,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:46:01.463113',8,2),(84,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:46:17.995743',8,2),(85,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:46:34.564525',8,2),(86,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:46:52.182732',8,2),(87,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:47:09.158395',8,2),(88,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:47:25.606936',8,2),(89,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:47:42.206270',8,2),(90,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:47:58.628073',8,2),(91,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:48:16.108490',8,2),(92,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:48:32.563567',8,2),(93,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:48:49.242825',8,2),(94,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:49:05.682347',8,2),(95,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:49:23.143946',8,2),(96,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:49:39.623847',8,2),(97,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:49:56.069592',8,2),(98,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:50:12.424758',8,2),(99,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 10:50:28.855712',8,2),(100,'disconnected','{}','','2026-05-20 11:00:44.575129',8,2),(101,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 11:20:21.102416',8,2),(102,'seen','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Removable Disk\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 11:20:37.709140',8,2),(103,'disconnected','{}','','2026-05-20 11:26:15.248692',8,2),(104,'connected','{\"name\": \"ESD-USB\", \"vendor\": \"Unknown\", \"product\": \"Disque amovible\", \"size_bytes\": 7733248000, \"mount_point\": \"D:\", \"serial_number\": \"E421BB0C\"}','','2026-05-20 11:27:05.775241',8,2),(105,'disconnected','{}','','2026-05-20 11:27:22.865228',8,2);
-/*!40000 ALTER TABLE `usb_control_usbhistory` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `usb_control_usbpolicy`
---
-
-DROP TABLE IF EXISTS `usb_control_usbpolicy`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `usb_control_usbpolicy` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `default_policy` varchar(20) NOT NULL,
-  `allow_unknown_devices` tinyint(1) NOT NULL,
-  `max_device_size_gb` int unsigned DEFAULT NULL,
-  `block_auto_run` tinyint(1) NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `updated_at` datetime(6) NOT NULL,
-  `device_id` bigint NOT NULL,
-  `auto_block_unknown_devices` tinyint(1) NOT NULL,
-  `enable_zero_trust` tinyint(1) NOT NULL,
-  `require_approval_on_connection` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `device_id` (`device_id`),
-  CONSTRAINT `usb_control_usbpolicy_device_id_02580eec_fk_devices_device_id` FOREIGN KEY (`device_id`) REFERENCES `devices_device` (`id`),
-  CONSTRAINT `usb_control_usbpolicy_chk_1` CHECK ((`max_device_size_gb` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usb_control_usbpolicy`
---
-
-LOCK TABLES `usb_control_usbpolicy` WRITE;
-/*!40000 ALTER TABLE `usb_control_usbpolicy` DISABLE KEYS */;
-INSERT INTO `usb_control_usbpolicy` VALUES (1,'monitor',1,NULL,1,'2026-05-19 18:37:28.805793','2026-05-19 18:37:28.805834',9,1,0,1),(2,'monitor',1,NULL,1,'2026-05-19 19:42:08.284382','2026-05-19 19:42:08.284399',10,1,0,1),(3,'allow',1,NULL,1,'2026-05-20 07:15:42.301622','2026-05-20 08:56:28.133532',8,1,0,1),(4,'monitor',1,NULL,1,'2026-05-20 07:16:39.703142','2026-05-20 07:16:39.703170',11,1,0,1),(5,'monitor',1,NULL,1,'2026-05-20 07:32:48.342620','2026-05-20 07:32:48.342662',7,1,0,1);
-/*!40000 ALTER TABLE `usb_control_usbpolicy` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users_user`
---
-
-DROP TABLE IF EXISTS `users_user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users_user` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `password` varchar(128) NOT NULL,
-  `last_login` datetime(6) DEFAULT NULL,
-  `is_superuser` tinyint(1) NOT NULL,
-  `username` varchar(150) NOT NULL,
-  `first_name` varchar(150) NOT NULL,
-  `last_name` varchar(150) NOT NULL,
-  `email` varchar(254) NOT NULL,
-  `is_staff` tinyint(1) NOT NULL,
-  `is_active` tinyint(1) NOT NULL,
-  `date_joined` datetime(6) NOT NULL,
-  `role` varchar(20) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_user`
---
-
-LOCK TABLES `users_user` WRITE;
-/*!40000 ALTER TABLE `users_user` DISABLE KEYS */;
-INSERT INTO `users_user` VALUES (1,'pbkdf2_sha256$1000000$3FbOFAtTzYOHralcoFLAx8$LPEmZ/ur9bNeHLEWZPFe26ldkuG7R1v/+R6gP3eippk=',NULL,1,'admin','','','admin@gmail.com',1,1,'2026-04-28 11:42:01.747403','viewer',NULL);
-/*!40000 ALTER TABLE `users_user` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users_user_groups`
---
-
-DROP TABLE IF EXISTS `users_user_groups`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users_user_groups` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL,
-  `group_id` int NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `users_user_groups_user_id_group_id_b88eab82_uniq` (`user_id`,`group_id`),
-  KEY `users_user_groups_group_id_9afc8d0e_fk_auth_group_id` (`group_id`),
-  CONSTRAINT `users_user_groups_group_id_9afc8d0e_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
-  CONSTRAINT `users_user_groups_user_id_5f6f5a90_fk_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `users_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_user_groups`
---
-
-LOCK TABLES `users_user_groups` WRITE;
-/*!40000 ALTER TABLE `users_user_groups` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_user_groups` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users_user_user_permissions`
---
-
-DROP TABLE IF EXISTS `users_user_user_permissions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users_user_user_permissions` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint NOT NULL,
-  `permission_id` int NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `users_user_user_permissions_user_id_permission_id_43338c45_uniq` (`user_id`,`permission_id`),
-  KEY `users_user_user_perm_permission_id_0b93982e_fk_auth_perm` (`permission_id`),
-  CONSTRAINT `users_user_user_perm_permission_id_0b93982e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
-  CONSTRAINT `users_user_user_permissions_user_id_20aca447_fk_users_user_id` FOREIGN KEY (`user_id`) REFERENCES `users_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users_user_user_permissions`
---
-
-LOCK TABLES `users_user_user_permissions` WRITE;
-/*!40000 ALTER TABLE `users_user_user_permissions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users_user_user_permissions` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -853,4 +595,5 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-15 14:20:20
+-- Dump completed on 2026-06-20 11:31:15
+

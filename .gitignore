@@ -26,4 +26,3 @@ __pycache__/
 *.pyo
 agent/dist/
 agent/build/
-backup.sql
