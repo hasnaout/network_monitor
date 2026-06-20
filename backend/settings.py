@@ -18,7 +18,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
                                                                        
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.2.109,10.240.43.*").split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,192.168.1.10").split(",")
     if host.strip()
 ]
 
@@ -46,8 +46,8 @@ INSTALLED_APPS = [
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
-    "http://192.168.2.109",
-    "http://192.168.2.109:8001",
+    "http://192.168.1.10",
+    "http://192.168.1.10:8001",
     "http://localhost",
     "http://localhost:3000",
     "http://127.0.0.1",
@@ -129,7 +129,7 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://192.168.2.109:3000,http://192.168.2.109:5173",
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://192.168.1.10:3000,http://192.168.1.10:5173,http://192.168.1.10",
     ).split(",")
     if origin.strip()
 ]

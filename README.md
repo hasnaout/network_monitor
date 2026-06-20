@@ -24,7 +24,7 @@
 └─────────────────────────────────────────────────┘
 
 Agent Windows (hors Docker — déployé sur les postes)
-  NetworkAgent.exe → POST http://192.168.2.109:8001/api/
+  NetworkAgent.exe → POST http://192.168.1.10:8001/api/
 ```
 
 ## Prérequis
@@ -85,7 +85,7 @@ via le réseau local. Mettre à jour `agent.config.json` :
 
 ```json
 {
-  "server_url": "http://<IP_SERVEUR_DOCKER>:8001",
+  "server_url": "http://192.168.1.10:8001",
   "AGENT_TOKEN": "<même valeur que AGENT_TOKEN dans .env>"
 }
 ```
