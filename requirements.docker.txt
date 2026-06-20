@@ -1,0 +1,18 @@
+# ============================================================
+#  NOVOS — requirements.docker.txt
+#  Dépendances backend pour Docker (Linux)
+#  pywin32, pyinstaller exclus — Windows uniquement (agent)
+# ============================================================
+
+asgiref==3.11.1
+channels-redis==4.2.1
+Django==5.2.13
+django-cors-headers==4.7.0
+djangorestframework==3.16.0
+djangorestframework-simplejwt==5.5.0
+python-dotenv==1.1.1
+mysqlclient==2.2.8
+sqlparse==0.5.5
+tzdata==2026.1
+daphne
+channels

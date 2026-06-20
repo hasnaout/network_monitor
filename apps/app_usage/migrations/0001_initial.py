@@ -1,0 +1,34 @@
+                                                
+
+import django.db.models.deletion
+import django.utils.timezone
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        ('devices', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='AppUsage',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('app_name', models.CharField(max_length=255, verbose_name='Application')),
+                ('date', models.DateField(default=django.utils.timezone.localdate, verbose_name='Date')),
+                ('duration_seconds', models.PositiveIntegerField(default=0, verbose_name='Durée (s)')),
+                ('last_updated', models.DateTimeField(auto_now=True)),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='app_usages', to='devices.device')),
+            ],
+            options={
+                'verbose_name': 'Utilisation application',
+                'verbose_name_plural': 'Utilisations applications',
+                'ordering': ['-date', '-duration_seconds'],
+                'unique_together': {('device', 'app_name', 'date')},
+            },
+        ),
+    ]

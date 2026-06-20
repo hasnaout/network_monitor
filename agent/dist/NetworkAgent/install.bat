@@ -1,0 +1,196 @@
+@echo off
+setlocal
+
+NET SESSION >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo [INFO] Elevation des privileges administrateur via UAC...
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -WorkingDirectory '%~dp0' -Verb RunAs"
+    exit /b 0
+)
+
+set SERVICE_NAME=NetworkAgent
+set TRACKER_RUN_NAME=NetworkAgentAppTracker
+set SOURCE_DIR=%~dp0
+set INSTALL_DIR=%ProgramFiles%\NetworkAgent
+set EXE_PATH=%INSTALL_DIR%\NetworkAgent.exe
+set SOURCE_EXE=%SOURCE_DIR%NetworkAgent.exe
+set INSTALL_LOG=%INSTALL_DIR%\install_service.log
+
+echo [1/7] Preparation du dossier d'installation...
+if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de creer le dossier "%INSTALL_DIR%".
+    pause
+    exit /b 1
+)
+
+echo [2/7] Copie des fichiers...
+if not exist "%SOURCE_EXE%" (
+    echo [ERREUR] Fichier introuvable: "%SOURCE_EXE%"
+    echo.
+    echo Ce script doit etre lance depuis le dossier du paquet client.
+    echo Ce dossier doit contenir NetworkAgent.exe.
+    echo.
+    echo Solution:
+    echo 1. Lancez agent\build_agent.bat sur le poste de build.
+    echo 2. Ouvrez agent\dist\NetworkAgent.
+    echo 3. Lancez install.bat en tant qu'Administrateur.
+    pause
+    exit /b 1
+)
+
+copy /Y "%SOURCE_EXE%" "%INSTALL_DIR%\" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier NetworkAgent.exe.
+    pause
+    exit /b 1
+)
+
+if exist "%SOURCE_DIR%_internal" (
+    dir /B "%SOURCE_DIR%_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Paquet incomplet: python*.dll est absent de "%SOURCE_DIR%_internal".
+        echo Reconstruisez le paquet avec agent\build_agent.bat puis relancez l'installation.
+        pause
+        exit /b 1
+    )
+    if exist "%INSTALL_DIR%\_internal" rmdir /S /Q "%INSTALL_DIR%\_internal"
+    xcopy "%SOURCE_DIR%_internal" "%INSTALL_DIR%\_internal\" /E /I /Y >nul
+    if %ERRORLEVEL% GTR 1 (
+        echo [ERREUR] Impossible de copier le dossier _internal.
+        pause
+        exit /b 1
+    )
+    dir /B "%INSTALL_DIR%\_internal\python*.dll" >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Copie incomplete: python*.dll est absent de "%INSTALL_DIR%\_internal".
+        pause
+        exit /b 1
+    )
+)
+
+if not exist "%SOURCE_DIR%_internal" (
+    echo [ERREUR] Dossier introuvable: "%SOURCE_DIR%_internal"
+    echo Ce dossier est obligatoire pour un paquet PyInstaller onedir.
+    pause
+    exit /b 1
+)
+
+if not exist "%SOURCE_DIR%agent.config.json" (
+    echo [ERREUR] Fichier introuvable: "%SOURCE_DIR%agent.config.json"
+    pause
+    exit /b 1
+)
+copy /Y "%SOURCE_DIR%agent.config.json" "%INSTALL_DIR%\" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de copier agent.config.json.
+    pause
+    exit /b 1
+)
+
+if exist "%SOURCE_DIR%uninstall.bat" (
+    copy /Y "%SOURCE_DIR%uninstall.bat" "%INSTALL_DIR%\" >nul
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Impossible de copier uninstall.bat.
+        pause
+        exit /b 1
+    )
+)
+
+echo [3/7] Arret d'une ancienne instance si elle existe...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter 'name=''NetworkAgent.exe''' | Where-Object { $_.CommandLine -like '* apptracker*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }" >nul 2>&1
+sc query %SERVICE_NAME% >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    sc stop %SERVICE_NAME% >nul 2>&1
+    timeout /t 2 /nobreak >nul
+    sc delete %SERVICE_NAME% >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERREUR] Impossible de supprimer l'ancien service.
+        pause
+        exit /b 1
+    )
+    for /L %%i in (1,1,10) do (
+        sc query %SERVICE_NAME% >nul 2>&1
+        if ERRORLEVEL 1 goto SERVICE_DELETED
+        timeout /t 1 /nobreak >nul
+    )
+    echo [ERREUR] L'ancien service est toujours present apres suppression.
+    echo Fermez services.msc si ouvert, puis relancez l'installation.
+    pause
+    exit /b 1
+)
+
+:SERVICE_DELETED
+echo [4/7] Installation du service Windows...
+"%EXE_PATH%" install > "%INSTALL_LOG%" 2>&1
+if errorlevel 1 (
+    echo [INFO] Installation via NetworkAgent.exe install echouee.
+    echo [INFO] Tentative d'installation directe via sc create...
+    sc create %SERVICE_NAME% binPath= "\"%EXE_PATH%\"" DisplayName= "Network Monitoring Agent" start= auto
+    if errorlevel 1 (
+        echo [ERREUR] L'installation du service Windows a echoue.
+        echo Verifiez que ce script est lance en Administrateur.
+        echo Verifiez aussi le fichier: "%EXE_PATH%"
+        echo Journal detaille: "%INSTALL_LOG%"
+        pause
+        exit /b 1
+    )
+)
+
+sc query %SERVICE_NAME% >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Le service "%SERVICE_NAME%" n'existe toujours pas apres l'installation.
+    echo La commande "%EXE_PATH% install" n'a pas cree le service.
+    pause
+    exit /b 1
+)
+
+echo [5/7] Configuration du demarrage automatique...
+sc config %SERVICE_NAME% start= auto
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de configurer le demarrage automatique.
+    pause
+    exit /b 1
+)
+
+sc description %SERVICE_NAME% "Agent leger de supervision reseau" >nul
+if %ERRORLEVEL% NEQ 0 (
+    
+    echo [ERREUR] Impossible de configurer la description du service.
+    pause
+    exit /b 1
+)
+
+echo [6/7] Demarrage du service...
+sc start %SERVICE_NAME%
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de demarrer le service.
+    echo Cette operation requiert des privileges administrateur.
+    echo Si vous avez lance ce script avec un compte standard, relancez-le dans une console Administrateur.
+    echo Consultez les logs Windows et "%INSTALL_DIR%\agent.log".
+    pause
+    exit /b 1
+)
+
+echo [7/7] Demarrage du tracker applicatif interactif...
+reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v "%TRACKER_RUN_NAME%" /t REG_SZ /d "\"%EXE_PATH%\" apptracker" /f >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de configurer le demarrage automatique du tracker applicatif.
+    pause
+    exit /b 1
+)
+
+start "" "%EXE_PATH%" apptracker
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERREUR] Impossible de lancer le tracker applicatif interactif.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [OK] Service "%SERVICE_NAME%" installe et demarre.
+echo      Tracker applicatif interactif "%TRACKER_RUN_NAME%" lance pour la session utilisateur.
+echo      Il se lancera automatiquement a chaque ouverture de session Windows.
+echo      Dossier: "%INSTALL_DIR%"
+echo      Configuration: "%INSTALL_DIR%\agent.config.json"
+pause

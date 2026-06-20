@@ -1,0 +1,39 @@
+from rest_framework import serializers
+from .models import AppUsage
+
+
+class AppUsageItemSerializer(serializers.Serializer):
+    
+    app_name         = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    process_name     = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    duration_seconds = serializers.IntegerField(min_value=0)
+    date             = serializers.DateField()
+    hour             = serializers.IntegerField(min_value=0, max_value=23, required=False, default=0)
+    last_active      = serializers.DateTimeField(required=False)
+
+    def validate(self, attrs):
+        process_name = (attrs.get("process_name") or attrs.get("app_name") or "").strip()
+        if not process_name:
+            raise serializers.ValidationError("app_name ou process_name est requis.")
+        attrs["process_name"] = process_name
+        attrs["app_name"] = attrs.get("app_name") or process_name
+        return attrs
+
+
+class AppUsagePayloadSerializer(serializers.Serializer):
+    
+    mac_address = serializers.CharField(max_length=64)
+    hostname    = serializers.CharField(max_length=255)
+    usages      = AppUsageItemSerializer(many=True)
+
+
+class AppUsageReadSerializer(serializers.ModelSerializer):
+    
+    duration_minutes = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = AppUsage
+        fields = ["id", "app_name", "date", "hour", "duration_seconds", "duration_minutes", "last_updated"]
+
+    def get_duration_minutes(self, obj):
+        return round(obj.duration_seconds / 60, 1)

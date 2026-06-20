@@ -1,0 +1,50 @@
+# ============================================================
+#  NOVOS — .dockerignore
+#  Fichiers exclus du contexte de build Docker
+# ============================================================
+
+# Git
+.git
+.gitignore
+
+# Environnement Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Node.js
+frontend/node_modules/
+frontend/.cache/
+
+# Build React
+frontend/build/
+
+# Variables d'environnement (ne jamais envoyer au build)
+.env
+*.env
+
+# Agent Windows (non dockerisé)
+agent/dist/
+agent/__pycache__/
+agent/*.pyc
+agent/*.exe
+
+# Logs
+*.log
+logs/
+
+# Base de données locale
+*.sqlite3
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Tests
+.coverage
+htmlcov/

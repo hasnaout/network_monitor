@@ -1,0 +1,141 @@
+import logging
+from secrets import compare_digest
+from django.utils import timezone
+from django.db.models import F, Max, Sum
+from django.utils.dateparse import parse_date
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from django.conf import settings
+
+from apps.devices.models import Device
+from .models import AppUsage
+from .serializers import AppUsagePayloadSerializer, AppUsageReadSerializer
+
+logger = logging.getLogger(__name__)
+
+
+def _is_valid_app_usage_name(value):
+    value = (value or "").strip()
+    return bool(value) and value.lower() not in {"unknown", "idle", "system"}
+
+
+class AppUsageIngestView(APIView):
+    permission_classes = [AllowAny]
+    
+
+    def post(self, request):
+        agent_token = getattr(settings, "AGENT_TOKEN", "").strip()
+        received_token = request.headers.get("X-Agent-Token", "")
+        if not agent_token:
+            return Response(
+                {"error": "Token agent non configure cote serveur"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        if not compare_digest(received_token, agent_token):
+            return Response({"error": "Token agent invalide"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = AppUsagePayloadSerializer(data=request.data)
+        if not serializer.is_valid():
+            logger.warning("Payload AppUsage invalide : %s", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data    = serializer.validated_data
+        mac     = data["mac_address"]
+        usages  = data["usages"]
+
+        try:
+            device = Device.objects.get(mac_address=mac)
+        except Device.DoesNotExist:
+            logger.warning("AppUsage reçu pour MAC inconnue : %s", mac)
+            return Response(
+                {"detail": "Device non trouvé. Heartbeat requis d'abord."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        created_count  = 0
+        updated_count  = 0
+
+        for item in usages:
+            app_name = item.get("app_name") or item.get("process_name")
+            if not _is_valid_app_usage_name(app_name):
+                logger.debug("AppUsage ignoré: application invalide (%s)", app_name)
+                continue
+
+            if item["duration_seconds"] == 0:
+                continue                                   
+
+            obj, created = AppUsage.objects.get_or_create(
+                device   = device,
+                app_name = app_name,
+                date     = item["date"],
+                hour     = item.get("hour", 0),
+                defaults = {"duration_seconds": item["duration_seconds"]},
+            )
+
+            if not created:
+                                                
+                obj.duration_seconds = F("duration_seconds") + item["duration_seconds"]
+                obj.save(update_fields=["duration_seconds", "last_updated"])
+                updated_count += 1
+            else:
+                created_count += 1
+
+        logger.info(
+            "AppUsage %s : %d créés, %d incrémentés sur %d entrées",
+            mac, created_count, updated_count, len(usages),
+        )
+        return Response({
+            "status":  "ok",
+            "created": created_count,
+            "updated": updated_count,
+        }, status=status.HTTP_200_OK)
+
+
+class AppUsageListView(APIView):
+    
+
+    def get(self, request):
+        mac  = request.query_params.get("mac_address")
+        date_param = request.query_params.get("date", str(timezone.localdate()))
+        selected_date = parse_date(date_param)
+
+        if not mac:
+            return Response({"detail": "Paramètre mac_address requis."}, status=400)
+        if not selected_date:
+            return Response({"detail": "Paramètre date invalide. Format attendu: YYYY-MM-DD."}, status=400)
+
+        try:
+            device = Device.objects.get(mac_address=mac)
+        except Device.DoesNotExist:
+            return Response({"detail": "Device non trouvé."}, status=404)
+
+        usages = AppUsage.objects.filter(device=device, date=selected_date).exclude(
+            app_name__iexact="unknown",
+        ).exclude(
+            app_name__iexact="idle",
+        ).exclude(
+            app_name__iexact="system",
+        ).order_by("hour", "-duration_seconds")
+        app_totals = usages.values("app_name").annotate(
+            duration_seconds=Sum("duration_seconds"),
+            last_updated=Max("last_updated"),
+        ).order_by("-duration_seconds", "app_name")
+
+        serializer = AppUsageReadSerializer(usages, many=True)
+        return Response({
+            "mac_address": mac,
+            "date":        selected_date.isoformat(),
+            "count":       usages.count(),
+            "usages":      serializer.data,
+            "app_totals": [
+                {
+                    "id": item["app_name"],
+                    "app_name": item["app_name"],
+                    "duration_seconds": item["duration_seconds"] or 0,
+                    "last_updated": item["last_updated"],
+                }
+                for item in app_totals
+            ],
+        })

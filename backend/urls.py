@@ -1,0 +1,23 @@
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from apps.devices.views import DeviceViewSet
+from apps.monitoring.views import HeartbeatViewSet, AlertViewSet
+
+router = DefaultRouter()
+router.register(r'devices', DeviceViewSet, basename='device')
+router.register(r'heartbeat', HeartbeatViewSet, basename='heartbeat')
+router.register(r'alerts', AlertViewSet, basename='alert')
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+
+    path('api/token/', TokenObtainPairView.as_view()),
+    path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/inventory/', include('apps.server_inventory.urls')),
+    path('api/', include(router.urls)),
+    path("api/usage/", include("apps.app_usage.urls")),
+    path("api/commands/", include("apps.remote_commands.urls")),
+]
+
